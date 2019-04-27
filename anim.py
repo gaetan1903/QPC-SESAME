@@ -1,15 +1,17 @@
-from tkinter import * 
-from threading import Thread
-import sys
-import test 
 from PyQt5.QtCore import (Qt, QSize,QByteArray, pyqtSlot, pyqtSignal, QThread)
 from PyQt5.QtGui import (QMovie)
 from PyQt5.QtWidgets import (QApplication, QWidget,QSizePolicy,QVBoxLayout, QPushButton, QLabel, QGridLayout)
 
+import threading
+import time
+import sys
+
+
+
 class ImagePlayer(QWidget):
     def __init__(self, filename, parent=None):
         QWidget.__init__(self, parent)
-        
+
         # Load the file into a QMovie
         self.movie = QMovie(filename, QByteArray(), self)
 
@@ -34,55 +36,36 @@ class ImagePlayer(QWidget):
         self.movie_screen.setMovie(self.movie)
         self.movie.start()
 
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            app.quit()
-        elif event.button() == Qt.RightButton:
-            app.quit()
-        elif event.button() == Qt.MidButton:
-            app.hide()
+            thread_1.app.quit()
+        
 
-
-class Interface():
-    def __init__(self):
-        self.root = Tk()
-        self.root.title('QPC SESAME')
-        self.root.mainloop()
     
-
-
-
-class Fenetre():
+class Launch(threading.Thread):
     def __init__(self):
-        Thread.__init__(self)
-
-    def run(self):
-        print('hello')
-        print('world')
-
-        fen = Interface()
-
-class Intro():
-    def __init__(self):
-        Thread.__init__(self)
+        threading.Thread.__init__(self)
 
 
     def run(self):
+        self.app = QApplication(sys.argv)
         gif = "load.gif"
-        app = QApplication(sys.argv)
         player = ImagePlayer(gif)
         player.show()
-        sys.exit(app.exec_())   
+        sys.exit(self.app.exec_()) 
 
 
-if __name__ =='__main__':
-    thread1 = Intro()
-    thread2 = Fenetre()
-    
-    thread1.start()
-    thread2.start()
-    
-    thread1.join()
-    thread2.join()
-    
-    
+
+        
+
+
+
+thread_1 = Launch()
+
+thread_1.start()
+
+time.sleep(5)
+thread_1.app.quit()
+
+ 
