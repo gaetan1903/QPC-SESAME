@@ -1,5 +1,5 @@
 from tkinter import * 
-import threading 
+import threading, time
 
 
 
@@ -7,16 +7,12 @@ class Interface():
     def __init__(self):
         self.root = Tk()
         self.root.title('QPC SESAME')
-        self.root.mainloop()
+        self.root.geometry('1200x600')
+
     
+    def __final__(self):
+        self.root.mainloop()
 
-
-class Fenetre(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        fen = Interface()
 
 class Intro(threading.Thread):
     def __init__(self):
@@ -24,17 +20,22 @@ class Intro(threading.Thread):
 
 
     def run(self):
-        import anim  
+        self.etat = True
+        import anim
+        self.etat = False  
+
 
 
 if __name__ =='__main__':
     thread1 = Intro()
-    thread2 = Fenetre()
-    
     thread1.start()
-    thread2.start()
+    time.sleep(2)
+
+    while thread1.etat: # J'attend que le thread s'arrete
+        time.sleep(0.1)    
     
-    thread1.join()
-    thread2.join()
-    
+    print('hello guys')
+
+    fen = Interface()
+    fen.__final__()
     
