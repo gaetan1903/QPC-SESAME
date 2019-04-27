@@ -6,11 +6,10 @@ from PyQt5.QtGui import (QMovie)
 from PyQt5.QtWidgets import (QApplication, QWidget,QSizePolicy,QVBoxLayout, QPushButton, QLabel, QGridLayout)
 
 import threading
-import time
-import sys
-import Interface
+import time, sys, pygame, Interface
 
-verification = False
+pygame.init()
+verif = True
 
 class ImagePlayer(QWidget):
     def __init__(self, filename, parent=None):
@@ -44,9 +43,27 @@ class ImagePlayer(QWidget):
 
     def mousePressEvent(self, event):  #  fonction d evenement de touche de souris 
         if event.button() == Qt.LeftButton:  #  si  l evenement du click est click gauche
-            
-            thread_1.app.quit()   #  arrete l application 
+            pygame.mixer.stop()
+            global verif 
+            verif = False
         
+class Sound(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.son = pygame.mixer.Sound("animation.wav")
+
+
+    def run(self):
+        self.son.play()
+
+    def stop(self):
+        # raise ValueError('...')
+        return False
+
+    
+    
+
+
 
     
 class Launch(threading.Thread):
@@ -65,10 +82,17 @@ class Launch(threading.Thread):
 
         
 thread_1 = Launch()
-
+thread_2 = Sound()
 thread_1.start()
+thread_2.start()
 
-time.sleep(20)
+temps0 = time.time()
+temps1 = time.time()
+
+while ((temps1 - temps0 < 20) and (verif)):
+    time.sleep(0.1)
+    temps1 = time.time()
+
 thread_1.app.quit()
 
  
