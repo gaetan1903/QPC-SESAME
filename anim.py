@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QMovie)
 from PyQt5.QtWidgets import (QApplication, QWidget,QSizePolicy,QVBoxLayout, QPushButton, QLabel, QGridLayout)
 
 import threading
-import time, sys, pygame, Interface
+import time, sys, pygame
 
 pygame.init()
 verif = True
@@ -20,7 +20,7 @@ class ImagePlayer(QWidget):
 
         size = self.movie.scaledSize()
         self.setGeometry(600, 340, size.width(), size.height())
-        self.move(350, 125)
+        self.move(400, 150)
         self.setWindowTitle("QPC SESAME")
 
         self.movie_screen = QLabel()
@@ -56,15 +56,7 @@ class Sound(threading.Thread):
     def run(self):
         self.son.play()
 
-    def stop(self):
-        # raise ValueError('...')
-        return False
-
     
-    
-
-
-
     
 class Launch(threading.Thread):
     def __init__(self):
@@ -79,8 +71,7 @@ class Launch(threading.Thread):
         sys.exit(self.app.exec_()) 
 
 
-
-        
+      
 thread_1 = Launch()
 thread_2 = Sound()
 thread_1.start()
@@ -94,5 +85,3 @@ while ((temps1 - temps0 < 20) and (verif)):
     temps1 = time.time()
 
 thread_1.app.quit()
-
- 
