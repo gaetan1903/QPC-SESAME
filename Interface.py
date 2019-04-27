@@ -55,19 +55,19 @@ class Interface():
 
         self.footer.create_text(1120, 25, text = '© Copyright Juin 2019', activefill = 'yellow')
         self.footer.create_text(115, 25, text = '♣ Licence Libre && Open Source', activefill = 'yellow')
-        self.footer.create_text(625, 25, text = '☻  ambatoroka.f-society@gmail.com', activefill = 'yellow')
+        self.footer.create_text(620, 25, text = '☻  ambatoroka.f-society@gmail.com', activefill = 'yellow')
 
         self.offlineButton = Button(self.root, bd =0,  image = self.offline)
         self.offlineButton.place(relx = 0.03, rely = 0.25)
-        self.offlineLabel = Label(self.root, text = 'HORS LIGNE', activeforeground = 'yellow', font = self.helv32).place(relx = 0.035, rely = 0.7)
+        self.offlineLabel = Label(self.root, text = 'HORS LIGNE', fg = '#032f62', font = self.helv32).place(relx = 0.035, rely = 0.7)
 
         self.poussoirButton = Button(self.root, bd = 0, image = self.poussoir)
-        self.poussoirButton.place(relx = 0.4, rely = 0.25)
-        self.poussoirLabel = Label(self.root, text = 'POUSSOIR', activeforeground = 'yellow', font = self.helv32).place(relx = 0.4, rely = 0.7)
+        self.poussoirButton.place(relx = 0.41, rely = 0.25)
+        self.poussoirLabel = Label(self.root, text = 'POUSSOIR', fg = '#032f62', font = self.helv32).place(relx = 0.41, rely = 0.7)
 
         self.reseauButton = Button(self.root, bd = 0, image = self.reseau)
         self.reseauButton.place(relx = 0.75, rely = 0.25)
-        self.reseauLabel = Label(self.root, text = 'EN RESEAU', activeforeground = 'yellow', font = self.helv32).place(relx = 0.755, rely = 0.7)
+        self.reseauLabel = Label(self.root, text = 'EN RESEAU', fg = '#032f62', font = self.helv32).place(relx = 0.755, rely = 0.7)
 
 
     
