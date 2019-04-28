@@ -4,6 +4,7 @@
 from tkinter import * 
 import threading, time
 import tkinter.font as tkFont
+import tkinter.messagebox as tkmsg
 
 
 class Intro(threading.Thread):
@@ -26,6 +27,7 @@ class Interface():
         self.root.resizable(width=False, height=False)  #  empecher le redimensionnement
 
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
+        self.helv36 = tkFont.Font(family='Helvetica', size=36, underline = 1, weight='bold', slant = 'italic')
 
         self.offline0 = PhotoImage(file='offline.png')
         self.poussoir0 = PhotoImage(file='poussoir.png')
@@ -33,6 +35,7 @@ class Interface():
         self.esti0 = PhotoImage(file='esti.png')
         self.sesame0 = PhotoImage(file='sesame.png')
         self.reseau0 = PhotoImage(file='reseau.png')
+        self.projet0 = PhotoImage(file='projet.png')
          
 
     def __corps__(self):
@@ -57,24 +60,140 @@ class Interface():
         self.footer.create_text(115, 25, text = '♣ Licence Libre && Open Source', activefill = 'yellow')
         self.footer.create_text(620, 25, text = '☻  ambatoroka.f-society@gmail.com', activefill = 'yellow')
 
-        self.offlineButton = Button(self.root, bd =0,  image = self.offline)
-        self.offlineButton.place(relx = 0.03, rely = 0.25)
-        self.offlineLabel = Label(self.root, text = 'HORS LIGNE', fg = '#032f62', font = self.helv32).place(relx = 0.035, rely = 0.7)
+        self.ModeJeuLabel = Label(self.root, text = 'MODE DE JEU', fg ='#032f62', activeforeground = 'yellow', font = self.helv36).place(relx = 0.36, rely = 0.13)
 
-        self.poussoirButton = Button(self.root, bd = 0, image = self.poussoir)
-        self.poussoirButton.place(relx = 0.41, rely = 0.25)
-        self.poussoirLabel = Label(self.root, text = 'POUSSOIR', fg = '#032f62', font = self.helv32).place(relx = 0.41, rely = 0.7)
+        self.offlineButton = Button(self.root, bd =0,  image = self.offline, command = self.offlineCommand)
+        self.offlineButton.place(relx = 0.03, rely = 0.3)
+        self.offlineLabel = Label(self.root, text = 'HORS LIGNE', fg = '#032f62', font = self.helv32).place(relx = 0.035, rely = 0.75)
 
-        self.reseauButton = Button(self.root, bd = 0, image = self.reseau)
-        self.reseauButton.place(relx = 0.75, rely = 0.25)
-        self.reseauLabel = Label(self.root, text = 'EN RESEAU', fg = '#032f62', font = self.helv32).place(relx = 0.755, rely = 0.7)
+        self.poussoirButton = Button(self.root, bd = 0, image = self.poussoir, command = self.poussoirCommand)
+        self.poussoirButton.place(relx = 0.41, rely = 0.3)
+        self.poussoirLabel = Label(self.root, text = 'POUSSOIR', fg = '#032f62', font = self.helv32).place(relx = 0.41, rely = 0.75)
 
+        self.reseauButton = Button(self.root, bd = 0, image = self.reseau, command = self.reseauCommand)
+        self.reseauButton.place(relx = 0.75, rely = 0.3)
+        self.reseauLabel = Label(self.root, text = 'EN RESEAU', fg = '#032f62', font = self.helv32).place(relx = 0.755, rely = 0.75)
+
+
+    def offlineCommand(self):
+        fen_f1 = Toplevel(self.root)
+        fen_f1.title('QPC SESAME')
+        fen_f1.geometry('400x100')
+        self.projet = self.projet0.subsample(6, 6)
+        projetImage = Label(fen_f1, image = self.projet).place(relx = 0.39, rely = 0.10)
+
+        newButton = Button(fen_f1, text = 'Nouveau Projet', activeforeground ='teal')
+        newButton.place(relx = 0.05, rely = 0.45)
+        openButton = Button(fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62').place(relx = 0.65, rely = 0.45)
+        fen_f1.mainloop()
+
+        """
+        fen.root.withdraw()
+        fen1 = InterOflline()
+        fen1.menuTop()
+        fen1.__corps__()
+        fen1.__final__()
+        """
 
     
+    def poussoirCommand(self):
+        fen.root.destroy()
+        fen2 = InterPoussoir()
+        fen2.menuTop()
+        fen2.__final__()
+
+    
+    def reseauCommand(self):
+        fen.root.destroy()
+        fen3 = InterReseau()
+        fen3.__final__()
+    
+
     def __final__(self):
         self.root.mainloop()  #  lancement de la fenetre
 
-        
+
+
+class InterOflline():
+    def __init__(self):
+        self.root = Tk()  #  creation de ma fenetre
+        self.root.title('QPC SESAME: MODE HORS LIGNE')
+        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
+        self.root.resizable(width=False, height=False)
+
+        self.backImage0 = PhotoImage(file='retour.png')
+
+
+    def menuTop(self):
+        self.menubutton = Menu(self.root)
+        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
+        self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
+        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
+        self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
+        self.root.config(menu = self.menubutton)
+
+
+    def __corps__(self):
+        self.nav = Canvas(self.root, bg = '#032f62', width = 1200, height = 43, bd = 0).place(relx = - 0.001, rely = - 0.015)
+        self.backImage = self.backImage0.subsample(8,8)
+        self.backbutton = Button(self.root, text = 'RETOUR', bd = 0, bg = 'grey', command = self.retour).place(relx = 0.93, rely = 0.004)
+
+    def retour(self):
+        fen.root.deiconify()
+        self.root.destroy()
+
+
+    def confirmQuitter(self):
+        self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
+        if self.fermer == "yes":
+            self.root.destroy()
+
+
+    def __final__(self):
+        self.root.mainloop()
+
+
+class InterPoussoir():
+    def __init__(self):
+        self.root = Tk()  #  creation de ma fenetre
+        self.root.title('QPC SESAME: MODE POUSSOIR')
+        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
+        self.root.resizable(width=False, height=False)
+
+
+    def menuTop(self):
+        self.menubutton = Menu(self.root)
+        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
+        self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
+        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
+        self.sous_menubutton_1.add_command(label ="Quitter", command = self.ConfirmeQuitter)
+        self.root.config(menu = self.menubutton)
+
+
+    def confirmQuitter(self):
+        self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
+        if self.fermer == "yes":
+            self.root.quit()
+
+
+
+    def __final__(self):
+        self.root.mainloop()
+
+
+
+class InterReseau():
+    def __init__(self):
+        self.root = Tk()  #  creation de ma fenetre
+        self.root.title('Question Pour un Champion SESAME')
+        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
+        self.root.resizable(width=False, height=False)
+
+
+    def __final__(self):
+        self.root.mainloop()
+
+
 
 if __name__ == '__main__':
     
