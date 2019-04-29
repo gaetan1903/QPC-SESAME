@@ -36,6 +36,8 @@ class Interface():
         self.sesame0 = PhotoImage(file='sesame.png')
         self.reseau0 = PhotoImage(file='reseau.png')
         self.projet0 = PhotoImage(file='projet.png')
+
+        self.count = 0
          
 
     def __corps__(self):
@@ -76,16 +78,18 @@ class Interface():
 
 
     def offlineCommand(self):
-        fen_f1 = Toplevel(self.root)
-        fen_f1.title('QPC SESAME')
-        fen_f1.geometry('400x100')
-        self.projet = self.projet0.subsample(6, 6)
-        projetImage = Label(fen_f1, image = self.projet).place(relx = 0.39, rely = 0.10)
+        self.count += 1 
+        if self.count <= 1:
+            fen_f1 = Toplevel(self.root)
+            fen_f1.title('QPC SESAME')
+            fen_f1.geometry('400x100')
+            self.projet = self.projet0.subsample(6, 6)
+            projetImage = Label(fen_f1, image = self.projet).place(relx = 0.39, rely = 0.10)
 
-        newButton = Button(fen_f1, text = 'Nouveau Projet', activeforeground ='teal')
-        newButton.place(relx = 0.05, rely = 0.45)
-        openButton = Button(fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62').place(relx = 0.65, rely = 0.45)
-        fen_f1.mainloop()
+            newButton = Button(fen_f1, text = 'Nouveau Projet', activeforeground ='teal')
+            newButton.place(relx = 0.05, rely = 0.45)
+            openButton = Button(fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62').place(relx = 0.65, rely = 0.45)
+            fen_f1.mainloop()
 
         """
         fen.root.withdraw()
