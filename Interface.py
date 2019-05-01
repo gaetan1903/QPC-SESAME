@@ -31,6 +31,8 @@ class Interface():
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
         self.helv36 = tkFont.Font(family='Arial', size=36, weight='bold')
         self.arial28 = tkFont.Font(family='Arial', size=28, weight='bold')
+        self.verdana30 = tkFont.Font(family='Verdana', size = 30, weight = 'bold')
+        self.arialinfo = tkFont.Font(family='Arial', size=18)
 
         self.offline0 = PhotoImage(file='offline.png')
         self.poussoir0 = PhotoImage(file='poussoir.png')
@@ -54,8 +56,8 @@ class Interface():
         self.poussoir = self.poussoir0.subsample(2, 2)
         self.reseau = self.reseau0.subsample(2,2)
 
-        #self.eval.create_image(600, 43 , image = self.fsociety)
-        self.eval.create_image(90, 37 , image = self.fsociety)
+        self.eval.create_text(602, 38 , text = 'Question Pour un Champion', font = self.verdana30, fill = 'teal')
+        self.eval.create_image(90, 40 , image = self.fsociety)
         self.eval.create_image(1140, 37 , image = self.sesame)
 
         self.footer = Canvas(self.root, bg = 'teal', width = 1202, height = 50, bd = 0, highlightthickness = 0)
@@ -68,7 +70,7 @@ class Interface():
         self.menuJeu = Canvas(self.root, bg = 'teal', highlightthickness = 0, width = 1202, height = 65)
         self.menuJeu.place(relx = - 0.001, rely = 0.1278)
 
-        self.offlineButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Offline",  font = self.arial28, command = self.offlineCommand)
+        self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial28, command = self.offlineCommand)
         self.offlineButton.place(relx = 0.005, rely = 0.137)
 
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)
@@ -104,14 +106,26 @@ class Interface():
 
 
     def openProject(self):
-        self.file = askopenfilename(filetypes=[(".gj","*.gj")])
+        self.file = askopenfilename(filetypes=[(".fs","*.fs")])
 
     
     def offlinemouseOverEnter(self, event):
-        print('solution trouver')
+        self.canvasLink = Canvas(self.root, bg ='teal', width = 251 , height = 5, bd = 0, highlightthickness = 0)
+        self.canvasLink.place(relx = 0.005 , rely = 0.2275)
+        self.canvasLink.create_rectangle(0, 0, 251 ,5, width = 0,  fill = 'yellow', outline = 'yellow')
+
+        self.canvasInfo = Canvas(self.root, bg ='teal', width = 1000, height = 375)
+        self.canvasInfo.place(relx = 0.07, rely = 0.27)
+
+        self.canvasInfo.create_text(500, 20, text = 'Jouer les questions en Mode Oflline? ', font = self.arialinfo, fill = 'yellow')
+
+
+
+
 
     def offlinemouseOverLeave(self, event):
-        print('bye2 Ntsoa')
+        self.canvasInfo.destroy()
+        self.canvasLink.destroy()
 
     def offlineCommand(self):
         self.count += 1 
