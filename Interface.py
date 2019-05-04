@@ -30,9 +30,10 @@ class Interface():
 
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
         self.helv36 = tkFont.Font(family='Arial', size=36, weight='bold')
-        self.arial28 = tkFont.Font(family='Arial', size=28, weight='bold')
+        self.arial24 = tkFont.Font(family='Arial', size=22, weight='bold')
         self.verdana30 = tkFont.Font(family='Verdana', size = 30, weight = 'bold')
-        self.arialinfo = tkFont.Font(family='Arial', size=18)
+        self.arialinfo0 = tkFont.Font(family='Arial', size=18)
+        self.arialinfo = tkFont.Font(family='Arial', size=16)
 
         self.offline0 = PhotoImage(file='offline.png')
         self.poussoir0 = PhotoImage(file='poussoir.png')
@@ -70,16 +71,16 @@ class Interface():
         self.menuJeu = Canvas(self.root, bg = 'teal', highlightthickness = 0, width = 1202, height = 65)
         self.menuJeu.place(relx = - 0.001, rely = 0.1278)
 
-        self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial28, command = self.offlineCommand)
-        self.offlineButton.place(relx = 0.005, rely = 0.137)
+        self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial24, command = self.offlineCommand)
+        self.offlineButton.place(relx = 0.005, rely = 0.13)
 
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)
 
-        self.poussoirButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial28, command = self.offlineCommand)
+        self.poussoirButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.offlineCommand)
         self.poussoirButton.place(relx = 0.37, rely = 0.137)
 
-        self.reseauButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Reseau",  font = self.arial28, command = self.offlineCommand)
+        self.reseauButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24, command = self.offlineCommand)
         self.reseauButton.place(relx = 0.77, rely = 0.137)
         #self.menuJeu.create_text(150, 30, text = "Mode Offline", activefill = 'orange', fill = "white", font = self.arial28, tags ='offline')
         #self.menuJeu.create_text(600, 30, text = "Mode Poussoir", activefill = 'orange', fill = "white", font = self.arial28, tags = 'poussoir')
@@ -106,26 +107,37 @@ class Interface():
 
 
     def openProject(self):
+        self.count = 0
         self.file = askopenfilename(filetypes=[(".fs","*.fs")])
+
+    
+    def newProject(self):
+        self.count = 0
+        self.fen_f1.destroy()
+        self.fen_ques1 = Toplevel(self.root)
+        self.fen_ques1.title('Projet de Question...')
+        self.fen_ques1.geometry('700x500+400+100')
 
     
     def offlinemouseOverEnter(self, event):
         self.canvasLink = Canvas(self.root, bg ='teal', width = 251 , height = 5, bd = 0, highlightthickness = 0)
         self.canvasLink.place(relx = 0.005 , rely = 0.2275)
-        self.canvasLink.create_rectangle(0, 0, 251 ,5, width = 0,  fill = 'yellow', outline = 'yellow')
+        self.canvasLink.create_rectangle(0, 0, 200 ,5, width = 0,  fill = 'yellow', outline = 'yellow')
 
         self.canvasInfo = Canvas(self.root, bg ='teal', width = 1000, height = 375)
         self.canvasInfo.place(relx = 0.07, rely = 0.27)
 
-        self.canvasInfo.create_text(500, 20, text = 'Jouer les questions en Mode Oflline? ', font = self.arialinfo, fill = 'yellow')
-
-
-
+        self.canvasInfo.create_text(500, 20, text = 'Jouer les questions en Mode Oflline? ', font = self.arialinfo0, fill = 'yellow')
+        self.canvasInfo.create_text(150, 75, text = " ◊ Unique Ordinateur utilisé ◊ ", font = self.arialinfo, fill = 'white')
+        self.canvasInfo.create_text(500, 325, text = " ◊ Incrementation manuel des scores ◊ ", font = self.arialinfo, fill = 'white')
+        self.canvasInfo.create_text(850, 75, text = " ◊ Aucun ressource reseau ◊ ", font = self.arialinfo, fill = 'white')
+        self.canvasInfo.create_image(500, 175, image = self.offline)
 
 
     def offlinemouseOverLeave(self, event):
         self.canvasInfo.destroy()
         self.canvasLink.destroy()
+
 
     def offlineCommand(self):
         self.count += 1 
@@ -137,7 +149,7 @@ class Interface():
             self.projet = self.projet0.subsample(6, 6)
             projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.39, rely = 0.10)
 
-            newButton = Button(self.fen_f1, text = 'Nouveau Projet', activeforeground ='teal')
+            newButton = Button(self.fen_f1, text = 'Nouveau Projet', activeforeground ='teal', command = self.newProject)
             newButton.place(relx = 0.05, rely = 0.45)
             openButton = Button(self.fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62', command = self.openProject).place(relx = 0.65, rely = 0.45)
             self.fen_f1.protocol("WM_DELETE_WINDOW", self.on_Close)  #  evenement en cas de fermeture 
@@ -148,8 +160,6 @@ class Interface():
             self.fen_f1.deiconify()  #  reaffiche la fenetre
 
         
-        
-
         """
         fen.root.withdraw()
         fen1 = InterOflline()
@@ -183,8 +193,6 @@ class InterOflline():
         self.root.title('QPC SESAME: MODE HORS LIGNE')
         self.root.geometry('1200x600+100+50')  # taille de la fenetre 
         self.root.resizable(width=False, height=False)
-
-        self.backImage0 = PhotoImage(file='retour.png')
 
 
     def menuTop(self):
