@@ -7,34 +7,27 @@ import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
 from tkinter.filedialog import *
 
-
-class Intro(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)  # je precise que cette classe est une classe qui est lancé en tant que thread
- 
-
-    def run(self):  # la fonction qui va etre lancer en threading
-        self.etat = True
-        import anim
-        self.etat = False
-
-
+i = j = 0  #  compteur utile
 
 class Interface():
     def __init__(self):
+        """
+            Constructeur de la classe Interface   
+                                                    """
         self.root = Tk()  #  creation de ma fenetre
         self.root.title('Menu Principale')
-        self.root.geometry('1200x600+100+50')  # taille de la fenetre
-        self.root['bg'] = 'white'
+        self.root.geometry('1200x600+100+50')  # taille de la fenetre + position
+        self.root['bg'] = 'white'  # couleur du fond 
         self.root.resizable(width=False, height=False)  #  empecher le redimensionnement
-
+        #  ci dessous est varible contenant des fonts
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
         self.helv36 = tkFont.Font(family='Arial', size=36, weight='bold')
         self.arial24 = tkFont.Font(family='Arial', size=22, weight='bold')
         self.verdana30 = tkFont.Font(family='Verdana', size = 30, weight = 'bold')
         self.arialinfo0 = tkFont.Font(family='Arial', size=18)
         self.arialinfo = tkFont.Font(family='Arial', size=16)
-
+        self.arialinfo14 = tkFont.Font(family='Arial', size=14)
+        #  ci dessous est variable contenant les images en taille initiale
         self.offline0 = PhotoImage(file='offline.png')
         self.poussoir0 = PhotoImage(file='poussoir.png')
         self.fsociety0 = PhotoImage(file='logo.png')
@@ -42,51 +35,58 @@ class Interface():
         self.sesame0 = PhotoImage(file='sesame.png')
         self.reseau0 = PhotoImage(file='reseau.png')
         self.projet0 = PhotoImage(file='projet.png')
+        self.setting0 = PhotoImage(file='backImage.png')
 
-        self.count = 0
+        self.count = 0  #  initialisation d'un compteur
          
 
     def __corps__(self):
+        """
+            Methode contenant le corps de l'Interface principal
+                                                                    """
+        #  creation et positionnement d'un canvas
         self.eval = Canvas(self.root, bg = 'white', width = 1200, height = 75)
         self.eval.place(relx = -0.001, rely = -0.001)
        
-        self.fsociety = self.fsociety0.subsample(8, 8)
+        """
         self.esti = self.esti0.subsample(10, 10)
-        self.sesame = self.sesame0.subsample(20, 20)
         self.offline = self.offline0.subsample(6, 6)
         self.poussoir = self.poussoir0.subsample(2, 2)
         self.reseau = self.reseau0.subsample(2,2)
+        """
 
-        self.eval.create_text(602, 38 , text = 'Question Pour un Champion', font = self.verdana30, fill = 'teal')
-        self.eval.create_image(90, 40 , image = self.fsociety)
-        self.eval.create_image(1140, 37 , image = self.sesame)
+        self.eval.create_text(602, 38 , text = 'Question Pour un Champion', font = self.verdana30, fill = 'teal')  #  creation du titre en tant que text
+        self.fsociety = self.fsociety0.subsample(8, 8)
+        self.sesame = self.sesame0.subsample(20, 20)  #  image redimensionner 
 
-        self.footer = Canvas(self.root, bg = 'teal', width = 1202, height = 50, bd = 0, highlightthickness = 0)
-        self.footer.place(relx = -0.001, rely = 0.92)
+        self.eval.create_image(90, 40 , image = self.fsociety) 
+        self.eval.create_image(1140, 37 , image = self.sesame)  #  nametraka image a un position 
 
+        self.footer = Canvas(self.root, bg = 'teal', width = 1202, height = 50, bd = 0, highlightthickness = 0)  #  canvas en bas 
+        self.footer.place(relx = -0.001, rely = 0.92)  #  sa position 
+        # ci dessous les elements a placé sur le canvas
         self.footer.create_text(1120, 25, text = '© Copyright Juin 2019', activefill = 'orange', fill ='yellow')
-        self.footer.create_text(115, 25, text = '♣ Licence Libre && Open Source', activefill = 'orange', fill ='yellow')
-        self.footer.create_text(620, 25, text = '☻  ambatoroka.fsociety@gmail.com', activefill = 'orange', fill ='yellow')
+        self.footer.create_text(105, 25, text = '♣ Licence Libre & Open Source ♣', activefill = 'orange', fill ='yellow')
+        self.footer.create_text(600, 25, text = '☻ ambatoroka.fsociety@gmail.com ☻', activefill = 'orange', fill ='yellow')
 
         self.menuJeu = Canvas(self.root, bg = 'teal', highlightthickness = 0, width = 1202, height = 65)
-        self.menuJeu.place(relx = - 0.001, rely = 0.1278)
+        self.menuJeu.place(relx = - 0.001, rely = 0.1278)  #  canvas pour les choix de mode de jeu 
 
+        #  Ci dessous la creation du bouton mode offline avec ses comportements
         self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial24, command = self.offlineCommand)
         self.offlineButton.place(relx = 0.005, rely = 0.13)
-
-        self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)
-        self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)
-
+        self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction preicsé
+        self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
+        """
         self.poussoirButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.offlineCommand)
         self.poussoirButton.place(relx = 0.37, rely = 0.137)
 
         self.reseauButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24, command = self.offlineCommand)
         self.reseauButton.place(relx = 0.77, rely = 0.137)
-        #self.menuJeu.create_text(150, 30, text = "Mode Offline", activefill = 'orange', fill = "white", font = self.arial28, tags ='offline')
-        #self.menuJeu.create_text(600, 30, text = "Mode Poussoir", activefill = 'orange', fill = "white", font = self.arial28, tags = 'poussoir')
-        #self.menuJeu.create_text(1060, 30, text = "Mode Reseau", activefill = 'orange', fill = "white", font = self.arial28, tags ='reseau')
+        self.menuJeu.create_text(150, 30, text = "Mode Offline", activefill = 'orange', fill = "white", font = self.arial28, tags ='offline')
+        self.menuJeu.create_text(600, 30, text = "Mode Poussoir", activefill = 'orange', fill = "white", font = self.arial28, tags = 'poussoir')
+        self.menuJeu.create_text(1060, 30, text = "Mode Reseau", activefill = 'orange', fill = "white", font = self.arial28, tags ='reseau')
 
-        """
         self.ModeJeuLabel = Label(self.root, text = 'MODE DE JEU', bg ='#032f62', fg = 'white', font = self.helv36).place(relx = 0.36, rely = 0.13)
 
        
@@ -101,7 +101,7 @@ class Interface():
         self.reseauButton.place(relx = 0.75, rely = 0.3)
         self.reseauLabel = Label(self.root, text = 'EN RESEAU', bg = '#032f62',fg ='white', font = self.helv32).place(relx = 0.755, rely = 0.75)
         """
-    def on_Close(self):
+    def fen_f1Close(self):
             self.count = 0  #  retour au zero du compteur
             self.fen_f1.destroy()
 
@@ -115,8 +115,97 @@ class Interface():
         self.count = 0
         self.fen_f1.destroy()
         self.fen_ques1 = Toplevel(self.root)
-        self.fen_ques1.title('Projet de Question...')
+        self.fen_ques1.title('QPC SESAME: Question')
+        self.fen_ques1['bg'] = 'white'
         self.fen_ques1.geometry('700x500+400+100')
+        self.fen_ques1.protocol("WM_DELETE_WINDOW", self.fen_quesClose)
+
+        self.fen_ques1Topnav = Canvas(self.fen_ques1, width = 705, height = 35, bg = 'white')
+        self.fen_ques1Aftnav = Canvas(self.fen_ques1, width = 705, height = 35, bg = 'teal', highlightthickness = 0)
+        self.fen_ques1Topnav.place(relx = -0.00001, rely = 0.01)
+        self.fen_ques1Aftnav.place(relx = -0.00001, rely = 0.08)
+
+        etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
+        self.values = [1 , 2 , 3]
+        self.niveau = IntVar()
+        for i in range(3):
+            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = etiquette[i], value = self.values[i], font = self.arialinfo14)
+            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
+        del i  
+        self.champQuestion = Text(self.fen_ques1, height = 6, width = 70, bg = 'lightgray')
+        self.champQuestion.place(relx = 0.1, rely = 0.35)
+        self.champQuestion.insert('1.0', "Enter la question...")
+        self.champQuestion.bind("<Button-1>", self.champQuestionOverEnter)
+
+        self.reponse = StringVar()
+        self.reponse.set('Entrer la réponse... ')
+        self.champReponse = Entry(self.fen_ques1,  textvariable = self.reponse, width = 50, bg = 'lightgray', font = self.arialinfo14, fg = '#333')
+        self.champReponse.place(relx = 0.1, rely = 0.6)
+        self.champReponse.bind("<Button-1>", self.champReponseOverEnter)
+
+        self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo)
+        self.enrButton.place(relx = 0.1, rely = 0.7)
+
+        self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo)
+        self.verButton.place(relx = 0.77, rely = 0.7)
+
+        self.fen_ques1Topnav.create_text(330, 18, text = 'Projet Questions', font = self.arialinfo14, fill = 'teal')
+
+        self.setting = self.setting0.subsample(2, 2)
+
+        self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue)
+        self.niveau1Set.place(relx = 0.25,rely = 0.21)
+
+        self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0)
+        self.niveau2Set.place(relx = 0.55,rely = 0.21)
+
+        self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0)
+        self.niveau3Set.place(relx = 0.85,rely = 0.21)
+
+        self.termButton = Button(self.fen_ques1, text = 'TERMINER',font = self.arialinfo14, fg = 'teal')
+        self.termButton.place(relx = 0.42, rely = 0.85)
+
+
+    def changeValue(self):
+        self.fenVal1 = Toplevel(self.fen_ques1)
+        self.fenVal1.title("Point d'incrémentation")
+        self.fenVal1.geometry('+500+250')
+        self.valeur = IntVar()
+        label = Label(self.fenVal1, text = 'Entrer le nombre de point du question "Niveau 1" ').pack()
+        entre = Entry(self.fenVal1, textvariable = self.valeur)
+        self.valeur.set(1)
+        entre.pack()
+        boutton = Button(self.fenVal1, text = 'Valider', width = 20, command = self.getValue1).pack()
+    
+    
+    def getValue1(self):
+        self.values[0] = self.valeur.get()
+
+
+    def fen_quesClose(self):
+        global i
+        global j
+        i = j = 0
+        self.fen_ques1.destroy()
+
+
+    def champReponseOverEnter(self, event):
+        #  fonction permettant de efface le texte en premier entrer
+        global i
+        if i == 0:
+            self.reponse.set('')
+        else: 
+            pass
+        i += 1
+
+    def champQuestionOverEnter(self, event):
+        #  fonction permettant de efface le texte en premier entrer
+        global j
+        if j == 0:
+            self.champQuestion.delete('1.0', '1.20')
+        else: 
+            pass
+        j += 1
 
     
     def offlinemouseOverEnter(self, event):
@@ -131,7 +220,8 @@ class Interface():
         self.canvasInfo.create_text(150, 75, text = " ◊ Unique Ordinateur utilisé ◊ ", font = self.arialinfo, fill = 'white')
         self.canvasInfo.create_text(500, 325, text = " ◊ Incrementation manuel des scores ◊ ", font = self.arialinfo, fill = 'white')
         self.canvasInfo.create_text(850, 75, text = " ◊ Aucun ressource reseau ◊ ", font = self.arialinfo, fill = 'white')
-        self.canvasInfo.create_image(500, 175, image = self.offline)
+        self.offline = self.offline0.subsample(6,6)
+        self.canvasInfo.create_image(500, 175, image =self.offline )
 
 
     def offlinemouseOverLeave(self, event):
@@ -152,21 +242,12 @@ class Interface():
             newButton = Button(self.fen_f1, text = 'Nouveau Projet', activeforeground ='teal', command = self.newProject)
             newButton.place(relx = 0.05, rely = 0.45)
             openButton = Button(self.fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62', command = self.openProject).place(relx = 0.65, rely = 0.45)
-            self.fen_f1.protocol("WM_DELETE_WINDOW", self.on_Close)  #  evenement en cas de fermeture 
+            self.fen_f1.protocol("WM_DELETE_WINDOW", self.fen_f1Close)  #  evenement en cas de fermeture 
             self.fen_f1.mainloop()
 
         else:
             self.fen_f1.withdraw()  #  cache la fenetre 
             self.fen_f1.deiconify()  #  reaffiche la fenetre
-
-        
-        """
-        fen.root.withdraw()
-        fen1 = InterOflline()
-        fen1.menuTop()
-        fen1.__corps__()
-        fen1.__final__()
-        """
 
     
     def poussoirCommand(self):
@@ -266,16 +347,7 @@ class InterReseau():
 
 
 
-if __name__ == '__main__':
-    
-    thread1 = Intro()  #  instanciation du classe qui contient le thread
-    thread1.start()
-
-    time.sleep(2)  #  mettre en pause pendant 2s pour assurer que la classe thread demarre
-
-    while thread1.etat : # J'attend que le thread s'arrete
-        time.sleep(0.1)
-       
+if __name__ == '__main__':   
     fen = Interface()   #  lanceons now notre fenetre
     fen.__corps__()
     fen.__final__()
