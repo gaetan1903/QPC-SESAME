@@ -1,11 +1,12 @@
-#-*-coding: utf-8 -*-
-# __author__ Gaetan Jonathan
+#-*-coding: Utf-8 -*-
+# __author__: Gaetan Jonathan
 
 from tkinter import * 
 import threading, time
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
 from tkinter.filedialog import *
+import json  #  load charger en dict , loads charger dict en str, dumps dict en json
 
 i = j = 0  #  compteur utile
 
@@ -32,10 +33,11 @@ class Interface():
         self.poussoir0 = PhotoImage(file='poussoir.png')
         self.fsociety0 = PhotoImage(file='logo.png')
         self.esti0 = PhotoImage(file='esti.png')
+        self.backImage0 = PhotoImage(file='')
         self.sesame0 = PhotoImage(file='sesame.png')
         self.reseau0 = PhotoImage(file='reseau.png')
         self.projet0 = PhotoImage(file='projet.png')
-        self.setting0 = PhotoImage(file='backImage.png')
+        self.setting0 = PhotoImage(file='settings.png')
 
         self.count = 0  #  initialisation d'un compteur
          
@@ -107,12 +109,47 @@ class Interface():
 
 
     def openProject(self):
+        self.fen_f1.destroy()
         self.count = 0
-        self.file = askopenfilename(filetypes=[(".fs","*.fs")])
+        self.file = askopenfilename(filetypes=[(".qpc","*.qpc")])
+
+        if self.file is not '':
+
+            f = open(self.file, 'r')
+            self.continuer = False
+            for x in f:
+                if x[0] == '{':
+                    self.continuer = True
+                    
+                break
+            
+            if self.continuer:
+                self.root.withdraw()
+                import InterOffline
+                self.root.deiconify()
+
+            else:  #  mauvais fichier 
+                self.root.withdraw()
+                self.root.deiconify()
+                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...')
+        
+        else:   #  cas d une annulation
+            self.root.withdraw()
+            self.root.deiconify()
 
     
     def newProject(self):
         self.count = 0
+        self.dict = {}
+        self.dict['Question1'] = []
+        self.dict['Reponse1'] = []
+        #  une petite formatage de texte
+        self.dict['Question2'] = []
+        self.dict['Reponse2'] = []
+        #  une petite formatage de texte
+        self.dict['Question3'] = []
+        self.dict['Reponse3'] = []
+
         self.fen_f1.destroy()
         self.fen_ques1 = Toplevel(self.root)
         self.fen_ques1.title('QPC SESAME: Question')
@@ -125,11 +162,11 @@ class Interface():
         self.fen_ques1Topnav.place(relx = -0.00001, rely = 0.01)
         self.fen_ques1Aftnav.place(relx = -0.00001, rely = 0.08)
 
-        etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
+        self.etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
         self.values = [1 , 2 , 3]
         self.niveau = IntVar()
         for i in range(3):
-            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = etiquette[i], value = self.values[i], font = self.arialinfo14)
+            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
             self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
         del i  
         self.champQuestion = Text(self.fen_ques1, height = 6, width = 70, bg = 'lightgray')
@@ -143,7 +180,7 @@ class Interface():
         self.champReponse.place(relx = 0.1, rely = 0.6)
         self.champReponse.bind("<Button-1>", self.champReponseOverEnter)
 
-        self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo)
+        self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo, command = self.enregistrer)
         self.enrButton.place(relx = 0.1, rely = 0.7)
 
         self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo)
@@ -153,33 +190,119 @@ class Interface():
 
         self.setting = self.setting0.subsample(2, 2)
 
-        self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue)
+        self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue1)
         self.niveau1Set.place(relx = 0.25,rely = 0.21)
 
-        self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0)
+        self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue2)
         self.niveau2Set.place(relx = 0.55,rely = 0.21)
 
-        self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0)
+        self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changevalue3)
         self.niveau3Set.place(relx = 0.85,rely = 0.21)
 
-        self.termButton = Button(self.fen_ques1, text = 'TERMINER',font = self.arialinfo14, fg = 'teal')
+        self.termButton = Button(self.fen_ques1, text = 'TERMINER',font = self.arialinfo14, fg = 'teal', command = self.terminer)
         self.termButton.place(relx = 0.42, rely = 0.85)
 
 
-    def changeValue(self):
+    def changeValue1(self):
         self.fenVal1 = Toplevel(self.fen_ques1)
         self.fenVal1.title("Point d'incrémentation")
         self.fenVal1.geometry('+500+250')
-        self.valeur = IntVar()
+        self.valeur1 = IntVar()
         label = Label(self.fenVal1, text = 'Entrer le nombre de point du question "Niveau 1" ').pack()
-        entre = Entry(self.fenVal1, textvariable = self.valeur)
-        self.valeur.set(1)
+        entre = Entry(self.fenVal1, textvariable = self.valeur1)
+        self.valeur1.set(self.values[0])
         entre.pack()
         boutton = Button(self.fenVal1, text = 'Valider', width = 20, command = self.getValue1).pack()
+
+    
+    def changeValue2(self):
+        self.fenVal2 = Toplevel(self.fen_ques1)
+        self.fenVal2.title("Point d'incrémentation")
+        self.fenVal2.geometry('+550+250')
+        self.valeur2 = IntVar()
+        label = Label(self.fenVal2, text = 'Entrer le nombre de point du question "Niveau 2" ').pack()
+        entre = Entry(self.fenVal2, textvariable = self.valeur2)
+        self.valeur2.set(self.values[1])
+        entre.pack()
+        boutton = Button(self.fenVal2, text = 'Valider', width = 20, command = self.getValue2).pack()
     
     
+    def changevalue3(self):
+        self.fenVal3 = Toplevel(self.fen_ques1)
+        self.fenVal3.title("Point d'incrémentation")
+        self.fenVal3.geometry('+550+250')
+        self.valeur3 = IntVar()
+        label = Label(self.fenVal3, text = 'Entrer le nombre de point du question "Niveau 3" ').pack()
+        entre = Entry(self.fenVal3, textvariable = self.valeur3)
+        self.valeur3.set(self.values[2])
+        entre.pack()
+        boutton = Button(self.fenVal3, text = 'Valider', width = 20, command = self.getValue3).pack()
+
+
     def getValue1(self):
-        self.values[0] = self.valeur.get()
+        self.values[0] = self.valeur1.get()
+        self.Rniveau.destroy()
+        self.fenVal1.destroy()
+        self.valeur1.set(self.values[0])
+        for i in range(3):
+            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
+            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
+
+    
+    def getValue2(self):
+        self.values[1] = self.valeur2.get()
+        self.Rniveau.destroy()
+        self.fenVal2.destroy()
+        self.valeur2.set(self.values[1])
+        for i in range(3):
+            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
+            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
+
+
+    def getValue3(self):
+        self.values[2] = self.valeur3.get()
+        self.Rniveau.destroy()
+        self.fenVal3.destroy()
+        self.valeur3.set(self.values[2])
+        for i in range(3):
+            self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
+            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
+
+    
+    def enregistrer(self):
+        textget = self.champQuestion.get('1.0','6.0')
+        if self.niveau.get() == self.values[0]:
+            self.dict['Question1'].append([textget, len(textget.strip())])
+            self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
+            #  self.dict[testget.strip()] = '{ ' + self.reponse.get().strip() + ' : ' + str(self.niveau.get()) + ' } '
+
+        elif self.niveau.get() == self.values[1]:
+            self.dict['Question2'].append([textget, len(textget.strip())])
+            self.dict['Reponse2'].append([self.reponse.get().strip(), self.niveau.get()])
+
+        elif self.niveau.get() == self.values[2]:
+            self.dict['Question3'].append([textget, len(textget.strip())])
+            self.dict['Reponse3'].append([self.reponse.get().strip(), self.niveau.get()])
+
+        self.reponse.set('')  #  vider le champ
+        self.champQuestion.delete('1.0', '6.0')  #  vider le champ
+
+ 
+    def terminer(self):
+        self.file = asksaveasfilename(defaultextension = '.qpc', initialfile = 'project1.qpc', title = 'Sauvegarde du projet')
+
+        if self.file is not '':
+            with open(self.file, 'w', encoding = 'utf8') as json_data:
+                json.dump(self.dict, json_data, indent = 4, ensure_ascii=False)
+
+            self.fen_ques1.destroy()
+            self.root.withdraw()
+            import InterOffline
+            self.root.deiconify()
+        
+        else:
+            self.fen_ques1.withdraw()
+            self.fen_ques1.deiconify()
 
 
     def fen_quesClose(self):
@@ -237,7 +360,7 @@ class Interface():
             self.fen_f1.title('QPC SESAME')
             self.fen_f1.geometry('400x100')
             self.projet = self.projet0.subsample(6, 6)
-            projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.39, rely = 0.10)
+            projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.35, rely = 0.10)
 
             newButton = Button(self.fen_f1, text = 'Nouveau Projet', activeforeground ='teal', command = self.newProject)
             newButton.place(relx = 0.05, rely = 0.45)
@@ -249,6 +372,8 @@ class Interface():
             self.fen_f1.withdraw()  #  cache la fenetre 
             self.fen_f1.deiconify()  #  reaffiche la fenetre
 
+
+#  *********************************************************************************************************************************
     
     def poussoirCommand(self):
         fen.root.destroy()
@@ -265,85 +390,6 @@ class Interface():
 
     def __final__(self):
         self.root.mainloop()  #  lancement de la fenetre
-
-
-
-class InterOflline():
-    def __init__(self):
-        self.root = Tk()  #  creation de ma fenetre
-        self.root.title('QPC SESAME: MODE HORS LIGNE')
-        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
-        self.root.resizable(width=False, height=False)
-
-
-    def menuTop(self):
-        self.menubutton = Menu(self.root)
-        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
-        self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
-        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
-        self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
-        self.root.config(menu = self.menubutton)
-
-
-    def __corps__(self):
-        self.nav = Canvas(self.root, bg = '#032f62', width = 1200, height = 43, bd = 0).place(relx = - 0.001, rely = - 0.015)
-        self.backImage = self.backImage0.subsample(8,8)
-        self.backbutton = Button(self.root, text = 'RETOUR', bd = 0, bg = 'grey', command = self.retour).place(relx = 0.93, rely = 0.004)
-
-    def retour(self):
-        fen.root.deiconify()
-        self.root.destroy()
-
-
-    def confirmQuitter(self):
-        self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
-        if self.fermer == "yes":
-            self.root.destroy()
-
-
-    def __final__(self):
-        self.root.mainloop()
-
-
-class InterPoussoir():
-    def __init__(self):
-        self.root = Tk()  #  creation de ma fenetre
-        self.root.title('QPC SESAME: MODE POUSSOIR')
-        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
-        self.root.resizable(width=False, height=False)
-
-
-    def menuTop(self):
-        self.menubutton = Menu(self.root)
-        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
-        self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
-        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
-        self.sous_menubutton_1.add_command(label ="Quitter", command = self.ConfirmeQuitter)
-        self.root.config(menu = self.menubutton)
-
-
-    def confirmQuitter(self):
-        self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
-        if self.fermer == "yes":
-            self.root.quit()
-
-
-
-    def __final__(self):
-        self.root.mainloop()
-
-
-
-class InterReseau():
-    def __init__(self):
-        self.root = Tk()  #  creation de ma fenetre
-        self.root.title('Question Pour un Champion SESAME')
-        self.root.geometry('1200x600+100+50')  # taille de la fenetre 
-        self.root.resizable(width=False, height=False)
-
-
-    def __final__(self):
-        self.root.mainloop()
 
 
 
