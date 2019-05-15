@@ -10,7 +10,7 @@ class InterOflline():
         self.root.config(bg='white')
         self.root.title('QPC SESAME: MODE HORS LIGNE')
         self.root.geometry('1200x600+0+0')  # taille de la fenetre 
-        #self.root.wm_state(newstate="zoomed")  #  plein ecran windows
+        self.root.wm_state(newstate="zoomed")  #  plein ecran windows
         #self.root.resizable(width=False, height=False)
 
 
