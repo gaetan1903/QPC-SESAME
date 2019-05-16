@@ -11,7 +11,7 @@ class InterOflline():
         self.root.title('QPC SESAME: MODE HORS LIGNE')
         self.root.geometry('1200x600+0+0')  # taille de la fenetre 
         self.root.wm_state(newstate="zoomed")  #  plein ecran windows
-        #self.root.resizable(width=False, height=False)
+        self.root.resizable(width=False, height=False)
 
 
     def menuTop(self):
@@ -33,7 +33,6 @@ class InterOflline():
         self.root.destroy()
         self.root.quit()
         
-
 
     def confirmQuitter(self):
         self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")

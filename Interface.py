@@ -49,13 +49,6 @@ class Interface():
         #  creation et positionnement d'un canvas
         self.eval = Canvas(self.root, bg = 'white', width = 1200, height = 75)
         self.eval.place(relx = -0.001, rely = -0.001)
-       
-        """
-        self.esti = self.esti0.subsample(10, 10)
-        self.offline = self.offline0.subsample(6, 6)
-        self.poussoir = self.poussoir0.subsample(2, 2)
-        self.reseau = self.reseau0.subsample(2,2)
-        """
 
         self.eval.create_text(602, 38 , text = 'Question Pour un Champion', font = self.verdana30, fill = 'teal')  #  creation du titre en tant que text
         self.fsociety = self.fsociety0.subsample(8, 8)
@@ -77,32 +70,10 @@ class Interface():
         #  Ci dessous la creation du bouton mode offline avec ses comportements
         self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial24, command = self.offlineCommand)
         self.offlineButton.place(relx = 0.005, rely = 0.13)
-        self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction preicsé
+        self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction precisé
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
-        """
-        self.poussoirButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.offlineCommand)
-        self.poussoirButton.place(relx = 0.37, rely = 0.137)
+    
 
-        self.reseauButton = Button(self.root, bd = 0, fg = 'white', relief = 'groove',  bg = 'teal', activeforeground = 'orange', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24, command = self.offlineCommand)
-        self.reseauButton.place(relx = 0.77, rely = 0.137)
-        self.menuJeu.create_text(150, 30, text = "Mode Offline", activefill = 'orange', fill = "white", font = self.arial28, tags ='offline')
-        self.menuJeu.create_text(600, 30, text = "Mode Poussoir", activefill = 'orange', fill = "white", font = self.arial28, tags = 'poussoir')
-        self.menuJeu.create_text(1060, 30, text = "Mode Reseau", activefill = 'orange', fill = "white", font = self.arial28, tags ='reseau')
-
-        self.ModeJeuLabel = Label(self.root, text = 'MODE DE JEU', bg ='#032f62', fg = 'white', font = self.helv36).place(relx = 0.36, rely = 0.13)
-
-       
-        self.offlineButton.place(relx = -0.001, rely = 0.3)
-        self.offlineLabel = Label(self.root, text = 'HORS LIGNE', bg = '#032f62', fg ='white',  font = self.helv32).place(relx = 0.035, rely = 0.75)
-
-        self.poussoirButton = Button(self.root, bd = 0, bg ='#032f62', image = self.poussoir, command = self.poussoirCommand)
-        self.poussoirButton.place(relx = 0.41, rely = 0.3)
-        self.poussoirLabel = Label(self.root, text = 'POUSSOIR', bg = '#032f62', fg ='white',font = self.helv32).place(relx = 0.41, rely = 0.75)
-
-        self.reseauButton = Button(self.root, bd = 0, bg ='#032f62', image = self.reseau, command = self.reseauCommand)
-        self.reseauButton.place(relx = 0.75, rely = 0.3)
-        self.reseauLabel = Label(self.root, text = 'EN RESEAU', bg = '#032f62',fg ='white', font = self.helv32).place(relx = 0.755, rely = 0.75)
-        """
     def fen_f1Close(self):
             self.count = 0  #  retour au zero du compteur
             self.fen_f1.destroy()
@@ -183,7 +154,7 @@ class Interface():
         self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo, command = self.enregistrer)
         self.enrButton.place(relx = 0.1, rely = 0.7)
 
-        self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo)
+        self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo, command = self.verifier)
         self.verButton.place(relx = 0.77, rely = 0.7)
 
         self.fen_ques1Topnav.create_text(330, 18, text = 'Projet Questions', font = self.arialinfo14, fill = 'teal')
@@ -270,11 +241,16 @@ class Interface():
 
     
     def enregistrer(self):
-        textget = self.champQuestion.get('1.0','6.0')
+        """
+            une fonction permettant d enregistrer temporairement 
+                dans la RAM , les questions et reponses entrées dans le projet
+                                                                                """
+        effacer = True 
+        textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
+
         if self.niveau.get() == self.values[0]:
             self.dict['Question1'].append([textget, len(textget.strip())])
             self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
-            #  self.dict[testget.strip()] = '{ ' + self.reponse.get().strip() + ' : ' + str(self.niveau.get()) + ' } '
 
         elif self.niveau.get() == self.values[1]:
             self.dict['Question2'].append([textget, len(textget.strip())])
@@ -284,16 +260,101 @@ class Interface():
             self.dict['Question3'].append([textget, len(textget.strip())])
             self.dict['Reponse3'].append([self.reponse.get().strip(), self.niveau.get()])
 
-        self.reponse.set('')  #  vider le champ
-        self.champQuestion.delete('1.0', '6.0')  #  vider le champ
+        else:
+            tkmsg.showwarning('Aucun niveau selectionné', "Attention,\nIl est impératif de selectionner le niveau de cette question")
+            self.fen_ques1.withdraw()
+            self.fen_ques1.deiconify()
+            effacer = False
 
- 
+        if effacer:
+            self.reponse.set('')  #  vider le champ
+            self.champQuestion.delete('1.0', '10.0')  #  vider le champ
+
+    
+    def verifier(self):
+        """ 
+            fonction permettant de verifier tous les questions
+                 avant de terminer pour but d'eviter toute heure durant le jeu
+                                                                                """
+        self.fen_ver = Toplevel(self.fen_ques1)  #  creation d une fenetre fille 
+        self.fen_ver.title('Verification')  #  titre de cette nouvelle fenetre
+        self.qrp = StringVar()  #  variable contenant le retour et l entré du liste
+        #  methode pour entrer les questions et reponses dans des listes
+        q1 = []  #  initialisation d'une liste contenant les questions de types niveau 1 
+        for x in self.dict['Question1']:
+            q1.append(x[0].replace('\n', ''))  #  ajout des questions de niveau1 dans la liste 
+        r1 = []  #  initialisation d'une liste contenant les reponses de types niveau 1  
+        for x in self.dict['Reponse1']:
+            r1.append((x[0], x[1]))  #  ajout des reponses de niveau 1 dans la liste
+        #  même technique que dessus 
+        q2 = []
+        for x in self.dict['Question2']:
+            q2.append(x[0].replace('\n', ''))
+        r2= []
+        for x in self.dict['Reponse2']:
+            r2.append((x[0], x[1]))
+        
+        q3 = []
+        for x in self.dict['Question3']:
+            q3.append(x[0].replace('\n', ''))
+        r3 = []
+        for x in self.dict['Reponse3']:
+            r3.append((x[0], x[1]))
+        #  ajout des questions et reponses dans une seule variable  et formatage du texte
+        tmp = []  #  variable temporaire contenant l ensembles des choses a afficher
+        #  pour le niveau  1
+        i = 1
+        for x in range(1, len(self.dict['Question1']) + 1):
+            tmp.append(f"I-{i}) {q1[x-1]}")
+            tmp.append(f"--> {r1[x-1][0]}  _*_  {r1[x-1][1]} points")
+            tmp.append([])
+            i += 1
+        #  pour le niveau 2
+        i = 1
+        for x in range(1, len(self.dict['Question2']) + 1):
+            tmp.append(f"II-{i}) {q2[x-1]}")
+            tmp.append(f"--> {r2[x-1][0]}  _*_  {r2[x-1][1]} points")
+            tmp.append([])
+            i += 1
+        #  pour le niveau 3
+        i =  1
+        for x in range(1, len(self.dict['Question3']) + 1):
+            tmp.append(f"III-{i}) {q3[x-1]}")
+            tmp.append(f"--> {r3[x-1][0]}  _*_  {r3[x-1][1]} points")
+            tmp.append([])
+            i += 1
+
+        self.qrp.set(tmp)  #  insertion dans la liste  
+        #  Mise en place des scrollbar pour les longs textes
+        yDefilB = Scrollbar(self.fen_ver, orient='vertical')
+        yDefilB.grid(row=0, column=1, sticky='ns')
+        xDefilB = Scrollbar(self.fen_ver, orient='horizontal')
+        xDefilB.grid(row=1, column=0, sticky='ew')
+        #  creation de la liste 
+        self.listes = Listbox(self.fen_ver, xscrollcommand = xDefilB.set,  yscrollcommand = yDefilB.set, listvariable = self.qrp, width = 100, height = 20, activestyle = 'dotbox', selectforeground = 'yellow')
+        self.listes.grid(row=0, column=0, sticky='nsew')  # positionnement dans la fenetre
+        #  les actions des scrollbar 
+        xDefilB['command'] = self.listes.xview  
+        yDefilB['command'] = self.listes.yview
+        #  evenement a un clique droite de la souris
+        self.listes.bind('<Button-3>', self.verifConfig)
+        self.listes.bind('<Button-1>', self.clickclose)
+
+
+    def clickclose(self, event):
+        try:
+            self.option.destroy()
+        except:
+            pass
+
+
     def terminer(self):
+        #  ouverture de l'explorateur pour la sauvegarde
         self.file = asksaveasfilename(defaultextension = '.qpc', initialfile = 'project1.qpc', title = 'Sauvegarde du projet')
-
-        if self.file is not '':
-            with open(self.file, 'w', encoding = 'utf8') as json_data:
-                json.dump(self.dict, json_data, indent = 4, ensure_ascii=False)
+        #  gestion des erreurs par des conditions
+        if self.file is not '':  #  cas d une non  annulation 
+            with open(self.file, 'w', encoding = 'utf8') as json_data:  #  ouvrir le fichier creer en mode ecriture 
+                json.dump(self.dict, json_data, indent = 4, ensure_ascii = False)  #  parse dans le fichier creer le  dictionnaire des questions 
 
             self.fen_ques1.destroy()
             self.root.withdraw()
@@ -303,6 +364,48 @@ class Interface():
         else:
             self.fen_ques1.withdraw()
             self.fen_ques1.deiconify()
+
+
+    def verifConfig(self, event):
+        """
+            fonction lancer a partir d un evenement
+                de clique droite de la souris qui a pour but 
+                    de modifier ou de suprimé une question ou une une reponse
+                                                                                """
+        try:
+            int(self.listes.curselection()[0])
+
+        except:
+            pass 
+
+        else:
+            self.option = Frame(self.fen_ver, cursor = 'hand2', bd = 5, highlightcolor = 'orange', highlightthickness = 2, bg ='teal')
+            pointX1 = self.fen_ver.winfo_pointerx()
+            pointX0 = self.fen_ver.winfo_x() 
+            pointY1 = self.fen_ver.winfo_pointery()
+            pointY0 = self.fen_ver.winfo_y() + 10
+
+            self.mod = Canvas(self.option, bg = 'teal', width = 60, height = 25, bd = 0 , highlightthickness = 0)
+            self.mod.create_text(30, 10 , text = 'Modifier', fill = 'yellow', activefill = 'orange')
+            self.mod.pack()
+        
+            self.eff = Canvas(self.option, bg = 'teal', width = 60 , height = 25, bd = 0 , highlightthickness = 0)
+            self.eff.create_text(30, 12 , text = 'Supprimer', fill = 'yellow', activefill = 'orange')
+            self.eff.pack()
+
+            self.mod.create_line(0, 24, 60, 24, fill = 'white', width = 2)
+            self.option.place(x = pointX1 - pointX0, y = pointY1 - pointY0)
+            
+            self.mod.bind('<Button-1>', self.modverifier)
+            self.eff.bind('<Button-1>', self.effverifier)
+
+
+    def modverifier(self, event):
+        self.option.destroy()
+
+
+    def effverifier(self, event):
+          self.option.destroy()
 
 
     def fen_quesClose(self):
