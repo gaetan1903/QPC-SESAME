@@ -279,6 +279,7 @@ class Interface():
                                                                                 """
         self.fen_ver = Toplevel(self.fen_ques1)  #  creation d une fenetre fille 
         self.fen_ver.title('Verification')  #  titre de cette nouvelle fenetre
+        self.fen_ver.config(bg = 'lightgray')
         self.qrp = StringVar()  #  variable contenant le retour et l entré du liste
         #  methode pour entrer les questions et reponses dans des listes
         q1 = []  #  initialisation d'une liste contenant les questions de types niveau 1 
@@ -404,26 +405,24 @@ class Interface():
 
 
     def modverifier(self, event):
-        self.option.destroy()
-        self.moded = self.listes.get(self.listes.curselection())
-
-        if (int(self.listes.curselection()[0])) % 3 == 0:
-            question_detect = self.moded.split(')')[1].strip()
-            detect = self.moded.split(' ')[0]
+        self.option.destroy()  #  detruire l'option du clique droite
+        self.moded = self.listes.get(self.listes.curselection())  #  prendre l'index de la partie selectionner 
+        #  ci dessous pour verifier si partie question ou partie reponse
+        if (int(self.listes.curselection()[0])) % 3 == 0:  #  partie question
+            question_detect = self.moded.split(')')[1].strip()  #  recuperer que le texte de la  question 
+            detect = self.moded.split(' ')[0]  #  recuperer son identification
             detect = detect[:len(detect) - 1]
-            self.popedit(question_detect, detect)
-
-    
+            self.popedit(question_detect, detect, 'question')  #  appel la fonction qui edit le contenur le voulue
         
         elif (int(self.listes.curselection()[0])) % 3 == 1:
             reponse_detect = self.moded.split('>')[1].split(':')[0].strip()
             self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
             detect = self.moded.split(' ')[0]
             detect = detect[:len(detect) - 1]
-            self.popedit(reponse_detect, detect)
+            self.popedit(reponse_detect, detect, 'reponse')
 
 
-    def popedit(self, chose, emp):
+    def popedit(self, chose, emp, choix):
         """
             fonction permettant d'afficher une fenetre
                 qui sert a entrer la modification de la chose selectionner
@@ -440,24 +439,69 @@ class Interface():
         labelresp = Label(self.fenmod, text = '\nEntrer Nouveau contenu:\n', bg ='white', font = self.arial12).pack()
         self.entreques = Text(self.fenmod,  width = 50, height = 4, bg = 'lightgray', fg ='darkgreen')
         self.entreques.pack()
-        butterm = Button(self.fenmod, text = 'Terminer Changement', font = self.arialinfo14, command = self.enregChange).pack(pady = 15)
+        butterm = Button(self.fenmod, text = 'Terminer Changement', font = self.arialinfo14, command = lambda: self.enregChange(choix)).pack(pady = 15)
         choseOld.insert('1.0', chose)
 
 
-    def enregChange(self):
-        """"
-        if int(self.detect[0]) == 1:
-                 
-        elif int(self.detect[0]) == 2:
-                pass
-        elif int(self.detect[0]) == 3:
-                pass
+    def enregChange(self, choix):
+        if choix == 'question':
+            if int(self.detect[0]) == 1:
+                self.dict['Question1'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
+            elif int(self.detect[0]) == 2:
+                self.dict['Question2'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
+            elif int(self.detect[0]) == 3:
+                self.dict['Question3'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
+                    
+        elif choix == 'reponse':
+            if int(self.detect[0]) == 1:
+                self.dict['Reponse1'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
+                
+            elif int(self.detect[0]) == 2:
+                self.dict['Reponse2'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
 
-        self.entreques.get('1.0', '10.0')
-        """
+            elif int(self.detect[0]) == 3:
+                self.dict['Reponse3'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
+            
+
+        self.fen_ver.destroy()
+        self.verifier()
+
 
     def effverifier(self, event):
-          self.option.destroy()
+        self.option.destroy()
+
+        if (int(self.listes.curselection()[0])) % 3 == 0:
+            self.moded = self.listes.get(self.listes.curselection())
+            detect = self.moded.split(' ')[0]  #  recuperer son identification
+            detect = detect[:len(detect) - 1]
+
+            if int(detect[0]) == 1:
+                self.dict['Question1'].pop(int(detect[2]) - 1)
+                self.dict['Reponse1'].pop(int(detect[2]) - 1)
+            elif int(detect[0]) == 2:
+                self.dict['Question2'].pop(int(detect[2]) - 1)
+                self.dict['Reponse2'].pop(int(detect[2]) - 1)
+            elif int(detect[0]) == 3:
+                self.dict['Question3'].pop(int(detect[2]) - 1)
+                self.dict['Reponse3'].pop(int(detect[2]) - 1)
+
+        elif (int(self.listes.curselection()[0])) % 3 == 1:
+            self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
+            detect = self.moded.split(' ')[0]
+            detect = detect[:len(detect) - 1]
+            
+            if int(detect[0]) == 1:
+                self.dict['Reponse1'].pop(int(detect[2]) - 1)
+                self.dict['Question1'].pop(int(detect[2]) - 1)
+            elif int(detect[0]) == 2:
+                self.dict['Reponse2'].pop(int(detect[2]) - 1)
+                self.dict['Question2'].pop(int(detect[2]) - 1)
+            elif int(detect[0]) == 3:
+                self.dict['Reponse3'].pop(int(detect[2]) - 1)
+                self.dict['Question3'].pop(int(detect[2]) - 1)
+
+        self.fen_ver.destroy()
+        self.verifier()
 
 
     def fen_quesClose(self):
@@ -472,9 +516,7 @@ class Interface():
         global i
         if i == 0:
             self.reponse.set('')
-        else: 
-            pass
-        i += 14
+            i += 1
 
 
     def champQuestionOverEnter(self, event):
@@ -482,9 +524,7 @@ class Interface():
         global j
         if j == 0:
             self.champQuestion.delete('1.0', '1.20')
-        else: 
-            pass
-        j += 1
+            j += 1
 
     
     def offlinemouseOverEnter(self, event):
