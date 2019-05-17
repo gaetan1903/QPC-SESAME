@@ -1,5 +1,5 @@
 #-*-coding: Utf-8 -*-
-# __author__: Gaetan Jonathan
+# __author__: Gaetan Jonathan BAKARY
 
 from tkinter import * 
 import threading, time
@@ -76,33 +76,41 @@ class Interface():
     
 
     def fen_f1Close(self):
+        """ 
+            fonction servant a intercepter la fermeture
+                de la fenetre de fen f1 pour renitiliser le compteur 
+                                                                    """
             self.count = 0  #  retour au zero du compteur
-            self.fen_f1.destroy()
+            self.fen_f1.destroy()  #  detruire la fenetre
 
 
     def openProject(self):
-        self.fen_f1.destroy()
-        self.count = 0
-        self.file = askopenfilename(filetypes=[(".qpc","*.qpc")])
+        """
+            fonction permettant d'ouvrir un projet
+                de question et de verifier si le fichier est valide
+                                                                    """ 
+        self.fen_f1.destroy()  #  destruction de la fenetre
+        self.count = 0   #  renitialisation du compteur
+        self.file = askopenfilename(filetypes=[(".qpc","*.qpc")])  #  ouverture de l explorer
+        #  verification si un fichier a été selectionner
+        if self.file is not '':  #  si un fichier a ete selectionner
 
-        if self.file is not '':
-
-            f = open(self.file, 'r')
-            self.continuer = False
+            f = open(self.file, 'r')  #  ouvrir en mode lecture seule
+            self.continuer = False  #  initialisation d'un variable de verification
             for x in f:
                 if x[0] == '{':
-                    self.continuer = True
-                    
+                    self.continuer = True  #  on peut continuer
+                #  si l entente de fichier est de type json 
                 break
             
-            if self.continuer:
-                self.root.withdraw()
-                import InterOffline
-                self.root.deiconify()
+            if self.continuer:  #  si fichier valide 
+                self.root.quit()  #  quitter  l interface
+                import InterOffline  #  lancer l interface de jeu
+
 
             else:  #  mauvais fichier 
                 self.root.withdraw()
-                self.root.deiconify()
+                self.root.deiconify()  #  reafficher la fenetre
                 tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...')
         
         else:   #  cas d une annulation
