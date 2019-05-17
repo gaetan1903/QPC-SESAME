@@ -24,6 +24,7 @@ class Interface():
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
         self.helv36 = tkFont.Font(family='Arial', size=36, weight='bold')
         self.arial24 = tkFont.Font(family='Arial', size=22, weight='bold')
+        self.arial12 = tkFont.Font(family='Arial', size=12, weight='bold')
         self.verdana30 = tkFont.Font(family='Verdana', size = 30, weight = 'bold')
         self.arialinfo0 = tkFont.Font(family='Arial', size=18)
         self.arialinfo = tkFont.Font(family='Arial', size=16)
@@ -305,21 +306,21 @@ class Interface():
         #  pour le niveau  1
         i = 1
         for x in range(1, len(self.dict['Question1']) + 1):
-            tmp.append(f"I-{i}) {q1[x-1]}")
+            tmp.append(f"1-{i}) {q1[x-1]}")
             tmp.append(f"--> {r1[x-1][0]} :    {r1[x-1][1]} points")
             tmp.append([])
             i += 1
         #  pour le niveau 2
         i = 1
         for x in range(1, len(self.dict['Question2']) + 1):
-            tmp.append(f"II-{i}) {q2[x-1]}")
+            tmp.append(f"2-{i}) {q2[x-1]}")
             tmp.append(f"--> {r2[x-1][0]} :    {r2[x-1][1]} points")
             tmp.append([])
             i += 1
         #  pour le niveau 3
         i =  1
         for x in range(1, len(self.dict['Question3']) + 1):
-            tmp.append(f"III-{i}) {q3[x-1]}")
+            tmp.append(f"3-{i}) {q3[x-1]}")
             tmp.append(f"--> {r3[x-1][0]} :    {r3[x-1][1]} points")
             tmp.append([])
             i += 1
@@ -410,18 +411,50 @@ class Interface():
             question_detect = self.moded.split(')')[1].strip()
             detect = self.moded.split(' ')[0]
             detect = detect[:len(detect) - 1]
+            self.popedit(question_detect, detect)
 
-            print(question_detect)
+    
         
         elif (int(self.listes.curselection()[0])) % 3 == 1:
-            reponse_detect = self.moded.split(' ')[1].split(':')[0].strip()
+            reponse_detect = self.moded.split('>')[1].split(':')[0].strip()
             self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
             detect = self.moded.split(' ')[0]
             detect = detect[:len(detect) - 1]
+            self.popedit(reponse_detect, detect)
 
-            print(reponse_detect)
+
+    def popedit(self, chose, emp):
+        """
+            fonction permettant d'afficher une fenetre
+                qui sert a entrer la modification de la chose selectionner
+                                                                           """
+        self.detect = emp 
+        self.fenmod = Toplevel(self.fen_ver)
+        self.fenmod.config(bg ='white')
+        decor = Canvas(self.fenmod, width = 400, height = 40, bg = 'teal', bd = 0, highlightthickness = 0)
+        decor.create_text(200, 20, text = 'MODIFICATION', fill = 'yellow', font = self.arialinfo)
+        decor.pack()
+        labelold = Label(self.fenmod, text = '\nAncien contenu:\n', bg = 'white', font = self.arial12).pack()
+        choseOld = Text(self.fenmod, fg = 'red', height = 4, width = 50, bg = 'lightgray')
+        choseOld.pack()
+        labelresp = Label(self.fenmod, text = '\nEntrer Nouveau contenu:\n', bg ='white', font = self.arial12).pack()
+        self.entreques = Text(self.fenmod,  width = 50, height = 4, bg = 'lightgray', fg ='darkgreen')
+        self.entreques.pack()
+        butterm = Button(self.fenmod, text = 'Terminer Changement', font = self.arialinfo14, command = self.enregChange).pack(pady = 15)
+        choseOld.insert('1.0', chose)
 
 
+    def enregChange(self):
+        """"
+        if int(self.detect[0]) == 1:
+                 
+        elif int(self.detect[0]) == 2:
+                pass
+        elif int(self.detect[0]) == 3:
+                pass
+
+        self.entreques.get('1.0', '10.0')
+        """
 
     def effverifier(self, event):
           self.option.destroy()
@@ -441,7 +474,8 @@ class Interface():
             self.reponse.set('')
         else: 
             pass
-        i += 1
+        i += 14
+
 
     def champQuestionOverEnter(self, event):
         #  fonction permettant de efface le texte en premier entrer
