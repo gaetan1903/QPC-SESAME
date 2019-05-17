@@ -306,21 +306,21 @@ class Interface():
         i = 1
         for x in range(1, len(self.dict['Question1']) + 1):
             tmp.append(f"I-{i}) {q1[x-1]}")
-            tmp.append(f"--> {r1[x-1][0]}  _*_  {r1[x-1][1]} points")
+            tmp.append(f"--> {r1[x-1][0]} :    {r1[x-1][1]} points")
             tmp.append([])
             i += 1
         #  pour le niveau 2
         i = 1
         for x in range(1, len(self.dict['Question2']) + 1):
             tmp.append(f"II-{i}) {q2[x-1]}")
-            tmp.append(f"--> {r2[x-1][0]}  _*_  {r2[x-1][1]} points")
+            tmp.append(f"--> {r2[x-1][0]} :    {r2[x-1][1]} points")
             tmp.append([])
             i += 1
         #  pour le niveau 3
         i =  1
         for x in range(1, len(self.dict['Question3']) + 1):
             tmp.append(f"III-{i}) {q3[x-1]}")
-            tmp.append(f"--> {r3[x-1][0]}  _*_  {r3[x-1][1]} points")
+            tmp.append(f"--> {r3[x-1][0]} :    {r3[x-1][1]} points")
             tmp.append([])
             i += 1
 
@@ -338,10 +338,12 @@ class Interface():
         yDefilB['command'] = self.listes.yview
         #  evenement a un clique droite de la souris
         self.listes.bind('<Button-3>', self.verifConfig)
+        #  evenement a un clique gauche de la souris
         self.listes.bind('<Button-1>', self.clickclose)
 
 
     def clickclose(self, event):
+        #  fonction permettant de fermer l'option souris 
         try:
             self.option.destroy()
         except:
@@ -402,6 +404,23 @@ class Interface():
 
     def modverifier(self, event):
         self.option.destroy()
+        self.moded = self.listes.get(self.listes.curselection())
+
+        if (int(self.listes.curselection()[0])) % 3 == 0:
+            question_detect = self.moded.split(')')[1].strip()
+            detect = self.moded.split(' ')[0]
+            detect = detect[:len(detect) - 1]
+
+            print(question_detect)
+        
+        elif (int(self.listes.curselection()[0])) % 3 == 1:
+            reponse_detect = self.moded.split(' ')[1].split(':')[0].strip()
+            self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
+            detect = self.moded.split(' ')[0]
+            detect = detect[:len(detect) - 1]
+
+            print(reponse_detect)
+
 
 
     def effverifier(self, event):
