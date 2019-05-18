@@ -9,6 +9,7 @@ from tkinter.filedialog import *
 import json  #  load charger en dict , loads charger dict en str, dumps dict en json
 
 i = j = 0  #  compteur utile
+dictionnaire = {}
 
 class Interface():
     def __init__(self):
@@ -80,8 +81,8 @@ class Interface():
             fonction servant a intercepter la fermeture
                 de la fenetre de fen f1 pour renitiliser le compteur 
                                                                     """
-            self.count = 0  #  retour au zero du compteur
-            self.fen_f1.destroy()  #  detruire la fenetre
+        self.count = 0  #  retour au zero du compteur
+        self.fen_f1.destroy()  #  detruire la fenetre
 
 
     def openProject(self):
@@ -90,29 +91,22 @@ class Interface():
                 de question et de verifier si le fichier est valide
                                                                     """ 
         self.fen_f1.destroy()  #  destruction de la fenetre
-        self.count = 0   #  renitialisation du compteur
+        self.count = 0  #  renitialisation du compteur
         self.file = askopenfilename(filetypes=[(".qpc","*.qpc")])  #  ouverture de l explorer
         #  verification si un fichier a été selectionner
         if self.file is not '':  #  si un fichier a ete selectionner
-
             f = open(self.file, 'r')  #  ouvrir en mode lecture seule
-            self.continuer = False  #  initialisation d'un variable de verification
-            for x in f:
-                if x[0] == '{':
-                    self.continuer = True  #  on peut continuer
-                #  si l entente de fichier est de type json 
-                break
-            
-            if self.continuer:  #  si fichier valide 
-                self.root.quit()  #  quitter  l interface
-                import InterOffline  #  lancer l interface de jeu
-
-
-            else:  #  mauvais fichier 
+            try:
+                self.dict = json.load(f)
+            except:
                 self.root.withdraw()
                 self.root.deiconify()  #  reafficher la fenetre
-                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...')
-        
+                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...') 
+            else:  #  si tous c est bien passé 
+                self.root.quit()  #  quitter  l interface
+                global dictionnaire
+                dictionnaire = self.dict
+                import InterOffline  #  lancer l interface de jeu
         else:   #  cas d une annulation
             self.root.withdraw()
             self.root.deiconify()
@@ -370,8 +364,9 @@ class Interface():
 
             self.fen_ques1.destroy()
             self.root.withdraw()
+            global dictionnaire
+            dictionnaire = self.dict
             import InterOffline
-            self.root.deiconify()
         
         else:
             self.fen_ques1.withdraw()
@@ -384,6 +379,12 @@ class Interface():
                 de clique droite de la souris qui a pour but 
                     de modifier ou de suprimé une question ou une une reponse
                                                                                 """
+
+        try:
+            self.option.destroy()
+        except:
+            pass
+            
         try:
             int(self.listes.curselection()[0])
 
@@ -391,25 +392,28 @@ class Interface():
             pass 
 
         else:
-            self.option = Frame(self.fen_ver, cursor = 'hand2', bd = 5, highlightcolor = 'orange', highlightthickness = 2, bg ='teal')
-            pointX1 = self.fen_ver.winfo_pointerx()
-            pointX0 = self.fen_ver.winfo_x() 
-            pointY1 = self.fen_ver.winfo_pointery()
-            pointY0 = self.fen_ver.winfo_y() + 10
+            if (int(self.listes.curselection()[0])) % 3 == 2:
+                pass
+            else:
+                self.option = Frame(self.fen_ver, cursor = 'hand2', bd = 5, highlightcolor = 'orange', highlightthickness = 2, bg ='teal')
+                pointX1 = self.fen_ver.winfo_pointerx()
+                pointX0 = self.fen_ver.winfo_x() 
+                pointY1 = self.fen_ver.winfo_pointery()
+                pointY0 = self.fen_ver.winfo_y() + 10
 
-            self.mod = Canvas(self.option, bg = 'teal', width = 60, height = 25, bd = 0 , highlightthickness = 0)
-            self.mod.create_text(30, 10 , text = 'Modifier', fill = 'yellow', activefill = 'orange')
-            self.mod.pack()
-        
-            self.eff = Canvas(self.option, bg = 'teal', width = 60 , height = 25, bd = 0 , highlightthickness = 0)
-            self.eff.create_text(30, 12 , text = 'Supprimer', fill = 'yellow', activefill = 'orange')
-            self.eff.pack()
-
-            self.mod.create_line(0, 24, 60, 24, fill = 'white', width = 2)
-            self.option.place(x = pointX1 - pointX0, y = pointY1 - pointY0)
+                self.mod = Canvas(self.option, bg = 'teal', width = 60, height = 25, bd = 0 , highlightthickness = 0)
+                self.mod.create_text(30, 10 , text = 'Modifier', fill = 'yellow', activefill = 'orange')
+                self.mod.pack()
             
-            self.mod.bind('<Button-1>', self.modverifier)
-            self.eff.bind('<Button-1>', self.effverifier)
+                self.eff = Canvas(self.option, bg = 'teal', width = 60 , height = 25, bd = 0 , highlightthickness = 0)
+                self.eff.create_text(30, 12 , text = 'Supprimer', fill = 'yellow', activefill = 'orange')
+                self.eff.pack()
+
+                self.mod.create_line(0, 24, 60, 24, fill = 'white', width = 2)
+                self.option.place(x = pointX1 - pointX0, y = pointY1 - pointY0)
+                
+                self.mod.bind('<Button-1>', self.modverifier)
+                self.eff.bind('<Button-1>', self.effverifier)
 
 
     def modverifier(self, event):
