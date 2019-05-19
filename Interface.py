@@ -2,15 +2,29 @@
 # __author__: Gaetan Jonathan BAKARY
 
 from tkinter import * 
-import threading, time
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
-from tkinter.filedialog import *
-import json  #  load charger en dict , loads charger dict en str, dumps dict en json
+import time, json
+import InterJeu, moduleQPC  #  nos propres modules
 
 i = j = 0  #  compteur utile
 dictionnaire = {}
 
+
+class InterJeu:
+    def __init__(self):
+        """
+            class mere d'une ouverture de fenetre de jeu 
+                dans le but de ne pas reécrire chque init pour chaque code
+                                                                            """
+        self.root = Tk()  #  creation de ma fenetre
+        self.root.config(bg='white')  #  fond blanc 
+        self.root.geometry('1200x600+0+0')  # taille de la fenetre 
+        self.root.wm_state(newstate="zoomed")  #  plein ecran windows
+        self.root.resizable(width=False, height=False)
+
+
+        
 class Interface():
     def __init__(self):
         """
@@ -40,35 +54,34 @@ class Interface():
         self.reseau0 = PhotoImage(file='reseau.png')
         self.projet0 = PhotoImage(file='projet.png')
         self.setting0 = PhotoImage(file='settings.png')
-
-        self.count = 0  #  initialisation d'un compteur
+        #  initialisation d'un compteur
+        self.count = 0  
          
 
     def __corps__(self):
         """
             Methode contenant le corps de l'Interface principal
                                                                     """
-        #  creation et positionnement d'un canvas
+        #  creation et positionnement d'un canvas et son contenu
         self.eval = Canvas(self.root, bg = 'white', width = 1200, height = 75)
         self.eval.place(relx = -0.001, rely = -0.001)
-
         self.eval.create_text(602, 38 , text = 'Question Pour un Champion', font = self.verdana30, fill = 'teal')  #  creation du titre en tant que text
+        #  redimensonnement des images
         self.fsociety = self.fsociety0.subsample(8, 8)
         self.sesame = self.sesame0.subsample(20, 20)  #  image redimensionner 
-
+        #  ajout de contenu supll 
         self.eval.create_image(90, 40 , image = self.fsociety) 
         self.eval.create_image(1140, 37 , image = self.sesame)  #  nametraka image a un position 
-
+        #  creation de canvas de bas et sa position 
         self.footer = Canvas(self.root, bg = 'teal', width = 1202, height = 50, bd = 0, highlightthickness = 0)  #  canvas en bas 
         self.footer.place(relx = -0.001, rely = 0.92)  #  sa position 
         # ci dessous les elements a placé sur le canvas
         self.footer.create_text(1120, 25, text = '© Copyright Juin 2019', activefill = 'orange', fill ='yellow')
         self.footer.create_text(105, 25, text = '♣ Licence Libre & Open Source ♣', activefill = 'orange', fill ='yellow')
         self.footer.create_text(600, 25, text = '☻ ambatoroka.fsociety@gmail.com ☻', activefill = 'orange', fill ='yellow')
-
+        #  creation de canvas de jeu 
         self.menuJeu = Canvas(self.root, bg = 'teal', highlightthickness = 0, width = 1202, height = 65)
         self.menuJeu.place(relx = - 0.001, rely = 0.1278)  #  canvas pour les choix de mode de jeu 
-
         #  Ci dessous la creation du bouton mode offline avec ses comportements
         self.offlineButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Offline",  font = self.arial24, command = self.offlineCommand)
         self.offlineButton.place(relx = 0.005, rely = 0.13)
@@ -92,153 +105,184 @@ class Interface():
                                                                     """ 
         self.fen_f1.destroy()  #  destruction de la fenetre
         self.count = 0  #  renitialisation du compteur
-        self.file = askopenfilename(filetypes=[(".qpc","*.qpc")])  #  ouverture de l explorer
+        self.file = moduleQPC.recupfichier(extension = 'qpc')  #  ouverture de l explorer
         #  verification si un fichier a été selectionner
         if self.file is not '':  #  si un fichier a ete selectionner
-            f = open(self.file, 'r')  #  ouvrir en mode lecture seule
+            f = open(self.file, 'r', encoding = 'utf8')  #  ouvrir en mode lecture seule
             try:
-                self.dict = json.load(f)
-            except:
-                self.root.withdraw()
-                self.root.deiconify()  #  reafficher la fenetre
-                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...') 
+                self.dict = json.load(f)  #  transform en dictionnaire les données 
+            except:  #  si erreur , fichier corrompu ou pas valide 
+                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...\n Le fichier est peut être endommagé')
+                self.root.withdraw()  #  cache la fenetre principale
+                self.root.deiconify()  #  reafficher la fenetre 
             else:  #  si tous c est bien passé 
                 self.root.quit()  #  quitter  l interface
-                global dictionnaire
-                dictionnaire = self.dict
-                import InterOffline  #  lancer l interface de jeu
+                self.root.destroy()  #  assurer sa destruction 
+                global dictionnaire  #  atteindre la variable global
+                dictionnaire = self.dict   #  assigner les données
+                offlineStart()  #  lancer l interface de jeu
         else:   #  cas d une annulation
+            #  rendre en premier plan la fenetre
             self.root.withdraw()
             self.root.deiconify()
 
     
     def newProject(self):
-        self.count = 0
-        self.dict = {}
-        self.dict['Question1'] = []
-        self.dict['Reponse1'] = []
+        """
+            fonction permettant de lancer un nouveau projet de question 
+                dans le but de creer une nouvelle fenetre pour entrer les questions et les reponses
+                                                                                                    """
+        self.count = 0  #  renitialiser le compteur 
+        self.dict = {}  #  initialiser un variable qui va contenir tous les données
+        self.dict['Question1'] = []  #  initialiser une liste dans le dict pour les questions niveau1
+        self.dict['Reponse1'] = []  #  pour les reponses niveau1
         #  une petite formatage de texte
-        self.dict['Question2'] = []
-        self.dict['Reponse2'] = []
+        self.dict['Question2'] = []  #  pour les questions niveau1
+        self.dict['Reponse2'] = []  #  pour les reponses niveau1
         #  une petite formatage de texte
-        self.dict['Question3'] = []
-        self.dict['Reponse3'] = []
-
-        self.fen_f1.destroy()
-        self.fen_ques1 = Toplevel(self.root)
-        self.fen_ques1.title('QPC SESAME: Question')
-        self.fen_ques1['bg'] = 'white'
-        self.fen_ques1.geometry('700x500+400+100')
-        self.fen_ques1.protocol("WM_DELETE_WINDOW", self.fen_quesClose)
-
+        self.dict['Question3'] = []  #  pour les questions niveau3
+        self.dict['Reponse3'] = []  #  pour les reponses niveau3
+        #  ci dessous la creation de la fenetre fille 
+        self.fen_f1.destroy()  # destruction de la fenetre de choix 
+        self.fen_ques1 = Toplevel(self.root)   #  creation d une fenetre fille de fenetre principal
+        self.fen_ques1.title('QPC SESAME: Question')  #  titre du fenetre
+        self.fen_ques1['bg'] = 'white'  #  couleur de fond 
+        self.fen_ques1.geometry('700x500+400+100')   #  taille et position de la fenetre
+        self.fen_ques1.protocol("WM_DELETE_WINDOW", self.fen_quesClose)   #   un protocol qui intercepte la fermeture de la fenetre 
+        #  ci dessous creation des widgets presents dans la fenetre
         self.fen_ques1Topnav = Canvas(self.fen_ques1, width = 705, height = 35, bg = 'white')
         self.fen_ques1Aftnav = Canvas(self.fen_ques1, width = 705, height = 35, bg = 'teal', highlightthickness = 0)
         self.fen_ques1Topnav.place(relx = -0.00001, rely = 0.01)
         self.fen_ques1Aftnav.place(relx = -0.00001, rely = 0.08)
-
-        self.etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
-        self.values = [1 , 2 , 3]
-        self.niveau = IntVar()
-        for i in range(3):
+        self.fen_ques1Topnav.create_text(330, 18, text = 'Projet Questions', font = self.arialinfo14, fill = 'teal')
+        #  ci dessous mise en place du radio button pour le choix de niveau 
+        self.etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']  #  le texte sur le radio 
+        self.values = [1 , 2 , 3]  # ses valeurs initial selon l ordre du nom 
+        self.niveau = IntVar()  #  variable qui va recuperer le choix 
+        for i in range(3):  #  positionnement du radio 
             self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
             self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
         del i  
-        self.champQuestion = Text(self.fen_ques1, height = 6, width = 70, bg = 'lightgray')
+        self.champQuestion = Text(self.fen_ques1, height = 6, width = 70, bg = 'lightgray')   #  mise en place du champ de question 
         self.champQuestion.place(relx = 0.1, rely = 0.35)
-        self.champQuestion.insert('1.0', "Enter la question...")
-        self.champQuestion.bind("<Button-1>", self.champQuestionOverEnter)
-
-        self.reponse = StringVar()
-        self.reponse.set('Entrer la réponse... ')
+        self.champQuestion.insert('1.0', "Enter la question...")   #  le texte sur le champ 
+        self.champQuestion.bind("<Button-1>", self.champQuestionOverEnter)  #  evenement lancer au click du champ pour effacer le texte
+        #  mise en place du champ de reponse 
+        self.reponse = StringVar()  #  variable recuperant le texte entré 
+        self.reponse.set('Entrer la réponse... ')  #  le texte a afficher 
         self.champReponse = Entry(self.fen_ques1,  textvariable = self.reponse, width = 50, bg = 'lightgray', font = self.arialinfo14, fg = '#333')
         self.champReponse.place(relx = 0.1, rely = 0.6)
-        self.champReponse.bind("<Button-1>", self.champReponseOverEnter)
-
+        self.champReponse.bind("<Button-1>", self.champReponseOverEnter)  #  evenement au click du champ reponse pour effacer le texte
+        #  creation et positionnement des boutons et la fonction relier a son actions
         self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo, command = self.enregistrer)
         self.enrButton.place(relx = 0.1, rely = 0.7)
-
         self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo, command = self.verifier)
         self.verButton.place(relx = 0.77, rely = 0.7)
-
-        self.fen_ques1Topnav.create_text(330, 18, text = 'Projet Questions', font = self.arialinfo14, fill = 'teal')
-
-        self.setting = self.setting0.subsample(2, 2)
-
-        self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue1)
-        self.niveau1Set.place(relx = 0.25,rely = 0.21)
-
-        self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue2)
-        self.niveau2Set.place(relx = 0.55,rely = 0.21)
-
-        self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changevalue3)
-        self.niveau3Set.place(relx = 0.85,rely = 0.21)
-
         self.termButton = Button(self.fen_ques1, text = 'TERMINER',font = self.arialinfo14, fg = 'teal', command = self.terminer)
         self.termButton.place(relx = 0.42, rely = 0.85)
-
+        #  ci dessus creation des bouttons images qui permets de configurer le nombre de point de chaque niveau 
+        self.setting = self.setting0.subsample(2, 2)  #  redimensionnement de l image 
+        #  placement des boutons pour le niveau 1
+        self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue1)
+        self.niveau1Set.place(relx = 0.25,rely = 0.21)
+        #  placement des boutons pour le niveau 2
+        self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue2)
+        self.niveau2Set.place(relx = 0.55,rely = 0.21)
+        #  placement des boutons pour le niveau 3
+        self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changevalue3)
+        self.niveau3Set.place(relx = 0.85,rely = 0.21)
+        
 
     def changeValue1(self):
-        self.fenVal1 = Toplevel(self.fen_ques1)
-        self.fenVal1.title("Point d'incrémentation")
-        self.fenVal1.geometry('+500+250')
-        self.valeur1 = IntVar()
+        """
+            fonction reagissant a un boutton pour 
+                changer les point des questions de niveau 1 
+                                                            """
+        self.fenVal1 = Toplevel(self.fen_ques1)  #  ouverture d'une petite fenetre
+        self.fenVal1.title("Point d'incrémentation")   #  titr de la fenetre
+        self.fenVal1.geometry('+500+250')  # sa position 
+        self.valeur1 = IntVar()  #  variable recuperant le nouveau valeur 
+        #  ci dessous la configuration des widgets
         label = Label(self.fenVal1, text = 'Entrer le nombre de point du question "Niveau 1" ').pack()
         entre = Entry(self.fenVal1, textvariable = self.valeur1)
         self.valeur1.set(self.values[0])
         entre.pack()
+        #  creation de bouton pour prendre la nouveau valeur
         boutton = Button(self.fenVal1, text = 'Valider', width = 20, command = self.getValue1).pack()
+
 
     
     def changeValue2(self):
-        self.fenVal2 = Toplevel(self.fen_ques1)
+        """
+            fonction reagissant a un boutton pour 
+                changer les point des questions de niveau 1 
+                                                            """
+        self.fenVal2 = Toplevel(self.fen_ques1)   #  ouverture d'une petite fenetre
         self.fenVal2.title("Point d'incrémentation")
         self.fenVal2.geometry('+550+250')
-        self.valeur2 = IntVar()
+        self.valeur2 = IntVar()  #  variable recuperant le nouveau valeur
+        #  ci dessous la configuration des widgets
         label = Label(self.fenVal2, text = 'Entrer le nombre de point du question "Niveau 2" ').pack()
         entre = Entry(self.fenVal2, textvariable = self.valeur2)
         self.valeur2.set(self.values[1])
         entre.pack()
+        #  creation de bouton pour prendre la nouveau valeur
         boutton = Button(self.fenVal2, text = 'Valider', width = 20, command = self.getValue2).pack()
     
     
     def changevalue3(self):
-        self.fenVal3 = Toplevel(self.fen_ques1)
+        """
+            fonction reagissant a un boutton pour 
+                changer les point des questions de niveau 1 
+                                                            """
+        self.fenVal3 = Toplevel(self.fen_ques1)   #  ouverture d'une petite fenetre
         self.fenVal3.title("Point d'incrémentation")
         self.fenVal3.geometry('+550+250')
-        self.valeur3 = IntVar()
+        self.valeur3 = IntVar()   #  variable recuperant le nouveau valeur
+        #  ci dessous la configuration des widgets
         label = Label(self.fenVal3, text = 'Entrer le nombre de point du question "Niveau 3" ').pack()
         entre = Entry(self.fenVal3, textvariable = self.valeur3)
         self.valeur3.set(self.values[2])
         entre.pack()
+         #  creation de bouton pour prendre la nouveau valeur
         boutton = Button(self.fenVal3, text = 'Valider', width = 20, command = self.getValue3).pack()
 
 
     def getValue1(self):
-        self.values[0] = self.valeur1.get()
-        self.Rniveau.destroy()
+        """
+            fonction pour changer les valeurs du  RadioBoutton1
+                                                                """
+        self.values[0] = self.valeur1.get()  #  recuperation de nouvelle valeur
+        self.Rniveau.destroy()  #  destruction des widgets
         self.fenVal1.destroy()
         self.valeur1.set(self.values[0])
-        for i in range(3):
+        for i in range(3):  # reconstruction des widgets
             self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
             self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
 
     
     def getValue2(self):
-        self.values[1] = self.valeur2.get()
-        self.Rniveau.destroy()
+        """
+            fonction pour changer les valeurs du  RadioBoutton2
+                                                                """
+        self.values[1] = self.valeur2.get()  #  recuperation de la nouvelle valeur 
+        self.Rniveau.destroy()  #  destruction pour la reconstrucution
         self.fenVal2.destroy()
-        self.valeur2.set(self.values[1])
-        for i in range(3):
+        self.valeur2.set(self.values[1])  #  afficher sa nouvelle valeur 
+        for i in range(3):  #  reconstruction 
             self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
             self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
 
 
     def getValue3(self):
-        self.values[2] = self.valeur3.get()
-        self.Rniveau.destroy()
+        """
+            fonction pour changer les valeurs du  RadioBoutton3
+                                                                """
+        self.values[2] = self.valeur3.get()  #  recuperation de la nouvelle valeur 
+        self.Rniveau.destroy()  #  destruction pour une reconstruction 
         self.fenVal3.destroy()
         self.valeur3.set(self.values[2])
-        for i in range(3):
+        for i in range(3):  #  reconstruction avec ses nouvelles valeurs
             self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
             self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
 
@@ -248,30 +292,37 @@ class Interface():
             une fonction permettant d enregistrer temporairement 
                 dans la RAM , les questions et reponses entrées dans le projet
                                                                                 """
-        effacer = True 
+        effacer = True  #  initialisation d une variable de verification 
         textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
 
-        if self.niveau.get() == self.values[0]:
-            self.dict['Question1'].append([textget, len(textget.strip())])
+        if self.niveau.get() == self.values[0]:  #  si la question est de niveau 
+            #  ajout des données
+            self.dict['Question1'].append([textget, len(textget.strip())])  
             self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
 
-        elif self.niveau.get() == self.values[1]:
+        elif self.niveau.get() == self.values[1]: #  si la question est de niveau 2
+            #  ajout des donnée
             self.dict['Question2'].append([textget, len(textget.strip())])
             self.dict['Reponse2'].append([self.reponse.get().strip(), self.niveau.get()])
 
-        elif self.niveau.get() == self.values[2]:
+        elif self.niveau.get() == self.values[2]:  #  si la question est de niveau 3
+            #  ajout des donnée
             self.dict['Question3'].append([textget, len(textget.strip())])
             self.dict['Reponse3'].append([self.reponse.get().strip(), self.niveau.get()])
 
-        else:
+        else:  #  si aucun niveau n a été selectionner 
             tkmsg.showwarning('Aucun niveau selectionné', "Attention,\nIl est impératif de selectionner le niveau de cette question")
+            #  reaaffiche la fenetre 
             self.fen_ques1.withdraw()
             self.fen_ques1.deiconify()
-            effacer = False
+            effacer = False   #  ne pas vider le champ car pas encore enregistrer
 
-        if effacer:
+        if effacer:  #  si tous c est bien passé 
+            #  effacer les données
             self.reponse.set('')  #  vider le champ
             self.champQuestion.delete('1.0', '10.0')  #  vider le champ
+        
+        del effacer
 
     
     def verifier(self):
@@ -349,26 +400,27 @@ class Interface():
     def clickclose(self, event):
         #  fonction permettant de fermer l'option souris 
         try:
-            self.option.destroy()
-        except:
-            pass
+            self.option.destroy()   #  detruire s'il existe
+        except:  #  si erreur ( si il n existe pas)
+            pass  #  rien faire 
 
 
     def terminer(self):
         #  ouverture de l'explorateur pour la sauvegarde
-        self.file = asksaveasfilename(defaultextension = '.qpc', initialfile = 'project1.qpc', title = 'Sauvegarde du projet')
+        self.file = moduleQPC.saveFichier(defaultextension = '.qpc', initialfile = 'project1.qpc', title = 'Sauvegarde du projet')
         #  gestion des erreurs par des conditions
         if self.file is not '':  #  cas d une non  annulation 
             with open(self.file, 'w', encoding = 'utf8') as json_data:  #  ouvrir le fichier creer en mode ecriture 
                 json.dump(self.dict, json_data, indent = 4, ensure_ascii = False)  #  parse dans le fichier creer le  dictionnaire des questions 
-
-            self.fen_ques1.destroy()
-            self.root.withdraw()
-            global dictionnaire
-            dictionnaire = self.dict
-            import InterOffline
-        
-        else:
+            self.fen_ques1.destroy()  #  detruire la fenetre 
+            self.root.quit()
+            self.root.destroy()
+            global dictionnaire 
+            dictionnaire = self.dict 
+            #  lancer le jeu offline
+            offlineStart()
+        else:  #  cas d une annulation 
+            #  reaffiche la fenetre 
             self.fen_ques1.withdraw()
             self.fen_ques1.deiconify()
 
@@ -379,44 +431,50 @@ class Interface():
                 de clique droite de la souris qui a pour but 
                     de modifier ou de suprimé une question ou une une reponse
                                                                                 """
-
         try:
-            self.option.destroy()
+            self.option.destroy()  #  detruire si il existe déja pour eviter les clones 
         except:
+            pass  #  si erreur , ne fait rien 
+        else:  #  si tous c'est bien passé, ne fait rien 
             pass
-            
-        try:
-            int(self.listes.curselection()[0])
-
+        #  nouveau bloc d essaie 
+        try:  
+            int(self.listes.curselection()[0])   #  transformer en integer si possibe 
         except:
+            #  dans ce cas d erreur , rien n est selectionner
             pass 
 
-        else:
-            if (int(self.listes.curselection()[0])) % 3 == 2:
+        else:  #  si aucun erreur a été declenché 
+            if (int(self.listes.curselection()[0])) % 3 == 2:  #  si la case vide a été selectionner 
                 pass
-            else:
+            else:  #  si la case question ou reponse 
+                #  creation d'un cadre pour mettre les option 
                 self.option = Frame(self.fen_ver, cursor = 'hand2', bd = 5, highlightcolor = 'orange', highlightthickness = 2, bg ='teal')
-                pointX1 = self.fen_ver.winfo_pointerx()
-                pointX0 = self.fen_ver.winfo_x() 
-                pointY1 = self.fen_ver.winfo_pointery()
-                pointY0 = self.fen_ver.winfo_y() + 10
-
+                pointX1 = self.fen_ver.winfo_pointerx()  #  position de la pointe de souris par rapport a l horizontale de l'ecran
+                pointX0 = self.fen_ver.winfo_x()  #  position top du fenetre par rapport a l horizontal de l ecran
+                pointY1 = self.fen_ver.winfo_pointery()  #  position de la pointe de souris par rapport a la verticale de l'ecran
+                pointY0 = self.fen_ver.winfo_y() + 10  #  position top du fenetre par rapport a la verticale  de l ecran ajuster par 10px 
+                #  creation des cavas qui va se comporter comme un bouton 
                 self.mod = Canvas(self.option, bg = 'teal', width = 60, height = 25, bd = 0 , highlightthickness = 0)
                 self.mod.create_text(30, 10 , text = 'Modifier', fill = 'yellow', activefill = 'orange')
                 self.mod.pack()
-            
+                #  creation des cavas qui va se comporter comme un bouton
                 self.eff = Canvas(self.option, bg = 'teal', width = 60 , height = 25, bd = 0 , highlightthickness = 0)
                 self.eff.create_text(30, 12 , text = 'Supprimer', fill = 'yellow', activefill = 'orange')
                 self.eff.pack()
-
+                #  decorer par une ligne entre les deux canvas 
                 self.mod.create_line(0, 24, 60, 24, fill = 'white', width = 2)
                 self.option.place(x = pointX1 - pointX0, y = pointY1 - pointY0)
-                
+                #  evenement a un click des deux canvas 
                 self.mod.bind('<Button-1>', self.modverifier)
                 self.eff.bind('<Button-1>', self.effverifier)
 
 
     def modverifier(self, event):
+        """
+            fonction declenché a partir d un click sur le canvas modifier 
+                permettent de modifier le texte cliqué soit la question ou la reponse
+                                                                                        """
         self.option.destroy()  #  detruire l'option du clique droite
         self.moded = self.listes.get(self.listes.curselection())  #  prendre l'index de la partie selectionner 
         #  ci dessous pour verifier si partie question ou partie reponse
@@ -426,12 +484,13 @@ class Interface():
             detect = detect[:len(detect) - 1]
             self.popedit(question_detect, detect, 'question')  #  appel la fonction qui edit le contenur le voulue
         
-        elif (int(self.listes.curselection()[0])) % 3 == 1:
-            reponse_detect = self.moded.split('>')[1].split(':')[0].strip()
-            self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
-            detect = self.moded.split(' ')[0]
+        elif (int(self.listes.curselection()[0])) % 3 == 1:  #  partie reponse 
+            reponse_detect = self.moded.split('>')[1].split(':')[0].strip()  # recupere que le texte de la reponse
+            #  prendre l'index de la question relié pour identifer l emplacement dans le dictionnaire
+            self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)  
+            detect = self.moded.split(' ')[0]  #  recuperer son identification
             detect = detect[:len(detect) - 1]
-            self.popedit(reponse_detect, detect, 'reponse')
+            self.popedit(reponse_detect, detect, 'reponse')  #  appel la fonction qui edit le contenur le voulue
 
 
     def popedit(self, chose, emp, choix):
@@ -439,9 +498,10 @@ class Interface():
             fonction permettant d'afficher une fenetre
                 qui sert a entrer la modification de la chose selectionner
                                                                            """
-        self.detect = emp 
-        self.fenmod = Toplevel(self.fen_ver)
+        self.detect = emp   
+        self.fenmod = Toplevel(self.fen_ver)  #  creation d'une nouvelle fenetre
         self.fenmod.config(bg ='white')
+        #  creation des widgets pour remplir le nouveau contenue 
         decor = Canvas(self.fenmod, width = 400, height = 40, bg = 'teal', bd = 0, highlightthickness = 0)
         decor.create_text(200, 20, text = 'MODIFICATION', fill = 'yellow', font = self.arialinfo)
         decor.pack()
@@ -451,95 +511,134 @@ class Interface():
         labelresp = Label(self.fenmod, text = '\nEntrer Nouveau contenu:\n', bg ='white', font = self.arial12).pack()
         self.entreques = Text(self.fenmod,  width = 50, height = 4, bg = 'lightgray', fg ='darkgreen')
         self.entreques.pack()
+        #  boutton permettant de recuperer la nouvelle contenue
         butterm = Button(self.fenmod, text = 'Terminer Changement', font = self.arialinfo14, command = lambda: self.enregChange(choix)).pack(pady = 15)
-        choseOld.insert('1.0', chose)
+        choseOld.insert('1.0', chose)  # inserer l'ancien contenu dans un champ 
 
 
     def enregChange(self, choix):
-        if choix == 'question':
-            if int(self.detect[0]) == 1:
-                self.dict['Question1'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-            elif int(self.detect[0]) == 2:
-                self.dict['Question2'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-            elif int(self.detect[0]) == 3:
+        """
+            fonction declenché par le boutton Terminer changement
+                dans le but de recuperer le nouveau contenue et de mettre a jour le dict
+                                                                                         """
+        if choix == 'question':  #  si c est la question qu il faut mettre a jour 
+            if int(self.detect[0]) == 1:  #  question de niveau 1 
+                #  mettre a jour le dictionnaire de données
+                self.dict['Question1'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()  
+            elif int(self.detect[0]) == 2:  #  question de niveau 2 
+                #  mettre a jour le dictionnaire de données
+                self.dict['Question2'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip() 
+            elif int(self.detect[0]) == 3:  #  question de niveau 3 
+                #  mettre a jour le dictionnaire de données
                 self.dict['Question3'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-                    
-        elif choix == 'reponse':
-            if int(self.detect[0]) == 1:
+        #  espacement  
+        elif choix == 'reponse':  #  si c est la reponse qu il faut mettre a jour
+            if int(self.detect[0]) == 1: #  reponse niveau 1
+                # mettre a jour le dictionnaire de données
                 self.dict['Reponse1'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-                
-            elif int(self.detect[0]) == 2:
+            elif int(self.detect[0]) == 2:  #  reponse niveau 2
+                # mettre a jour le dictionnaire de données
                 self.dict['Reponse2'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-
-            elif int(self.detect[0]) == 3:
+            elif int(self.detect[0]) == 3:  #  reponse niveau 3
+                # mettre a jour le dictionnaire de données
                 self.dict['Reponse3'][int(self.detect[2]) - 1][0] = self.entreques.get('1.0', '10.0').strip()
-            
-
+        #  detruite la fenetr apres finissions et relancer la fenetre de verification pour la mise a jour
         self.fen_ver.destroy()
         self.verifier()
 
 
     def effverifier(self, event):
-        self.option.destroy()
+        """
+            focntion permettant d'effacer une question et sa reponse
+                ou vise versa dans le but d'éliminer les sources d'erreur 
+                                                                            """
+        self.option.destroy()  #  detruire d'abord la fenetre
 
-        if (int(self.listes.curselection()[0])) % 3 == 0:
+        if (int(self.listes.curselection()[0])) % 3 == 0:  #  si c est une question qui a ete selectionner
             self.moded = self.listes.get(self.listes.curselection())
             detect = self.moded.split(' ')[0]  #  recuperer son identification
             detect = detect[:len(detect) - 1]
 
-            if int(detect[0]) == 1:
-                self.dict['Question1'].pop(int(detect[2]) - 1)
-                self.dict['Reponse1'].pop(int(detect[2]) - 1)
-            elif int(detect[0]) == 2:
-                self.dict['Question2'].pop(int(detect[2]) - 1)
-                self.dict['Reponse2'].pop(int(detect[2]) - 1)
-            elif int(detect[0]) == 3:
-                self.dict['Question3'].pop(int(detect[2]) - 1)
-                self.dict['Reponse3'].pop(int(detect[2]) - 1)
+            if int(detect[0]) == 1: #  si l index est dans la question 1 
+                self.dict['Question1'].pop(int(detect[2]) - 1)  #  efface la question
+                self.dict['Reponse1'].pop(int(detect[2]) - 1)  #  efface la reponse associé
+            elif int(detect[0]) == 2:  #  si l index est dans la question 2
+                self.dict['Question2'].pop(int(detect[2]) - 1)  #  efface la question 
+                self.dict['Reponse2'].pop(int(detect[2]) - 1)  #  efface la reponse associé 
+            elif int(detect[0]) == 3:  #  si l index est dans la question 3
+                self.dict['Question3'].pop(int(detect[2]) - 1)   #  efface la question
+                self.dict['Reponse3'].pop(int(detect[2]) - 1)  #  efface le reponse 
 
-        elif (int(self.listes.curselection()[0])) % 3 == 1:
+        elif (int(self.listes.curselection()[0])) % 3 == 1:  #  si c est une reponse qui a ete selectionner
             self.moded = self.listes.get(int(self.listes.curselection()[0]) - 1)
             detect = self.moded.split(' ')[0]
             detect = detect[:len(detect) - 1]
             
-            if int(detect[0]) == 1:
-                self.dict['Reponse1'].pop(int(detect[2]) - 1)
-                self.dict['Question1'].pop(int(detect[2]) - 1)
-            elif int(detect[0]) == 2:
-                self.dict['Reponse2'].pop(int(detect[2]) - 1)
-                self.dict['Question2'].pop(int(detect[2]) - 1)
-            elif int(detect[0]) == 3:
-                self.dict['Reponse3'].pop(int(detect[2]) - 1)
-                self.dict['Question3'].pop(int(detect[2]) - 1)
-
+            if int(detect[0]) == 1: #  si l index est dans la question 1
+                self.dict['Reponse1'].pop(int(detect[2]) - 1)  #  efface la reponse 
+                self.dict['Question1'].pop(int(detect[2]) - 1) #  efface la question associé 
+            elif int(detect[0]) == 2: #  si l index est dans la question 2
+                self.dict['Reponse2'].pop(int(detect[2]) - 1)  #  efface la reponse
+                self.dict['Question2'].pop(int(detect[2]) - 1)  #  efface la question associé
+            elif int(detect[0]) == 3: #  si l index est dans la question 3
+                self.dict['Reponse3'].pop(int(detect[2]) - 1)  #  efface la reponse 
+                self.dict['Question3'].pop(int(detect[2]) - 1)   #  efface la question associé
+        #  detruite la fenetr apres finissions et relancer la fenetre de verification pour la mise a jour
         self.fen_ver.destroy()
         self.verifier()
 
 
     def fen_quesClose(self):
-        global i
-        global j
-        i = j = 0
-        self.fen_ques1.destroy()
+        """
+            fonction appeler en cas de fermeture de la fenetre d entrer de question
+                                                                                    """
+        allow = 0  #  initialisation de compteur 
+        authorize = False  #  initialisation de variable de verification 
+        for test in self.dict.values():  #  iterer tous les valeurs du dict contenant les données
+            if (test != []):  #  au cas ou elle n'est est vide 
+                allow += 1   #  incrementer le compteur 
+        if allow > 0:  #  si les données ne sont pas vide 
+            rep = tkmsg.askquestion("Confirmer la fermeture", "les données seront perdues si vous continuez...\n Voulez-vous quand même fermer?")
+            if rep == 'yes':
+                authorize = True  #  autoriser la fermeture 
+            else:
+                self.fen_ques1.withdraw()  #  reaffiche la fenetre
+                self.fen_ques1.deiconify() 
+            del rep  #  efface la varible qui ne sera plus utile 
+        else:   #  si les données sont vides 
+            authorize = True  #  autoriser la fermeture 
+
+        if authorize:  #  si authorise est vrai 
+            global i
+            global j
+            i = j = 0  #  renitialiser le compteur 
+            self.fen_ques1.destroy()  #  detruitr la fenetre 
+        
+        del allow, authorize   #  deletion des variables 
 
 
     def champReponseOverEnter(self, event):
         #  fonction permettant de efface le texte en premier entrer
         global i
-        if i == 0:
-            self.reponse.set('')
-            i += 1
+        if i == 0:  #  si c'est au premiere click 
+            self.reponse.set('')  #  efface le texte
+            i += 1  #  incremente le compteur 
 
 
     def champQuestionOverEnter(self, event):
         #  fonction permettant de efface le texte en premier entrer
         global j
-        if j == 0:
-            self.champQuestion.delete('1.0', '1.20')
-            j += 1
+        if j == 0:  #  si premiere click 
+            self.champQuestion.delete('1.0', '1.20')   #  efface le texte
+            j += 1  # incrememente le compteur 
 
     
     def offlinemouseOverEnter(self, event):
+        """
+            fonction declenché lors du survole de la souris 
+                sur le menu Mode Offline dans le but d afficher le detail 
+                                                                            """
+        #  ci dessous creation des wigets pour afficher les details du mode survoler
         self.canvasLink = Canvas(self.root, bg ='teal', width = 251 , height = 5, bd = 0, highlightthickness = 0)
         self.canvasLink.place(relx = 0.005 , rely = 0.2275)
         self.canvasLink.create_rectangle(0, 0, 200 ,5, width = 0,  fill = 'yellow', outline = 'yellow')
@@ -556,27 +655,36 @@ class Interface():
 
 
     def offlinemouseOverLeave(self, event):
+        """
+            fonction declancher au cas ou la souris 
+                ne survole plus le mode de jeu survolé 
+                                                        """
+        #  tous detruire 
         self.canvasInfo.destroy()
         self.canvasLink.destroy()
 
 
     def offlineCommand(self):
-        self.count += 1 
+        """
+            fonction declenché par le bouton mode de jeu 
+                pour afficher la fenetre suite 
+                                                """
+        self.count += 1  #  incremeneter le compteur 
 
-        if self.count <= 1:
-            self.fen_f1 = Toplevel(self.root)
+        if self.count <= 1:  #  si le compteur n est pas ouvert 
+            self.fen_f1 = Toplevel(self.root)  #  creation d une fenetr fille 
             self.fen_f1.title('QPC SESAME')
             self.fen_f1.geometry('400x100')
             self.projet = self.projet0.subsample(6, 6)
             projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.35, rely = 0.10)
-
+            # Mise en place des boutons 
             newButton = Button(self.fen_f1, text = 'Nouveau Projet', activeforeground ='teal', command = self.newProject)
             newButton.place(relx = 0.05, rely = 0.45)
             openButton = Button(self.fen_f1, text = 'Ouvrir un Projet', activeforeground ='#032f62', command = self.openProject).place(relx = 0.65, rely = 0.45)
             self.fen_f1.protocol("WM_DELETE_WINDOW", self.fen_f1Close)  #  evenement en cas de fermeture 
             self.fen_f1.mainloop()
 
-        else:
+        else:  #  si elle est deja ouvert 
             self.fen_f1.withdraw()  #  cache la fenetre 
             self.fen_f1.deiconify()  #  reaffiche la fenetre
 
@@ -584,20 +692,79 @@ class Interface():
 #  *********************************************************************************************************************************
     
     def poussoirCommand(self):
+        """
         fen.root.destroy()
         fen2 = InterPoussoir()
         fen2.menuTop()
         fen2.__final__()
+        """
 
     
     def reseauCommand(self):
+        """
         fen.root.destroy()
         fen3 = InterReseau()
         fen3.__final__()
-    
+        """
 
+    
     def __final__(self):
         self.root.mainloop()  #  lancement de la fenetre
+
+
+class InterOflline(InterJeu):
+    """
+        classe permettant de traiter la fenetre principal du mode de jeu en Offline 
+                                                                                    """ 
+    def __init__(self):
+        InterJeu.__init__(self)
+        self.root.title('QPC SESAME: MODE HORS LIGNE')
+        global dictionnaire
+        print(dictionnaire)
+        
+
+    def menuTop(self):
+        self.menubutton = Menu(self.root)
+        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
+        self.sous_menubutton_2 = Menu(self.menubutton, tearoff = 0)
+        self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
+        self.menubutton.add_cascade(label = "Aide"  , menu = self.sous_menubutton_2)
+        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
+        self.sous_menubutton_1.add_command(label ="Ouvrir un autre projet")
+        self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
+        self.root.config(menu = self.menubutton)
+
+
+    def __corps__(self):
+        self.nav = Canvas(self.root, bd = 4, highlightthickness = 1, bg = 'white', width = 1366, height = 25)
+        self.nav.place(relx = 0, rely = 0)
+
+
+    def retour(self):
+        self.root.destroy()
+        self.root.quit()
+        
+
+    def confirmQuitter(self):
+        self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
+        if self.fermer == "yes":
+            self.root.quit()
+
+
+    def __final__(self):
+        self.root.mainloop()
+
+
+
+def offlineStart():
+    """
+        fonction pour demarer la fenetre du mode
+            de jeu offline et de la controler son comportement
+                                                                """
+    fenetreOff = InterOflline()
+    fenetreOff.__corps__()
+    fenetreOff.menuTop()
+    fenetreOff.__final__()
 
 
 
