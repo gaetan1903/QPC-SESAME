@@ -71,11 +71,7 @@ class InterPoussoir(InterJeu):
 
 
 
-def off():
-    fen = InterOflline()
-    fen.__corps__()
-    fen.menuTop()
-    fen.__final__()
+
 
 
 def pouss():

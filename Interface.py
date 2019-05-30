@@ -21,7 +21,7 @@ class InterJeu:
         self.root.config(bg='white')  #  fond blanc 
         self.root.geometry('1200x600+0+0')  # taille de la fenetre 
         self.root.wm_state(newstate="zoomed")  #  plein ecran windows
-        self.root.resizable(width=False, height=False)
+        #self.root.resizable(width=False, height=False)
 
 
         
@@ -398,7 +398,7 @@ class Interface():
 
 
     def clickclose(self, event):
-        #  fonction permettant de fermer l'option souris 
+        #  fonction permettant de fermer l'option clique droite du souris 
         try:
             self.option.destroy()   #  detruire s'il existe
         except:  #  si erreur ( si il n existe pas)
@@ -671,7 +671,7 @@ class Interface():
                                                 """
         self.count += 1  #  incremeneter le compteur 
 
-        if self.count <= 1:  #  si le compteur n est pas ouvert 
+        if self.count <= 1:  #  si la fenetre n'est pas ouvert 
             self.fen_f1 = Toplevel(self.root)  #  creation d une fenetr fille 
             self.fen_f1.title('QPC SESAME')
             self.fen_f1.geometry('400x100')
@@ -717,38 +717,147 @@ class InterOflline(InterJeu):
         classe permettant de traiter la fenetre principal du mode de jeu en Offline 
                                                                                     """ 
     def __init__(self):
-        InterJeu.__init__(self)
+        InterJeu.__init__(self)   #   appel des propriétés de la classe parent 
         self.root.title('QPC SESAME: MODE HORS LIGNE')
         global dictionnaire
-        print(dictionnaire)
+        self.dict = dictionnaire
+
+
+    def font_image(self):
+        self.arialinfo14 = tkFont.Font(family='Arial', size=14)
+
+
+    def configuration(self):
+        self.config1 = Toplevel(self.root)
+        self.config1.geometry('300x600+500+75')
         
 
     def menuTop(self):
-        self.menubutton = Menu(self.root)
-        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)
+        """
+            focntion permettant de realiser des menu en haut 
+                                                            """
+        self.menubutton = Menu(self.root) 
+        self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)  
         self.sous_menubutton_2 = Menu(self.menubutton, tearoff = 0)
+        self.sous_menubutton_3 = Menu(self.menubutton, tearoff = 0)
         self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
-        self.menubutton.add_cascade(label = "Aide"  , menu = self.sous_menubutton_2)
+        self.menubutton.add_cascade(label = "Edition"  , menu = self.sous_menubutton_2)
+        self.menubutton.add_cascade(label = "Aide"  , menu = self.sous_menubutton_3)
         self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
         self.sous_menubutton_1.add_command(label ="Ouvrir un autre projet")
+        self.sous_menubutton_1.add_command(label ="Menu Principal", command = self.retour)
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
+        self.sous_menubutton_2.add_command(label ="Changer nom d'equipe")
+        self.sous_menubutton_3.add_command(label ="Documentation")
+        self.sous_menubutton_3.add_command(label ="Afficher la license")
+        self.sous_menubutton_3.add_command(label ="A propos Developpeur")
+        self.sous_menubutton_3.add_command(label ="A propos du logiciel")
         self.root.config(menu = self.menubutton)
 
 
     def __corps__(self):
-        self.nav = Canvas(self.root, bd = 4, highlightthickness = 1, bg = 'white', width = 1366, height = 25)
-        self.nav.place(relx = 0, rely = 0)
+        """
+            ceci est une fonction contenant les widget principale 
+                                                                    """
+        #  creation du topnav du haut 
+        self.nav = Canvas(self.root, bd = 4, highlightthickness = 1, bg = 'teal', width = 1380, height = 25)
+        self.nav.place(relx = -0.01, rely = 0)
+        #  creation d une cadre pour mettre la configuration
+        self.cadre = Frame(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
+        self.cadre.place(relx = 0.35, rely = 0.1)
+        #  ci dessous pour mettre un petit top avec un text 
+        self.cadre_nav = Canvas(self.cadre, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
+        self.cadre_nav.create_text(200, 15, text = 'Configuration du Jeu', fill = 'Yellow', font = self.arialinfo14)
+        self.cadre_nav.place(relx = 0, rely = 0)
+        """ ci dessous pour les textes et les entrées """
+        #  ci dessous des variables dans pour recuperer valeur 
+        self.nombre_joueur = IntVar()
+        self.nbrEl = IntVar()  #  nombre d'equipe d'eliminé par manche
+        self.nbrLimite = IntVar()  #  variable d'arret de jeu
+        self.nbrLimite.set(20)
+        #  ci dessus la creation des widgets
+        text1 = Label(self.cadre, text = "Nombre d'equipe: ", font = self.arialinfo14, bg = 'lightgray')
+        text1.place(relx = 0.048, rely = 0.1)
+        text1.bind_all('<Any-KeyPress>', self.vrfnbr)
+        entre1 = Entry(self.cadre, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 30)
+        entre1.place(relx = 0.05, rely = 0.15)
+        text2 = Label(self.cadre, text = "Nombre d'equipe eliminé par manche: ", font = self.arialinfo14, bg = 'lightgray')
+        text2.place(relx = 0.048, rely = 0.25)
+        entre2 = Entry(self.cadre, textvariable = self.nbrEl, font = self.arialinfo14, width = 30)
+        entre2.place(relx = 0.05, rely = 0.3)
+        #  ci dessous un radioboutton 
+        text3 = Label(self.cadre, text = "Limitation d'une manche par nombre de: ", font = self.arialinfo14, bg ='lightgray')
+        text3.place(relx = 0.048, rely = 0.4)
+        self.etiquette = ['Points', 'Question']
+        self.choix = IntVar()
+        for i in range(2):  #  positionnement du radio 
+            self.RadioChoix = Radiobutton(self.cadre, variable = self.choix, text = self.etiquette[i], value = i, font = self.arialinfo14, bg ='lightgray', command = self.changeValue)
+            self.RadioChoix.place(relx = 0.05+(0.5*i), rely = 0.45)
+        #  variable d'arret de jeu 
+        entre3 = Entry(self.cadre, textvariable = self.nbrLimite, font = self.arialinfo14, width = 15) 
+        entre3.place(relx = 0.05 , rely = 0.52)
+        self.entre3_comp = Label(self.cadre, text = ' points', font = self.arialinfo14)
+        self.entre3_comp.place(relx = 0.5, rely = 0.52)
+        #  confirmation de suite
+        self.configurer_nom = Button(self.cadre, text ="Personaliser nom d'equipe", font = self.arialinfo14, command = self.configurationNom)
+        self.configurer_nom.place(relx = 0.2, rely = 0.65)
+        self.suivant = Button(self.cadre, text = 'COMMENCER', fg ='yellow', bg ='teal', font = self.arialinfo14, command = self.gamestart)
+        self.suivant.place(relx = 0.3, rely= 0.85)
 
+
+    def vrfnbr(self, event):
+        if self.nombre_joueur.get() < 0:
+            self.nombre_joueur.set(self.nombre_joueur.get()*(-1))
+        if self.nombre_joueur.get() > 16:
+            self.nombre_joueur.set(16)
+        
+
+    def configurationNom(self):
+        config = Toplevel(self.root)
+        spc = 5
+
+        if self.nombre_joueur.get() > 10:
+            spc = 1
+
+        for i in range(self.nombre_joueur.get()):
+            y = f"self.equipe{i+1} = StringVar()"
+            exec(y)
+            y = f"label{i+1} = Label(config, text = 'Nom joueur {i+1}').pack(pady = {spc})"
+            exec(y)
+            y = f"entry{i+1} = Entry(config, textvariable = 'var{i}').pack()"
+            exec(y)
+        
+        but = Button(config, text = 'Valider').pack(pady=10)
+          
+
+    def changeValue(self):
+        if self.choix.get() == 0:
+            self.entre3_comp.config(text = ' points')
+        elif self.choix.get() == 1:
+            self.entre3_comp.config(text = 'questions')
+
+        self.entre3_comp.update()
+    
 
     def retour(self):
         self.root.destroy()
-        self.root.quit()
-        
+        fen = Interface() 
+        fen.__corps__()
+        fen.__final__()
 
+        
     def confirmQuitter(self):
         self.fermer = tkmsg.askquestion("Confirmer la fermeture!", "Voulez-vous vraiment quitter?")
         if self.fermer == "yes":
             self.root.quit()
+            self.root.destroy()
+
+
+    def gamestart(self):
+        self.cadre.destroy()
+        self.cadre_question = Frame(self.root)
+        self.cadre_question = Frame(self.root, width = 600 , height = 400, bg = 'lightgray', relief = 'ridge')
+        self.cadre_question.place(relx = 0.27, rely = 0.22)
 
 
     def __final__(self):
@@ -762,6 +871,7 @@ def offlineStart():
             de jeu offline et de la controler son comportement
                                                                 """
     fenetreOff = InterOflline()
+    fenetreOff.font_image()
     fenetreOff.__corps__()
     fenetreOff.menuTop()
     fenetreOff.__final__()
