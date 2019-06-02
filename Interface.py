@@ -45,15 +45,15 @@ class Interface():
         self.arialinfo = tkFont.Font(family='Arial', size=16)
         self.arialinfo14 = tkFont.Font(family='Arial', size=14)
         #  ci dessous est variable contenant les images en taille initiale
-        self.offline0 = PhotoImage(file='offline.png')
-        self.poussoir0 = PhotoImage(file='poussoir.png')
-        self.fsociety0 = PhotoImage(file='logo.png')
-        self.esti0 = PhotoImage(file='esti.png')
+        self.offline0 = PhotoImage(file='Images\offline.png')
+        self.poussoir0 = PhotoImage(file='Images\poussoir.png')
+        self.fsociety0 = PhotoImage(file='Images\logo.png')
+        self.esti0 = PhotoImage(file='Images\esti.png')
         self.backImage0 = PhotoImage(file='')
-        self.sesame0 = PhotoImage(file='sesame.png')
-        self.reseau0 = PhotoImage(file='reseau.png')
-        self.projet0 = PhotoImage(file='projet.png')
-        self.setting0 = PhotoImage(file='settings.png')
+        self.sesame0 = PhotoImage(file='Images\sesame.png')
+        self.reseau0 = PhotoImage(file='Images\\reseau.png')
+        self.projet0 = PhotoImage(file='Images\projet.png')
+        self.setting0 = PhotoImage(file='Images\settings.png')
         #  initialisation d'un compteur
         self.count = 0  
          
@@ -721,10 +721,15 @@ class InterOflline(InterJeu):
         self.root.title('QPC SESAME: MODE HORS LIGNE')
         global dictionnaire
         self.dict = dictionnaire
+        self.validConfiguration = 0
 
 
     def font_image(self):
         self.arialinfo14 = tkFont.Font(family='Arial', size=14)
+        self.arialinfo28 = tkFont.Font(family='MS Serif', size=28, weight = 'bold')
+        self.timesNew = tkFont.Font(family='Times New Rowan', size=20)
+        self.groupIm = PhotoImage(file='Images\icones.png')
+        
 
 
     def configuration(self):
@@ -779,12 +784,12 @@ class InterOflline(InterJeu):
         text1 = Label(self.cadre, text = "Nombre d'equipe: ", font = self.arialinfo14, bg = 'lightgray')
         text1.place(relx = 0.048, rely = 0.1)
         text1.bind_all('<Any-KeyPress>', self.vrfnbr)
-        entre1 = Entry(self.cadre, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 30)
-        entre1.place(relx = 0.05, rely = 0.15)
+        self.entre1 = Entry(self.cadre, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 30)
+        self.entre1.place(relx = 0.05, rely = 0.15)
         text2 = Label(self.cadre, text = "Nombre d'equipe eliminé par manche: ", font = self.arialinfo14, bg = 'lightgray')
         text2.place(relx = 0.048, rely = 0.25)
-        entre2 = Entry(self.cadre, textvariable = self.nbrEl, font = self.arialinfo14, width = 30)
-        entre2.place(relx = 0.05, rely = 0.3)
+        self.entre2 = Entry(self.cadre, textvariable = self.nbrEl, font = self.arialinfo14, width = 30)
+        self.entre2.place(relx = 0.05, rely = 0.3)
         #  ci dessous un radioboutton 
         text3 = Label(self.cadre, text = "Limitation d'une manche par nombre de: ", font = self.arialinfo14, bg ='lightgray')
         text3.place(relx = 0.048, rely = 0.4)
@@ -803,16 +808,19 @@ class InterOflline(InterJeu):
         self.configurer_nom.place(relx = 0.2, rely = 0.65)
         self.suivant = Button(self.cadre, text = 'COMMENCER', fg ='yellow', bg ='teal', font = self.arialinfo14, command = self.gamestart)
         self.suivant.place(relx = 0.3, rely= 0.85)
+        self.info = Label(self.cadre, text ='', fg = 'red')
+        self.info.place(relx = 0.2, rely = 0.95)
 
 
     def vrfnbr(self, event):
         if self.nombre_joueur.get() < 0:
             self.nombre_joueur.set(self.nombre_joueur.get()*(-1))
-        if self.nombre_joueur.get() > 16:
-            self.nombre_joueur.set(16)
+        if self.nombre_joueur.get() > 12:
+            self.nombre_joueur.set(12)
         
 
     def configurationNom(self):
+        self.validConfiguration += 1
         config = Toplevel(self.root)
         spc = 5
 
@@ -822,12 +830,12 @@ class InterOflline(InterJeu):
         for i in range(self.nombre_joueur.get()):
             y = f"self.equipe{i+1} = StringVar()"
             exec(y)
-            y = f"label{i+1} = Label(config, text = 'Nom joueur {i+1}').pack(pady = {spc})"
+            y = f"label{i+1} = Label(config, text = 'Nom equipe {i+1}').pack(pady = {spc})"
             exec(y)
-            y = f"entry{i+1} = Entry(config, textvariable = 'var{i}').pack()"
+            y = f"entry{i+1} = Entry(config, textvariable = self.equipe{i+1}).pack()"
             exec(y)
         
-        but = Button(config, text = 'Valider').pack(pady=10)
+        but = Button(config, text = 'Valider', command = config.quit).pack(pady=10)
           
 
     def changeValue(self):
@@ -854,12 +862,134 @@ class InterOflline(InterJeu):
 
 
     def gamestart(self):
-        self.cadre.destroy()
-        self.cadre_question = Frame(self.root)
-        self.cadre_question = Frame(self.root, width = 600 , height = 400, bg = 'lightgray', relief = 'ridge')
-        self.cadre_question.place(relx = 0.27, rely = 0.22)
+        if (self.validConfiguration > 0):
+            if self.nombre_joueur.get() >= 2:
+                self.cadre.destroy()
+                self.cadre_question = Frame(self.root)
+                self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+                self.cadre_question.place(relx = 0.2, rely = 0.25)
+
+                self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+
+                self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
+                self.Label_Champ.place(relx = 0.03, rely = 0.2)
+
+                self.launched()
+                self.cadre_score()
+            else:
+                self.info.config(text=f'Nombre de joueur entrée: {self.nombre_joueur.get()} invalide')
+                self.info.update()
+                self.validConfiguration = 0
+
+        else:
+            self.info.config(text=f"Veuiller d'abord personaliser le nom d'equipe")
+            self.info.update()
+            self.validConfiguration = 0
+            
+
+        
+
+    def cadre_score(self):
+        self.cadreScore = Frame(self.root, width = 250, height = 685, bg ='lightgray', highlightthickness = 0)
+        self.cadreScore.grid_propagate(0)
+        self.cadreScore.place(relx=0.82, rely=0.047)
 
 
+        for i in range(self.nombre_joueur.get()):
+            y = f"self.player{i+1}_score = 0"
+            exec(y)
+            y = f"self.playerAf{i+1} = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)"
+            exec(y)
+            y = f"self.playerAf{i+1}.create_text(125, 15, text = self.equipe{i+1}.get(), font = self.arialinfo14, fill ='yellow')"
+            exec(y)
+            y = f"self.playerAf{i+1}.create_text(125, 35, text = str(self.player{i+1}_score) + ' points', fill = 'yellow')"
+            exec(y)
+            y = f"self.playerAf{i+1}.pack(pady=3)"
+            exec(y)
+            y = f"self.playerAf{i+1}.create_text(25, 25, text = str(i+1),font = self.arialinfo28, fill = 'yellow')"
+            exec(y)
+
+
+    def launched(self):
+
+        for i in range(self.nombre_joueur.get()):
+
+            y = f"if self.equipe{i+1}.get() == '':\n\t self.equipe{i+1}.set('Joueur{i+1}')"
+            exec(y)
+            y = f"self.player{i+1}= Canvas(self.root, width = 150, height = 100)"
+            exec(y)
+            y = f"self.player{i+1}.create_image(75, 50, image = self.groupIm)"
+            exec(y)
+            y = f"self.player{i+1}.create_text(75, 85, text = self.equipe{i+1}.get(), font = self.arialinfo14)"
+            exec(y)
+
+        
+        if (self.nombre_joueur.get() <= 4):
+            self.player1.place(relx = 0.07, rely = 0.4)
+            self.player3.place(relx = 0.67, rely = 0.4)
+            if (self.nombre_joueur.get() >= 3):
+                self.player2.place(relx = 0.35, rely = 0.77)
+                if (self.nombre_joueur.get() == 4):
+                    self.player4.place(relx=0.35, rely=0.07)
+
+        elif (self.nombre_joueur.get() == 5):
+            self.player1.place(relx = 0.06, rely = 0.4)
+            self.player3.place(relx = 0.67, rely = 0.4)
+            self.player2.place(relx = 0.35, rely = 0.77)
+            self.player5.place(relx = 0.22, rely=0.07)
+            self.player4.place(relx = 0.5, rely=0.07)
+
+        elif (self.nombre_joueur.get() == 6):
+            self.player1.place(relx = 0.07, rely = 0.4)
+            self.player4.place(relx = 0.67, rely = 0.4)
+            self.player2.place(relx = 0.22, rely = 0.77)
+            self.player3.place(relx = 0.5, rely = 0.77)
+            self.player6.place(relx = 0.22, rely=0.07)
+            self.player5.place(relx = 0.5, rely=0.07)
+
+        elif (self.nombre_joueur.get() == 7):
+            self.player1.place(relx = 0.07, rely = 0.4)
+            self.player4.place(relx = 0.67, rely = 0.55)
+            self.player5.place(relx = 0.67, rely = 0.27)
+            self.player2.place(relx = 0.22, rely = 0.77)
+            self.player3.place(relx = 0.5, rely = 0.77)
+            self.player7.place(relx = 0.22, rely=0.07)
+            self.player6.place(relx = 0.5, rely=0.07)
+
+        elif (self.nombre_joueur.get() == 8):
+            self.player1.place(relx = 0.07, rely = 0.27)
+            self.player2.place(relx = 0.07, rely = 0.55)
+            self.player5.place(relx = 0.67, rely = 0.55)
+            self.player6.place(relx = 0.67, rely = 0.27)
+            self.player3.place(relx = 0.22, rely = 0.77)
+            self.player4.place(relx = 0.5, rely = 0.77)
+            self.player8.place(relx = 0.22, rely=0.07)
+            self.player7.place(relx = 0.5, rely=0.07)
+
+        elif (self.nombre_joueur.get() <= 12):
+            self.player1.place(relx = 0.05, rely = 0.2)
+            self.player2.place(relx = 0.05, rely = 0.62)
+            self.player5.place(relx = 0.67, rely = 0.62)
+            self.player6.place(relx = 0.67, rely = 0.2)
+            self.player3.place(relx = 0.2, rely = 0.77)
+            self.player4.place(relx = 0.52, rely = 0.77)
+            self.player8.place(relx = 0.2, rely=0.07)
+            self.player7.place(relx = 0.52, rely=0.07)
+
+            if self.nombre_joueur.get() >= 9:
+                self.player9.place(relx = 0.04, rely = 0.4)
+
+            if self.nombre_joueur.get() >= 10:
+                self.player10.place(relx = 0.36, rely = 0.77)
+
+            if self.nombre_joueur.get() >= 11:
+                self.player11.place(relx = 0.68, rely = 0.4)
+
+            if self.nombre_joueur.get() == 12:
+                self.player12.place(relx = 0.36, rely = 0.07)
+
+
+    
     def __final__(self):
         self.root.mainloop()
 
@@ -868,7 +998,7 @@ class InterOflline(InterJeu):
 def offlineStart():
     """
         fonction pour demarer la fenetre du mode
-            de jeu offline et de la controler son comportement
+            de jeu offline et de  controler son comportement
                                                                 """
     fenetreOff = InterOflline()
     fenetreOff.font_image()
