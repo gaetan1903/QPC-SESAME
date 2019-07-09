@@ -4,8 +4,8 @@
 from tkinter import * 
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
-import time, json
-import InterJeu, moduleQPC  #  nos propres modules
+import time, json, random
+import moduleQPC  #  nos propres modules
 
 i = j = 0  #  compteur utile
 dictionnaire = {}
@@ -292,6 +292,8 @@ class Interface():
             une fonction permettant d enregistrer temporairement 
                 dans la RAM , les questions et reponses entrées dans le projet
                                                                                 """
+        
+        remise = True
         effacer = True  #  initialisation d une variable de verification 
         textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
 
@@ -316,13 +318,23 @@ class Interface():
             self.fen_ques1.withdraw()
             self.fen_ques1.deiconify()
             effacer = False   #  ne pas vider le champ car pas encore enregistrer
+            remise = False
 
         if effacer:  #  si tous c est bien passé 
             #  effacer les données
             self.reponse.set('')  #  vider le champ
             self.champQuestion.delete('1.0', '10.0')  #  vider le champ
+
+        if remise:
+            global i
+            global j 
+            i = j = 0 
+            self.champQuestion.insert('1.0', "Enter la question...")
+            self.reponse.set('Entrer la réponse... ')
         
         del effacer
+
+        
 
     
     def verifier(self):
@@ -722,6 +734,15 @@ class InterOflline(InterJeu):
         global dictionnaire
         self.dict = dictionnaire
         self.validConfiguration = 0
+        self.player_score = {}
+        self.equipe = {}
+        self.permission = False
+        self.dejaQues1 = [0]
+        self.dejaQues2 = [0]
+        self.dejaQues3 = [0]
+        self.total1 = len(dictionnaire['Question1'])
+        self.total2 = len(dictionnaire['Question2'])  
+        self.total3 = len(dictionnaire['Question3'])
 
 
     def font_image(self):
@@ -729,7 +750,19 @@ class InterOflline(InterJeu):
         self.arialinfo28 = tkFont.Font(family='MS Serif', size=28, weight = 'bold')
         self.timesNew = tkFont.Font(family='Times New Rowan', size=20)
         self.groupIm = PhotoImage(file='Images\icones.png')
+        self.timesNew1 = tkFont.Font(family='Times New Rowan', size=20,  slant='italic')
         
+    def trierdict(self, dico):
+        #  sorted(dico.items(), key=lambda t: t[1])
+        return {k:v for k,v in sorted(dico.items(), key=lambda kv: kv[1])}
+
+    def misenplace(self, refdic, dico):
+        newdic = {}
+        for x in refdic.keys():
+            for i,j in dico.items():
+                if i == x:
+                    newdic[x] = j
+        return newdic
 
 
     def configuration(self):
@@ -803,9 +836,16 @@ class InterOflline(InterJeu):
         entre3.place(relx = 0.05 , rely = 0.52)
         self.entre3_comp = Label(self.cadre, text = ' points', font = self.arialinfo14)
         self.entre3_comp.place(relx = 0.5, rely = 0.52)
+        #  mode d'affichage des questions
+        self.options = StringVar()
+        self.options.set("Choisir le type d'affichage des questions")
+        options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau en Ordre - Question en Ordre', '3) Niveau Aléatoire et Question en ordre', '4) Niveau en Ordre - Question aléatoire')
+        self.slist = OptionMenu(self.cadre, self.options, *options)
+        self.slist.config(font=self.arialinfo14)
+        self.slist.place(relx=0.02, rely=0.6)
         #  confirmation de suite
         self.configurer_nom = Button(self.cadre, text ="Personaliser nom d'equipe", font = self.arialinfo14, command = self.configurationNom)
-        self.configurer_nom.place(relx = 0.2, rely = 0.65)
+        self.configurer_nom.place(relx = 0.2, rely = 0.75)
         self.suivant = Button(self.cadre, text = 'COMMENCER', fg ='yellow', bg ='teal', font = self.arialinfo14, command = self.gamestart)
         self.suivant.place(relx = 0.3, rely= 0.85)
         self.info = Label(self.cadre, text ='', fg = 'red')
@@ -828,14 +868,20 @@ class InterOflline(InterJeu):
             spc = 1
 
         for i in range(self.nombre_joueur.get()):
+            '''
             y = f"self.equipe{i+1} = StringVar()"
             exec(y)
             y = f"label{i+1} = Label(config, text = 'Nom equipe {i+1}').pack(pady = {spc})"
             exec(y)
             y = f"entry{i+1} = Entry(config, textvariable = self.equipe{i+1}).pack()"
             exec(y)
-        
-        but = Button(config, text = 'Valider', command = config.quit).pack(pady=10)
+            '''
+            self.equipe[f'player{i+1}'] = StringVar()
+            label = Label(config, text = f'Nom equipe {i+1}').pack(pady = {spc})
+            entry = Entry(config, textvariable = self.equipe[f'player{i+1}']).pack()
+            
+
+        but = Button(config, text = 'Valider', command = config.destroy).pack(pady=10)
           
 
     def changeValue(self):
@@ -862,73 +908,195 @@ class InterOflline(InterJeu):
 
 
     def gamestart(self):
-        if (self.validConfiguration > 0):
-            if self.nombre_joueur.get() >= 2:
-                self.cadre.destroy()
-                self.cadre_question = Frame(self.root)
-                self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
-                self.cadre_question.place(relx = 0.2, rely = 0.25)
+        try:
+            int(self.options.get()[0])
+            self.info.config(text='')
+            self.info.update()
+            if self.validConfiguration > 0:
+                if self.nombre_joueur.get() >= 2:
+                    self.cadre.destroy()
+                    self.cadre_question = Frame(self.root)
+                    self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+                    self.cadre_question.place(relx = 0.2, rely = 0.25)
 
-                self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+                    self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
 
-                self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
-                self.Label_Champ.place(relx = 0.03, rely = 0.2)
+                    self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
+                    self.Label_Champ.place(relx = 0.03, rely = 0.2)
+                    self.typeQuestion = int(self.options.get()[0])
 
-                self.launched()
-                self.cadre_score()
+                    self.launched()
+                    self.permission = True
+                    self.cadre_score()
+                    self.jeu_suivant(debut=True)     
+
+                else:
+                    self.info.config(text=f'Nombre de joueur entrée: {self.nombre_joueur.get()} invalide')
+                    self.info.update()
+                    self.validConfiguration = 0
+
             else:
-                self.info.config(text=f'Nombre de joueur entrée: {self.nombre_joueur.get()} invalide')
+                self.info.config(text=f"Veuiller d'abord personaliser le nom d'equipe")
                 self.info.update()
                 self.validConfiguration = 0
-
-        else:
-            self.info.config(text=f"Veuiller d'abord personaliser le nom d'equipe")
+        except:
+            self.info.config(text=f"Veuiller choisir le type d'affichage des questions")
             self.info.update()
-            self.validConfiguration = 0
             
-
         
 
     def cadre_score(self):
-        self.cadreScore = Frame(self.root, width = 250, height = 685, bg ='lightgray', highlightthickness = 0)
-        self.cadreScore.grid_propagate(0)
-        self.cadreScore.place(relx=0.82, rely=0.047)
+        if self.permission:
+            try:
+                self.cadre_score.destroy()
+            except:
+                pass
+
+            self.cadreScore = Frame(self.root, width = 250, height = 685, bg ='lightgray', highlightthickness = 0)
+            self.cadreScore.grid_propagate(0)
+            self.cadreScore.place(relx=0.82, rely=0.047)
 
 
-        for i in range(self.nombre_joueur.get()):
-            y = f"self.player{i+1}_score = 0"
-            exec(y)
-            y = f"self.playerAf{i+1} = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)"
-            exec(y)
-            y = f"self.playerAf{i+1}.create_text(125, 15, text = self.equipe{i+1}.get(), font = self.arialinfo14, fill ='yellow')"
-            exec(y)
-            y = f"self.playerAf{i+1}.create_text(125, 35, text = str(self.player{i+1}_score) + ' points', fill = 'yellow')"
-            exec(y)
-            y = f"self.playerAf{i+1}.pack(pady=3)"
-            exec(y)
-            y = f"self.playerAf{i+1}.create_text(25, 25, text = str(i+1),font = self.arialinfo28, fill = 'yellow')"
-            exec(y)
+            for i in range(self.nombre_joueur.get()): 
+                '''
+                y = f"self.player{i+1}_score = 0"
+                exec(y)
+                
+                y = f"self.playerAf{i+1} = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)"
+                exec(y)
+                y = f"self.playerAf{i+1}.create_text(125, 15, text = self.equipe{i+1}.get(), font = self.arialinfo14, fill ='yellow')"
+                exec(y)
+                y = f"self.playerAf{i+1}.create_text(125, 35, text = str(self.player_score['player{i+1}']) + ' points', fill = 'black')"
+                exec(y)
+                y = f"self.playerAf{i+1}.pack(pady=3)"
+                exec(y)
+                y = f"self.playerAf{i+1}.create_text(25, 25, text = str(i+1),font = self.arialinfo28, fill = 'yellow')"
+                exec(y)
+                '''
+                self.player_score = self.trierdict(self.player_score)
+                self.equipe = self.misenplace(self.player_score, self.equipe)
+
+                self.playerAf = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)
+                self.playerAf.create_text(125, 15, text = list(self.equipe.values())[::-1][i].get(), font = self.arialinfo14, fill ='yellow')
+                self.playerAf.create_text(125, 35, text = str(list(self.player_score.values())[::-1][i]) + ' points', fill = 'black')
+                self.playerAf.pack(pady=3)
+                self.playerAf.create_text(25, 25, text = str(i+1), font = self.arialinfo28, fill = 'yellow')
+            
+        self.permission = False
+
+
+    def incrementer1(self, event):
+        if self.permission:
+            self.player_score['player1']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer2(self, event):
+        if self.permission:
+            self.player_score['player2']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer3(self, event):
+        if self.permission:
+            self.player_score['player3']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer4(self, event):
+        if self.permission:
+            self.player_score['player4']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer5(self, event):
+        if self.permission:
+            self.player_score['player5']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer6(self, event):
+        if self.permission:
+            self.player_score['player6']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer7(self, event):
+        if self.permission:
+            self.player_score['player7']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer8(self, event):
+        if self.permission:
+            self.player_score['player8']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer9(self, event):
+        if self.permission:
+            self.player_score['player9']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer10(self, event):
+        if self.permission:
+            self.player_score['player10']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer11(self, event):
+        if self.permission:
+            self.player_score['player11']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
+    def incrementer12(self, event):
+        if self.permission:
+            self.player_score['player12']+=self.textPoint
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+            self.points.destroy()
 
 
     def launched(self):
 
         for i in range(self.nombre_joueur.get()):
-
+            self.player_score[f'player{i+1}'] = 0
+            '''
             y = f"if self.equipe{i+1}.get() == '':\n\t self.equipe{i+1}.set('Joueur{i+1}')"
             exec(y)
+            '''
+            if self.equipe[f'player{i+1}'].get() == '':
+                self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
+
             y = f"self.player{i+1}= Canvas(self.root, width = 150, height = 100)"
+            exec(y)
+            #y1 = f"InterOflline.incrementer(self = InterOflline, sois = 'player{i+1}')"
+            y = f"self.player{i+1}.bind('<Button-1>', self.incrementer{i+1} )"
             exec(y)
             y = f"self.player{i+1}.create_image(75, 50, image = self.groupIm)"
             exec(y)
-            y = f"self.player{i+1}.create_text(75, 85, text = self.equipe{i+1}.get(), font = self.arialinfo14)"
+            y = f"self.player{i+1}.create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)"
             exec(y)
 
         
         if (self.nombre_joueur.get() <= 4):
             self.player1.place(relx = 0.07, rely = 0.4)
-            self.player3.place(relx = 0.67, rely = 0.4)
+            self.player2.place(relx = 0.67, rely = 0.4)
             if (self.nombre_joueur.get() >= 3):
-                self.player2.place(relx = 0.35, rely = 0.77)
+                self.player3.place(relx = 0.35, rely = 0.77)
                 if (self.nombre_joueur.get() == 4):
                     self.player4.place(relx=0.35, rely=0.07)
 
@@ -988,8 +1156,82 @@ class InterOflline(InterJeu):
             if self.nombre_joueur.get() == 12:
                 self.player12.place(relx = 0.36, rely = 0.07)
 
+        
+    def jeu_suivant(self, debut=False, milieu=False, fin=False):
+        self.Label_Champ.delete('1.0','10.0')
+        if debut:
+            self.bt_Start = Button(self.cadre_question, text='COMMENCER', font=self.timesNew1, bg ='yellow', command=self.lancer_jeu)
+            self.bt_Start.place(relx=0.3, rely=0.4)
 
-    
+        if milieu:
+            self.bt_Start = Button(self.cadre_question, text='Question Suivante', font=self.timesNew1, bg ='yellow', command=self.lancer_jeu)
+            self.bt_Start.place(relx=0.27, rely=0.4)
+
+        if fin:
+            pass
+
+    def randomQues(self, niveau, simulation=False):
+        if niveau == 1:
+            i = 0
+            while i in self.dejaQues1:
+                if list(x for x in range(self.total1+1)) == list(set(self.dejaQues1)):
+                    return 0
+                i = random.randint(1, self.total1)
+            if simulation == False:
+                self.dejaQues1.append(i)
+
+        elif niveau == 2:
+            i = 0
+            while i in self.dejaQues2:
+                if list(x for x in range(self.total2+1)) == list(set(self.dejaQues2)):
+                    return 0
+                i = random.randint(1, self.total2)
+            if simulation == False:
+                self.dejaQues2.append(i)
+
+        elif niveau == 3:
+            i = 0
+            while i in self.dejaQues3:
+                if list(x for x in range(self.total3+1)) == list(set(self.dejaQues3)):
+                    return 0
+                i = random.randint(1, self.total3)
+            if  simulation == False:
+                self.dejaQues3.append(i)
+        
+        return i
+        
+
+
+    def lancer_jeu(self):
+        self.permission = True
+        i = 0
+        self.bt_Start.destroy()
+        global dictionnaire
+
+        if self.typeQuestion == 1:
+            nivs = []
+            niv = random.randint(1, 3)
+            test = self.randomQues(niveau=niv, simulation=True)
+            while test == 0:
+                nivs.append(niv)
+                niv = random.randint(1, 3)
+                if niv not in nivs:
+                    test = self.randomQues(niveau=niv, simulation=True)
+
+            question = dictionnaire[f'Question{niv}'][self.randomQues(niv) - 1][0]
+            self.textPoint = dictionnaire[f'Reponse{niv}'][self.randomQues(niv) - 1][1]
+            self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
+            self.points.place(relx = 0.7, rely = 0.05)
+        elif self.typeQuestion == 2:
+            pass
+        elif self.typeQuestion == 3:
+            pass
+        else:
+            pass
+        
+        self.Label_Champ.insert('1.0', question)
+
+
     def __final__(self):
         self.root.mainloop()
 
