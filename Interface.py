@@ -35,7 +35,7 @@ class Interface():
         self.root.geometry('1200x600+100+50')  # taille de la fenetre + position
         self.root['bg'] = 'white'  # couleur du fond 
         self.root.resizable(width=False, height=False)  #  empecher le redimensionnement
-        #  ci dessous est varible contenant des fonts
+        #  ci dessous sont variable contenant des fonts
         self.helv32 = tkFont.Font(family='Helvetica', size=32, weight='bold')
         self.helv36 = tkFont.Font(family='Arial', size=36, weight='bold')
         self.arial24 = tkFont.Font(family='Arial', size=22, weight='bold')
@@ -173,7 +173,7 @@ class Interface():
         self.champReponse = Entry(self.fen_ques1,  textvariable = self.reponse, width = 50, bg = 'lightgray', font = self.arialinfo14, fg = '#333')
         self.champReponse.place(relx = 0.1, rely = 0.6)
         self.champReponse.bind("<Button-1>", self.champReponseOverEnter)  #  evenement au click du champ reponse pour effacer le texte
-        #  creation et positionnement des boutons et la fonction relier a son actions
+        #  creation et positionnement des boutons et la fonction relier a son action
         self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo, command = self.enregistrer)
         self.enrButton.place(relx = 0.1, rely = 0.7)
         self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo, command = self.verifier)
@@ -207,15 +207,14 @@ class Interface():
         entre = Entry(self.fenVal1, textvariable = self.valeur1)
         self.valeur1.set(self.values[0])
         entre.pack()
-        #  creation de bouton pour prendre la nouveau valeur
+        #  creation du bouton pour prendre la nouvelle valeur
         boutton = Button(self.fenVal1, text = 'Valider', width = 20, command = self.getValue1).pack()
 
 
-    
     def changeValue2(self):
         """
             fonction reagissant a un boutton pour 
-                changer les point des questions de niveau 1 
+                changer les point des questions de niveau 2 
                                                             """
         self.fenVal2 = Toplevel(self.fen_ques1)   #  ouverture d'une petite fenetre
         self.fenVal2.title("Point d'incrémentation")
@@ -233,7 +232,7 @@ class Interface():
     def changevalue3(self):
         """
             fonction reagissant a un boutton pour 
-                changer les point des questions de niveau 1 
+                changer les point des questions de niveau 3 
                                                             """
         self.fenVal3 = Toplevel(self.fen_ques1)   #  ouverture d'une petite fenetre
         self.fenVal3.title("Point d'incrémentation")
@@ -297,7 +296,7 @@ class Interface():
         effacer = True  #  initialisation d une variable de verification 
         textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
 
-        if self.niveau.get() == self.values[0]:  #  si la question est de niveau 
+        if self.niveau.get() == self.values[0]:  #  si la question est de niveau 1
             #  ajout des données
             self.dict['Question1'].append([textget, len(textget.strip())])  
             self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
@@ -743,6 +742,9 @@ class InterOflline(InterJeu):
         self.total1 = len(dictionnaire['Question1'])
         self.total2 = len(dictionnaire['Question2'])  
         self.total3 = len(dictionnaire['Question3'])
+        self.incrTyp1 = 0
+        self.incrTyp2 = 0
+        self.incrTyp3 = 0
 
 
     def font_image(self):
@@ -840,7 +842,7 @@ class InterOflline(InterJeu):
         #  mode d'affichage des questions
         self.options = StringVar()
         self.options.set("Choisir le type d'affichage des questions")
-        options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau en Ordre - Question en Ordre', '3) Niveau Aléatoire et Question en ordre', '4) Niveau en Ordre - Question aléatoire')
+        options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau Manuel - Question aléatoire', '3) Niveau Aléatoire et Question en ordre', '4) Niveau Manuel - Question aléatoire')
         self.slist = OptionMenu(self.cadre, self.options, *options)
         self.slist.config(font=self.arialinfo14)
         self.slist.place(relx=0.02, rely=0.6)
@@ -1158,7 +1160,7 @@ class InterOflline(InterJeu):
                 self.player12.place(relx = 0.36, rely = 0.07)
 
         
-    def jeu_suivant(self, debut=False, milieu=False, fin=False):
+    def jeu_suivant(self, debut=False, milieu=False, fin=False, terminer=False):
         self.Label_Champ.delete('1.0','10.0')
         if debut:
             self.bt_Start = Button(self.cadre_question, text='COMMENCER', font=self.timesNew1, bg ='yellow', command=self.lancer_jeu)
@@ -1169,6 +1171,9 @@ class InterOflline(InterJeu):
             self.bt_Start.place(relx=0.27, rely=0.4)
 
         if fin:
+            pass
+         
+        if terminer:
             pass
 
     def randomQues(self, niveau, simulation=False):
@@ -1201,7 +1206,21 @@ class InterOflline(InterJeu):
         
         return i
 
+    
+    def choisirNiv(self, res=False, liste=None):
+        self.choisirFen = Toplevel(self.root)
+        self.choisirFen.geometry('400x150+375+250')
+        self.choisirFen.title('Choisir Niveau')
+        Label(self.choisirFen, text = 'Niveau de question', font = self.arialinfo14).pack()
+        etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
+        values = [1 , 2 , 3]  # ses valeurs initial selon l ordre du nom 
+        self.choixNiveau = IntVar()  #  variable qui va recuperer le choix 
+        for i in range(3):  #  positionnement du radio 
+            Rniveau = Radiobutton(self.choisirFen, variable = self.choixNiveau, text = etiquette[i], value = values[i], font = self.arialinfo14)
+            Rniveau.place(relx =(0.05+(i*0.31)), rely = 0.4)
+        Button(self.choisirFen, text = 'Selectionner', font= self.arialinfo14, command = lambda: self.afficherQuesPoint(self.choixNiveau.get(), True)).place(relx = 0.33, rely = 0.7)
 
+        
     def lancer_jeu(self):
         self.permission = True
         i = 0
@@ -1210,6 +1229,7 @@ class InterOflline(InterJeu):
 
         if self.typeQuestion == 1:
             nivs = []
+            nivs0 = []
             niv = random.randint(1, 3)
             test = self.randomQues(niveau=niv, simulation=True)
             while test == 0:
@@ -1217,23 +1237,90 @@ class InterOflline(InterJeu):
                 niv = random.randint(1, 3)
                 if niv not in nivs:
                     test = self.randomQues(niveau=niv, simulation=True)
-            number = self.randomQues(niv) - 1
-            question = dictionnaire[f'Question{niv}'][number][0]
-            self.textPoint = dictionnaire[f'Reponse{niv}'][number][1]
-            self.devoiRep(dictionnaire[f'Reponse{niv}'][number][0])
-
-            self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
-            self.points.place(relx = 0.83, rely = 0.1)
+                if test == 0:
+                    nivs0.append(niv)
+                if [1, 2, 3] == list(set(nivs0)):
+                    niv = 0
+                    break
+            if niv == 0:
+                self.Label_Champ.delete('1.0', '10.0')
+                self.Label_Champ.insert('1.0', "Il n'y a plus de question.")
+                self.permission = False
+            else:
+                self.afficherQuesPoint(niv)
 
         elif self.typeQuestion == 2:
-            pass
+            self.choisirNiv()
+
         elif self.typeQuestion == 3:
-            pass
-        else:
+            niv = random.randint(1, 3)
+            print(niv)
+            if niv == 1:
+                self.incrTyp1 += 1
+                if self.incrTyp1 <= self.total1:
+                    number = self.incrTyp1
+                else:
+                    number = 0
+            elif niv == 2:
+                self.incrTyp2 += 1
+                if self.incrTyp2 <= self.total2:
+                    number = self.incrTyp2
+                else:
+                    number = 0
+            elif niv == 3:
+                self.incrTyp3 += 1
+                if self.incrTyp3 <= self.total3:
+                    number = self.incrTyp3
+                else:
+                    number = 0
+            print(self.incrTyp1, self.incrTyp2, self.incrTyp3)
+            if number != 0:
+                question = dictionnaire[f'Question{niv}'][number - 1][0]
+                self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+                self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
+
+                self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
+                self.points.place(relx = 0.82, rely = 0.1)
+
+                self.Label_Champ.insert('1.0', question)
+            else:
+                self.permission = False
+                self.Label_Champ.delete('1.0', '10.0')
+                if (self.incrTyp1 <= self.total1) or (self.incrTyp2 <= self.total2) or (self.incrTyp3 <= self.total3):
+                    self.lancer_jeu()
+                else:
+                    self.Label_Champ.insert('1.0', "Il n'y a plus de question.")
+                    
+
+            
+
+
+        elif self.typeQuestion == 4:
             pass
         
-        self.Label_Champ.insert('1.0', question)
     
+    def afficherQuesPoint(self, niv, sec=False):
+        number = self.randomQues(niv)
+        autorise = True
+        if sec:
+            if number == 0:
+                autorise = False
+            else:
+                self.choisirFen.destroy()
+        if autorise:
+            global dictionnaire
+            question = dictionnaire[f'Question{niv}'][number - 1][0]
+            self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+            self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
+
+            self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
+            self.points.place(relx = 0.82, rely = 0.1)
+
+            self.Label_Champ.insert('1.0', question)
+        else:
+            self.Lab_vide = Label(self.choisirFen, text = f"Il n'y as pas plus de question dans le niveau {niv}", fg ='red')
+            self.Lab_vide.place(relx = 0.2, rely = 0.3)
+
 
     def devoiRep(self, reponse):
         try:
