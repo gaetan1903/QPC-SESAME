@@ -842,7 +842,7 @@ class InterOflline(InterJeu):
         #  mode d'affichage des questions
         self.options = StringVar()
         self.options.set("Choisir le type d'affichage des questions")
-        options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau Manuel - Question aléatoire', '3) Niveau Aléatoire et Question en ordre', '4) Niveau Manuel - Question aléatoire')
+        options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau Manuel - Question aléatoire', '3) Niveau Aléatoire et Question en ordre', '4) Niveau Manuel - Question en ordre')
         self.slist = OptionMenu(self.cadre, self.options, *options)
         self.slist.config(font=self.arialinfo14)
         self.slist.place(relx=0.02, rely=0.6)
@@ -1207,7 +1207,7 @@ class InterOflline(InterJeu):
         return i
 
     
-    def choisirNiv(self, res=False, liste=None):
+    def choisirNiv(self, res=False, quat=False):
         self.choisirFen = Toplevel(self.root)
         self.choisirFen.geometry('400x150+375+250')
         self.choisirFen.title('Choisir Niveau')
@@ -1218,9 +1218,54 @@ class InterOflline(InterJeu):
         for i in range(3):  #  positionnement du radio 
             Rniveau = Radiobutton(self.choisirFen, variable = self.choixNiveau, text = etiquette[i], value = values[i], font = self.arialinfo14)
             Rniveau.place(relx =(0.05+(i*0.31)), rely = 0.4)
-        Button(self.choisirFen, text = 'Selectionner', font= self.arialinfo14, command = lambda: self.afficherQuesPoint(self.choixNiveau.get(), True)).place(relx = 0.33, rely = 0.7)
+        if quat:
+             Button(self.choisirFen, text = 'Selectionner', font= self.arialinfo14, command = lambda: self.ordQues(self.choixNiveau.get())).place(relx = 0.33, rely = 0.7)
+        else:
+            Button(self.choisirFen, text = 'Selectionner', font= self.arialinfo14, command = lambda: self.afficherQuesPoint(self.choixNiveau.get(), True)).place(relx = 0.33, rely = 0.7)
 
         
+    def ordQues(self, niv):
+        self.choisirFen.destroy()
+        if niv == 1:
+            self.incrTyp1 += 1
+            if self.incrTyp1 <= self.total1:
+                number = self.incrTyp1
+            else:
+                number = 0
+                tkmsg.showwarning('Question Niveau 1', 'Attention, il y a plus de question dans ce Niveau')
+        elif niv == 2:
+            self.incrTyp2 += 1
+            if self.incrTyp2 <= self.total2:
+                number = self.incrTyp2
+            else:
+                number = 0
+                tkmsg.showwarning('Question Niveau 1', 'Attention, il y a plus de question dans ce Niveau')
+        elif niv == 3:
+            self.incrTyp3 += 1
+            if self.incrTyp3 <= self.total3:
+                number = self.incrTyp3
+            else:
+                number = 0
+                tkmsg.showwarning('Question Niveau 1', 'Attention, il y a plus de question dans ce Niveau')
+
+        if number != 0:
+            question = dictionnaire[f'Question{niv}'][number - 1][0]
+            self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+            self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
+
+            self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
+            self.points.place(relx = 0.82, rely = 0.1)
+
+            self.Label_Champ.insert('1.0', question)
+        else:
+            self.permission = False
+            self.Label_Champ.delete('1.0', '10.0')
+            if (self.incrTyp1 <= self.total1) or (self.incrTyp2 <= self.total2) or (self.incrTyp3 <= self.total3):
+                self.lancer_jeu()
+            else:
+                self.Label_Champ.insert('1.0', "Il n'y a plus de question.")
+
+
     def lancer_jeu(self):
         self.permission = True
         i = 0
@@ -1254,7 +1299,6 @@ class InterOflline(InterJeu):
 
         elif self.typeQuestion == 3:
             niv = random.randint(1, 3)
-            print(niv)
             if niv == 1:
                 self.incrTyp1 += 1
                 if self.incrTyp1 <= self.total1:
@@ -1273,7 +1317,7 @@ class InterOflline(InterJeu):
                     number = self.incrTyp3
                 else:
                     number = 0
-            print(self.incrTyp1, self.incrTyp2, self.incrTyp3)
+
             if number != 0:
                 question = dictionnaire[f'Question{niv}'][number - 1][0]
                 self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
@@ -1290,13 +1334,9 @@ class InterOflline(InterJeu):
                     self.lancer_jeu()
                 else:
                     self.Label_Champ.insert('1.0', "Il n'y a plus de question.")
-                    
-
-            
-
 
         elif self.typeQuestion == 4:
-            pass
+            self.choisirNiv(quat=True)
         
     
     def afficherQuesPoint(self, niv, sec=False):
@@ -1340,7 +1380,6 @@ class InterOflline(InterJeu):
         self.bt_devoiler.destroy()
         self.LabRepone.pack()
         
-
 
     def __final__(self):
         self.root.mainloop()
