@@ -785,6 +785,7 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1.add_command(label ="Ouvrir un autre projet")
         self.sous_menubutton_1.add_command(label ="Menu Principal", command = self.retour)
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
+        self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
         self.sous_menubutton_2.add_command(label ="Changer nom d'equipe")
         self.sous_menubutton_3.add_command(label ="Documentation")
         self.sous_menubutton_3.add_command(label ="Afficher la license")
@@ -1199,7 +1200,6 @@ class InterOflline(InterJeu):
                 self.dejaQues3.append(i)
         
         return i
-        
 
 
     def lancer_jeu(self):
@@ -1217,11 +1217,14 @@ class InterOflline(InterJeu):
                 niv = random.randint(1, 3)
                 if niv not in nivs:
                     test = self.randomQues(niveau=niv, simulation=True)
+            number = self.randomQues(niv) - 1
+            question = dictionnaire[f'Question{niv}'][number][0]
+            self.textPoint = dictionnaire[f'Reponse{niv}'][number][1]
+            self.devoiRep(dictionnaire[f'Reponse{niv}'][number][0])
 
-            question = dictionnaire[f'Question{niv}'][self.randomQues(niv) - 1][0]
-            self.textPoint = dictionnaire[f'Reponse{niv}'][self.randomQues(niv) - 1][1]
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
-            self.points.place(relx = 0.7, rely = 0.05)
+            self.points.place(relx = 0.83, rely = 0.1)
+
         elif self.typeQuestion == 2:
             pass
         elif self.typeQuestion == 3:
@@ -1230,6 +1233,26 @@ class InterOflline(InterJeu):
             pass
         
         self.Label_Champ.insert('1.0', question)
+    
+
+    def devoiRep(self, reponse):
+        try:
+            self.fenRep.destroy()
+        except:
+            pass
+        finally:
+            self.fenRep = Toplevel(self.root)
+            self.fenRep.title('Reponse...')
+            self.fenRep.geometry('300x50')
+            self.LabRepone = Label(self.fenRep, text = reponse)
+            self.bt_devoiler = Button(self.fenRep, text = 'AFFICHER', command=self.aff_devoiRep)
+            self.bt_devoiler.pack()
+            self.fenRep.withdraw()
+    
+    def aff_devoiRep(self):
+        self.bt_devoiler.destroy()
+        self.LabRepone.pack()
+        
 
 
     def __final__(self):
