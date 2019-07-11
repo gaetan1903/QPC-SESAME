@@ -735,6 +735,7 @@ class InterOflline(InterJeu):
         self.validConfiguration = 0
         self.player_score = {}
         self.equipe = {}
+        self.color = {}
         self.permission = False
         self.dejaQues1 = [0]
         self.dejaQues2 = [0]
@@ -880,6 +881,7 @@ class InterOflline(InterJeu):
             exec(y)
             '''
             self.equipe[f'player{i+1}'] = StringVar()
+            self.color[f'player{i+1}'] = 'teal'
             label = Label(config, text = f'Nom equipe {i+1}').pack(pady = {spc})
             entry = Entry(config, textvariable = self.equipe[f'player{i+1}']).pack()
             
@@ -943,7 +945,7 @@ class InterOflline(InterJeu):
                 self.info.update()
                 self.validConfiguration = 0
         except:
-            self.info.config(text=f"Veuiller choisir le type d'affichage des questions")
+            self.info.config(text="Veuiller choisir le type d'affichage des questions")
             self.info.update()
             
         
@@ -978,8 +980,9 @@ class InterOflline(InterJeu):
                 '''
                 self.player_score = self.trierdict(self.player_score)
                 self.equipe = self.misenplace(self.player_score, self.equipe)
+                self.color = self.misenplace(self.player_score, self.color)
 
-                self.playerAf = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)
+                self.playerAf = Canvas(self.cadreScore, width=250, height=50, bg = list(self.color.values())[::-1][i], highlightthickness = 0)
                 self.playerAf.create_text(125, 15, text = list(self.equipe.values())[::-1][i].get(), font = self.arialinfo14, fill ='yellow')
                 self.playerAf.create_text(125, 35, text = str(list(self.player_score.values())[::-1][i]) + ' points', fill = 'black')
                 self.playerAf.pack(pady=3)
@@ -992,84 +995,132 @@ class InterOflline(InterJeu):
         if self.permission:
             self.player_score['player1']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player1'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer2(self, event):
         if self.permission:
             self.player_score['player2']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player2'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer3(self, event):
         if self.permission:
             self.player_score['player3']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player3'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer4(self, event):
         if self.permission:
             self.player_score['player4']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player4'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer5(self, event):
         if self.permission:
             self.player_score['player5']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player5'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer6(self, event):
         if self.permission:
             self.player_score['player6']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player6'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer7(self, event):
         if self.permission:
             self.player_score['player7']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player7'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer8(self, event):
         if self.permission:
             self.player_score['player8']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player8'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer9(self, event):
         if self.permission:
             self.player_score['player9']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player9'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer10(self, event):
         if self.permission:
             self.player_score['player10']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player10'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer11(self, event):
         if self.permission:
             self.player_score['player11']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player11'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
     def incrementer12(self, event):
         if self.permission:
             self.player_score['player12']+=self.textPoint
             self.cadre_score()
-            self.jeu_suivant(milieu=True)
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score['player12'] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
             self.points.destroy()
 
 
@@ -1171,7 +1222,67 @@ class InterOflline(InterJeu):
             self.bt_Start.place(relx=0.27, rely=0.4)
 
         if fin:
-            pass
+            el = 0
+            score = list(self.player_score.values()).copy()
+            score.append('')
+            mov = ''
+            elList = []
+            sous = False
+            while el != self.nbrEl.get():  #  nbrEl etant le nbr eliminé par manche
+                print('-->', mov)
+                try:
+                 while True:
+                    score.remove(mov)
+                except:
+                    pass
+                print(score)
+                minV = min(score)
+                cntV = score.count(minV)
+
+
+                if cntV == 1:
+                    mov = minV
+                    el += 1
+                    elList.append(minV)
+
+                elif cntV == self.nbrEl.get() and elList == []:
+                    elList.append(minV)
+                    break
+
+                elif cntV > 1 and cntV < self.nbrEl.get():
+                    if (el + cntV) == self.nbrEl.get():
+                        el = self.nbrEl.get()
+                        elList.append(minV)
+                        mov = minV
+                    elif (el + cntV) < self.nbrEl.get():
+                        el += cntV
+                        elList.append(minV)
+                        mov = minV
+                    elif (el + cntV) > self.nbrEl.get():
+                        sous = True
+                        break
+                
+                elif cntV > 1 and cntV >= self.nbrEl.get():
+                    sous = True
+                    break
+
+            for k,v in self.player_score.items():
+                if v in elList:
+                    self.color[k] = 'red'
+
+            if sous:
+                for k,v in self.player_score.items():
+                    if v == minV:
+                        self.color[k] = 'orange'
+
+
+            self.permission = True
+            self.cadre_score()
+
+            self.root['bg'] ='green'
+            self.bt_Start = Button(self.cadre_question, text='Partie Suivante', font=self.timesNew1, bg ='yellow')
+            self.bt_Start.place(relx=0.27, rely=0.4)
+            
          
         if terminer:
             pass
@@ -1208,6 +1319,7 @@ class InterOflline(InterJeu):
 
     
     def choisirNiv(self, res=False, quat=False):
+        self.permission = False
         self.choisirFen = Toplevel(self.root)
         self.choisirFen.geometry('400x150+375+250')
         self.choisirFen.title('Choisir Niveau')
@@ -1225,6 +1337,7 @@ class InterOflline(InterJeu):
 
         
     def ordQues(self, niv):
+        self.permission = True
         self.choisirFen.destroy()
         if niv == 1:
             self.incrTyp1 += 1
@@ -1340,6 +1453,7 @@ class InterOflline(InterJeu):
         
     
     def afficherQuesPoint(self, niv, sec=False):
+        self.permission = True
         number = self.randomQues(niv)
         autorise = True
         if sec:
