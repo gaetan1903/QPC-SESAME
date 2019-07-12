@@ -786,17 +786,43 @@ class InterOflline(InterJeu):
         self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
         self.menubutton.add_cascade(label = "Edition"  , menu = self.sous_menubutton_2)
         self.menubutton.add_cascade(label = "Aide"  , menu = self.sous_menubutton_3)
-        self.sous_menubutton_1.add_command(label ="Nouvelle fenetre")
-        self.sous_menubutton_1.add_command(label ="Ouvrir un autre projet")
+
+        self.sous_menubutton_1.add_command(label ="Ouvrir un autre projet", command = self.reOpenProject)
         self.sous_menubutton_1.add_command(label ="Menu Principal", command = self.retour)
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
+
         self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
         self.sous_menubutton_2.add_command(label ="Changer nom d'equipe")
+
         self.sous_menubutton_3.add_command(label ="Documentation")
         self.sous_menubutton_3.add_command(label ="Afficher la license")
         self.sous_menubutton_3.add_command(label ="A propos Developpeur")
         self.sous_menubutton_3.add_command(label ="A propos du logiciel")
         self.root.config(menu = self.menubutton)
+
+
+    def reOpenProject(self):
+        self.file = moduleQPC.recupfichier(extension = 'qpc')  #  ouverture de l explorer
+        if self.file is not '':  #  si un fichier a ete selectionner
+            f = open(self.file, 'r', encoding = 'utf8')  #  ouvrir en mode lecture seule
+            try:
+                self.dict = json.load(f)  #  transform en dictionnaire les données 
+            except:  #  si erreur , fichier corrompu ou pas valide 
+                tkmsg.showwarning('Fichier non valide', 'Attention, veuillez selectionner le bon fichier...\n Le fichier est peut être endommagé')
+                self.root.withdraw()  #  cache la fenetre principale
+                self.root.deiconify()  #  reafficher la fenetre 
+            else:  #  si tous c est bien passé 
+                self.root.quit()  #  quitter  l interface
+                self.root.destroy()  #  assurer sa destruction 
+                global dictionnaire  #  atteindre la variable global
+                dictionnaire = self.dict   #  assigner les données
+                self.root.quit()
+                offlineStart()  #  lancer l interface de jeu
+        else:   #  cas d une annulation
+            #  rendre en premier plan la fenetre
+            self.root.withdraw()
+            self.root.deiconify()
+
 
 
     def __corps__(self):
@@ -946,7 +972,7 @@ class InterOflline(InterJeu):
     def cadre_score(self):
         if self.permission:
             try:
-                self.cadre_score.destroy()
+                self.cadreScore.destroy()
             except:
                 pass
 
@@ -994,7 +1020,7 @@ class InterOflline(InterJeu):
                 self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
 
             self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
-            #self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
+            self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
             self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
 
         if (self.nombre_joueur.get() <= 4):
@@ -1172,9 +1198,9 @@ class InterOflline(InterJeu):
             self.root['bg'] ='green'
             if sous:
                 self.bt_Start = Button(self.cadre_question, text='Commencer Sous-Partie', font=self.timesNew1, bg ='yellow', command=self.sousPartie)
-                self.bt_Start.place(relx=0.27, rely=0.4)
+                self.bt_Start.place(relx=0.2, rely=0.4)
             else:
-                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow')
+                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command = self.mancheSuiv)
                 self.bt_Start.place(relx=0.27, rely=0.4)
             
         if terminer:
@@ -1395,7 +1421,53 @@ class InterOflline(InterJeu):
         self.nbrQues += 1
 
 
-    
+    def mancheSuiv(self):
+        self.nbrQues = 0
+        self.root['bg'] = 'white'
+        self.cadreScore.destroy()
+        c = 0
+        for k,v in self.color.items():
+            if v != 'red':
+                c += 1
+            else:
+                self.equipe.pop(k)
+        
+        self.nombre_joueur.set(c)
+        val = list(self.equipe.values())
+        del self.equipe
+        self.equipe = {}
+        del self.color
+        self.color = {}
+        for i in range(self.nombre_joueur.get()):
+            self.equipe[f'player{i+1}'] = val[i]
+            self.color[f'player{i+1}'] = 'teal'
+
+        for k,v  in self.player.items():
+            v.destroy()
+        
+        del self.player 
+        self.player = {}
+
+
+        self.cadre_question.destroy()
+        self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+        self.cadre_question.place(relx = 0.2, rely = 0.25)
+
+        self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+
+        self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
+        self.Label_Champ.place(relx = 0.03, rely = 0.2)
+        self.typeQuestion = int(self.options.get()[0])
+        del self.player_score
+        self.player_score = {}
+        self.launched()
+        self.permission = True
+        self.cadre_score()
+        self.jeu_suivant(debut=True)     
+
+
+
+
     def sousPartie(self):
         self.bt_Start.destroy()
         self.sPartFen = Toplevel(self.root)
