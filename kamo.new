@@ -1,0 +1,63 @@
+if (self.nombre_joueur.get() <= 4):
+    self.player['player1'].place(relx = 0.07, rely = 0.4)
+    self.player['player2'].place(relx = 0.67, rely = 0.4)
+    if (self.nombre_joueur.get() >= 3):
+        self.player['player3'].place(relx = 0.35, rely = 0.77)
+        if (self.nombre_joueur.get() == 4):
+            self.player['player4'].place(relx=0.35, rely=0.07)
+
+elif (self.nombre_joueur.get() == 5):
+    self.player['player1'].place(relx = 0.06, rely = 0.4)
+    self.player['player3'].place(relx = 0.67, rely = 0.4)
+    self.player['player2'].place(relx = 0.35, rely = 0.77)
+    self.player['player5'].place(relx = 0.22, rely=0.07)
+    self.player['player4'].place(relx = 0.5, rely=0.07)
+
+elif (self.nombre_joueur.get() == 6):
+    self.player['player1'].place(relx = 0.07, rely = 0.4)
+    self.player['player4'].place(relx = 0.67, rely = 0.4)
+    self.player['player2'].place(relx = 0.22, rely = 0.77)
+    self.player['player3'].place(relx = 0.5, rely = 0.77)
+    self.player['player6'].place(relx = 0.22, rely=0.07)
+    self.player['player5'].place(relx = 0.5, rely=0.07)
+
+elif (self.nombre_joueur.get() == 7):
+    self.player['player1'].place(relx = 0.07, rely = 0.4)
+    self.player['player4'].place(relx = 0.67, rely = 0.55)
+    self.player['player5'].place(relx = 0.67, rely = 0.27)
+    self.player['player2'].place(relx = 0.22, rely = 0.77)
+    self.player['player3'].place(relx = 0.5, rely = 0.77)
+    self.player['player7'].place(relx = 0.22, rely=0.07)
+    self.player['player6'].place(relx = 0.5, rely=0.07)
+
+elif (self.nombre_joueur.get() == 8):
+    self.player['player1'].place(relx = 0.07, rely = 0.27)
+    self.player['player2'].place(relx = 0.07, rely = 0.55)
+    self.player['player5'].place(relx = 0.67, rely = 0.55)
+    self.player['player6'].place(relx = 0.67, rely = 0.27)
+    self.player['player3'].place(relx = 0.22, rely = 0.77)
+    self.player['player4'].place(relx = 0.5, rely = 0.77)
+    self.player['player8'].place(relx = 0.22, rely=0.07)
+    self.player['player7'].place(relx = 0.5, rely=0.07)
+
+elif (self.nombre_joueur.get() <= 12):
+    self.player['player1'].place(relx = 0.05, rely = 0.2)
+    self.player['player2'].place(relx = 0.05, rely = 0.62)
+    self.player['player5'].place(relx = 0.67, rely = 0.62)
+    self.player['player6'].place(relx = 0.67, rely = 0.2)
+    self.player['player3'].place(relx = 0.2, rely = 0.77)
+    self.player['player4'].place(relx = 0.52, rely = 0.77)
+    self.player['player8'].place(relx = 0.2, rely=0.07)
+    self.player['player7'].place(relx = 0.52, rely=0.07)
+
+    if self.nombre_joueur.get() >= 9:
+        self.player['player9'].place(relx = 0.04, rely = 0.4)
+
+    if self.nombre_joueur.get() >= 10:
+        self.player['player1']0.place(relx = 0.36, rely = 0.77)
+
+    if self.nombre_joueur.get() >= 11:
+        self.player['player1']1.place(relx = 0.68, rely = 0.4)
+
+    if self.nombre_joueur.get() == 12:
+        self.player['player1']2.place(relx = 0.36, rely = 0.07)

@@ -735,6 +735,7 @@ class InterOflline(InterJeu):
         self.validConfiguration = 0
         self.player_score = {}
         self.equipe = {}
+        self.player = {}
         self.color = {}
         self.permission = False
         self.dejaQues1 = [0]
@@ -979,6 +980,7 @@ class InterOflline(InterJeu):
                 exec(y)
                 '''
                 self.player_score = self.trierdict(self.player_score)
+                print(self.player_score)
                 self.equipe = self.misenplace(self.player_score, self.equipe)
                 self.color = self.misenplace(self.player_score, self.color)
 
@@ -1123,6 +1125,18 @@ class InterOflline(InterJeu):
                     self.jeu_suivant(milieu=True)
             self.points.destroy()
 
+    def incrementer(self, player):
+        print(player)
+        if self.permission:
+            self.player_score[player]+=self.textPoint
+            self.cadre_score()
+            if self.choix.get() == 0:  #  0 est attribué aux Points
+                if self.player_score[player] >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
+            self.points.destroy()
+
 
     def launched(self):
 
@@ -1135,6 +1149,7 @@ class InterOflline(InterJeu):
             if self.equipe[f'player{i+1}'].get() == '':
                 self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
 
+            '''
             y = f"self.player{i+1}= Canvas(self.root, width = 150, height = 100)"
             exec(y)
             #y1 = f"InterOflline.incrementer(self = InterOflline, sois = 'player{i+1}')"
@@ -1144,71 +1159,118 @@ class InterOflline(InterJeu):
             exec(y)
             y = f"self.player{i+1}.create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)"
             exec(y)
+            '''
 
-        
+            self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
+            self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
+            self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
+
+
         if (self.nombre_joueur.get() <= 4):
-            self.player1.place(relx = 0.07, rely = 0.4)
-            self.player2.place(relx = 0.67, rely = 0.4)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player1'].place(relx = 0.07, rely = 0.4)
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player2'].place(relx = 0.67, rely = 0.4)
             if (self.nombre_joueur.get() >= 3):
-                self.player3.place(relx = 0.35, rely = 0.77)
+                self.player['player3'].place(relx = 0.35, rely = 0.77)
+                self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
                 if (self.nombre_joueur.get() == 4):
-                    self.player4.place(relx=0.35, rely=0.07)
+                    self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+                    self.player['player4'].place(relx=0.35, rely=0.07)
 
         elif (self.nombre_joueur.get() == 5):
-            self.player1.place(relx = 0.06, rely = 0.4)
-            self.player3.place(relx = 0.67, rely = 0.4)
-            self.player2.place(relx = 0.35, rely = 0.77)
-            self.player5.place(relx = 0.22, rely=0.07)
-            self.player4.place(relx = 0.5, rely=0.07)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
+            self.player['player1'].place(relx = 0.06, rely = 0.4)
+            self.player['player3'].place(relx = 0.67, rely = 0.4)
+            self.player['player2'].place(relx = 0.35, rely = 0.77)
+            self.player['player5'].place(relx = 0.22, rely=0.07)
+            self.player['player4'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 6):
-            self.player1.place(relx = 0.07, rely = 0.4)
-            self.player4.place(relx = 0.67, rely = 0.4)
-            self.player2.place(relx = 0.22, rely = 0.77)
-            self.player3.place(relx = 0.5, rely = 0.77)
-            self.player6.place(relx = 0.22, rely=0.07)
-            self.player5.place(relx = 0.5, rely=0.07)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
+            self.player['player6'].bind('<Button-1>', lambda f: self.incrementer('player6'))
+            self.player['player1'].place(relx = 0.07, rely = 0.4)
+            self.player['player4'].place(relx = 0.67, rely = 0.4)
+            self.player['player2'].place(relx = 0.22, rely = 0.77)
+            self.player['player3'].place(relx = 0.5, rely = 0.77)
+            self.player['player6'].place(relx = 0.22, rely=0.07)
+            self.player['player5'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 7):
-            self.player1.place(relx = 0.07, rely = 0.4)
-            self.player4.place(relx = 0.67, rely = 0.55)
-            self.player5.place(relx = 0.67, rely = 0.27)
-            self.player2.place(relx = 0.22, rely = 0.77)
-            self.player3.place(relx = 0.5, rely = 0.77)
-            self.player7.place(relx = 0.22, rely=0.07)
-            self.player6.place(relx = 0.5, rely=0.07)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
+            self.player['player6'].bind('<Button-1>', lambda f: self.incrementer('player6'))
+            self.player['player7'].bind('<Button-1>', lambda f: self.incrementer('player7'))
+            self.player['player1'].place(relx = 0.07, rely = 0.4)
+            self.player['player4'].place(relx = 0.67, rely = 0.55)
+            self.player['player5'].place(relx = 0.67, rely = 0.27)
+            self.player['player2'].place(relx = 0.22, rely = 0.77)
+            self.player['player3'].place(relx = 0.5, rely = 0.77)
+            self.player['player7'].place(relx = 0.22, rely=0.07)
+            self.player['player6'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 8):
-            self.player1.place(relx = 0.07, rely = 0.27)
-            self.player2.place(relx = 0.07, rely = 0.55)
-            self.player5.place(relx = 0.67, rely = 0.55)
-            self.player6.place(relx = 0.67, rely = 0.27)
-            self.player3.place(relx = 0.22, rely = 0.77)
-            self.player4.place(relx = 0.5, rely = 0.77)
-            self.player8.place(relx = 0.22, rely=0.07)
-            self.player7.place(relx = 0.5, rely=0.07)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
+            self.player['player6'].bind('<Button-1>', lambda f: self.incrementer('player6'))
+            self.player['player7'].bind('<Button-1>', lambda f: self.incrementer('player7'))
+            self.player['player8'].bind('<Button-1>', lambda f: self.incrementer('player8'))
+            self.player['player1'].place(relx = 0.07, rely = 0.27)
+            self.player['player2'].place(relx = 0.07, rely = 0.55)
+            self.player['player5'].place(relx = 0.67, rely = 0.55)
+            self.player['player6'].place(relx = 0.67, rely = 0.27)
+            self.player['player3'].place(relx = 0.22, rely = 0.77)
+            self.player['player4'].place(relx = 0.5, rely = 0.77)
+            self.player['player8'].place(relx = 0.22, rely=0.07)
+            self.player['player7'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() <= 12):
-            self.player1.place(relx = 0.05, rely = 0.2)
-            self.player2.place(relx = 0.05, rely = 0.62)
-            self.player5.place(relx = 0.67, rely = 0.62)
-            self.player6.place(relx = 0.67, rely = 0.2)
-            self.player3.place(relx = 0.2, rely = 0.77)
-            self.player4.place(relx = 0.52, rely = 0.77)
-            self.player8.place(relx = 0.2, rely=0.07)
-            self.player7.place(relx = 0.52, rely=0.07)
+            self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
+            self.player['player6'].bind('<Button-1>', lambda f: self.incrementer('player6'))
+            self.player['player7'].bind('<Button-1>', lambda f: self.incrementer('player7'))
+            self.player['player8'].bind('<Button-1>', lambda f: self.incrementer('player8'))
+            self.player['player1'].place(relx = 0.05, rely = 0.2)
+            self.player['player2'].place(relx = 0.05, rely = 0.62)
+            self.player['player5'].place(relx = 0.67, rely = 0.62)
+            self.player['player6'].place(relx = 0.67, rely = 0.2)
+            self.player['player3'].place(relx = 0.2, rely = 0.77)
+            self.player['player4'].place(relx = 0.52, rely = 0.77)
+            self.player['player8'].place(relx = 0.2, rely=0.07)
+            self.player['player7'].place(relx = 0.52, rely=0.07)
 
             if self.nombre_joueur.get() >= 9:
-                self.player9.place(relx = 0.04, rely = 0.4)
+                self.player['player9'].bind('<Button-1>', lambda f: self.incrementer('player9'))
+                self.player['player9'].place(relx = 0.04, rely = 0.4)
 
             if self.nombre_joueur.get() >= 10:
-                self.player10.place(relx = 0.36, rely = 0.77)
+                self.player['player10'].bind('<Button-1>', lambda f: self.incrementer('player10'))
+                self.player['player10'].place(relx = 0.36, rely = 0.77)
 
             if self.nombre_joueur.get() >= 11:
-                self.player11.place(relx = 0.68, rely = 0.4)
+                self.player['player11'].bind('<Button-1>', lambda f: self.incrementer('player11'))
+                self.player['player11'].place(relx = 0.68, rely = 0.4)
 
             if self.nombre_joueur.get() == 12:
-                self.player12.place(relx = 0.36, rely = 0.07)
+                self.player['player12'].bind('<Button-1>', lambda f: self.incrementer('player12'))
+                self.player['player12'].place(relx = 0.36, rely = 0.07)
 
         
     def jeu_suivant(self, debut=False, milieu=False, fin=False, terminer=False):
@@ -1280,8 +1342,12 @@ class InterOflline(InterJeu):
             self.cadre_score()
 
             self.root['bg'] ='green'
-            self.bt_Start = Button(self.cadre_question, text='Partie Suivante', font=self.timesNew1, bg ='yellow')
-            self.bt_Start.place(relx=0.27, rely=0.4)
+            if sous:
+                self.bt_Start = Button(self.cadre_question, text='Commencer Sous-Partie', font=self.timesNew1, bg ='yellow', command=self.sousPartie)
+                self.bt_Start.place(relx=0.27, rely=0.4)
+            else:
+                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow')
+                self.bt_Start.place(relx=0.27, rely=0.4)
             
          
         if terminer:
@@ -1493,7 +1559,134 @@ class InterOflline(InterJeu):
     def aff_devoiRep(self):
         self.bt_devoiler.destroy()
         self.LabRepone.pack()
+
+    
+    def sousPartie(self):
+        self.bt_Start.destroy()
+        self.sPartFen = Toplevel(self.root)
+        varP = IntVar()
+        Label(self.sPartFen, text = 'Points Qualifiés').pack()
+        Entry(self.sPartFen, textvariable=varP).pack(pady=10)
+        Button(self.sPartFen, text = 'Commencer', font=self.arialinfo14, fg = 'red', command = lambda: self.sousPar_start(varP)).pack()
+
+
+    def sousPar_start(self, nbrE):
+        self.sPartFen.destroy()
+        self.root.withdraw()
+        sousJ = InterOflline()
+        sousJ.font_image()
+        count = 0
         
+        sousJ.nombre_joueur = self.nombre_joueur
+        sousJ.options = self.options
+        sousJ.cadre_question = Frame(sousJ.root)
+        sousJ.cadre_question = Frame(sousJ.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+        sousJ.cadre_question.place(relx = 0.2, rely = 0.25)
+
+        sousJ.Label_Question = Label(sousJ.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+
+        sousJ.Label_Champ = Text(sousJ.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=sousJ.timesNew)
+        sousJ.Label_Champ.place(relx = 0.03, rely = 0.2)
+        sousJ.typeQuestion = int(self.options.get()[0])
+        sousJ.equipe = self.equipe
+        sousJ.nombre_joueur = self.nombre_joueur
+
+        for i in range(self.nombre_joueur.get()):
+            y = f"sousJ.player{i+1}= Canvas(sousJ.root, width = 150, height = 100)"
+            exec(y)
+            #y1 = f"InterOflline.incrementer(self = InterOflline, sois = 'player{i+1}')"
+            y = f"sousJ.player{i+1}.bind('<Button-1>', sousJ.incrementer{i+1} )"
+            exec(y)
+            y = f"sousJ.player{i+1}.create_image(75, 50, image = sousJ.groupIm)"
+            exec(y)
+            y = f"sousJ.player{i+1}.create_text(75, 85, text = sousJ.equipe[f'player{i+1}'].get(), font = sousJ.arialinfo14)"
+            exec(y)
+        
+        if (sousJ.nombre_joueur.get() <= 4):
+            sousJ.player1.place(relx = 0.07, rely = 0.4)
+            sousJ.player2.place(relx = 0.67, rely = 0.4)
+            if (sousJ.nombre_joueur.get() >= 3):
+                sousJ.player3.place(relx = 0.35, rely = 0.77)
+                if (sousJ.nombre_joueur.get() == 4):
+                    sousJ.player4.place(relx=0.35, rely=0.07)
+
+        elif (sousJ.nombre_joueur.get() == 5):
+            sousJ.player1.place(relx = 0.06, rely = 0.4)
+            sousJ.player3.place(relx = 0.67, rely = 0.4)
+            sousJ.player2.place(relx = 0.35, rely = 0.77)
+            sousJ.player5.place(relx = 0.22, rely=0.07)
+            sousJ.player4.place(relx = 0.5, rely=0.07)
+
+        elif (sousJ.nombre_joueur.get() == 6):
+            sousJ.player1.place(relx = 0.07, rely = 0.4)
+            sousJ.player4.place(relx = 0.67, rely = 0.4)
+            sousJ.player2.place(relx = 0.22, rely = 0.77)
+            sousJ.player3.place(relx = 0.5, rely = 0.77)
+            sousJ.player6.place(relx = 0.22, rely=0.07)
+            sousJ.player5.place(relx = 0.5, rely=0.07)
+
+        elif (sousJ.nombre_joueur.get() == 7):
+            sousJ.player1.place(relx = 0.07, rely = 0.4)
+            sousJ.player4.place(relx = 0.67, rely = 0.55)
+            sousJ.player5.place(relx = 0.67, rely = 0.27)
+            sousJ.player2.place(relx = 0.22, rely = 0.77)
+            sousJ.player3.place(relx = 0.5, rely = 0.77)
+            sousJ.player7.place(relx = 0.22, rely=0.07)
+            sousJ.player6.place(relx = 0.5, rely=0.07)
+
+        elif (sousJ.nombre_joueur.get() == 8):
+            sousJ.player1.place(relx = 0.07, rely = 0.27)
+            sousJ.player2.place(relx = 0.07, rely = 0.55)
+            sousJ.player5.place(relx = 0.67, rely = 0.55)
+            sousJ.player6.place(relx = 0.67, rely = 0.27)
+            sousJ.player3.place(relx = 0.22, rely = 0.77)
+            sousJ.player4.place(relx = 0.5, rely = 0.77)
+            sousJ.player8.place(relx = 0.22, rely=0.07)
+            sousJ.player7.place(relx = 0.5, rely=0.07)
+
+        elif (sousJ.nombre_joueur.get() <= 12):
+            sousJ.player1.place(relx = 0.05, rely = 0.2)
+            sousJ.player2.place(relx = 0.05, rely = 0.62)
+            sousJ.player5.place(relx = 0.67, rely = 0.62)
+            sousJ.player6.place(relx = 0.67, rely = 0.2)
+            sousJ.player3.place(relx = 0.2, rely = 0.77)
+            sousJ.player4.place(relx = 0.52, rely = 0.77)
+            sousJ.player8.place(relx = 0.2, rely=0.07)
+            sousJ.player7.place(relx = 0.52, rely=0.07)
+
+            if sousJ.nombre_joueur.get() >= 9:
+                sousJ.player9.place(relx = 0.04, rely = 0.4)
+
+            if sousJ.nombre_joueur.get() >= 10:
+                sousJ.player10.place(relx = 0.36, rely = 0.77)
+
+            if sousJ.nombre_joueur.get() >= 11:
+                sousJ.player11.place(relx = 0.68, rely = 0.4)
+
+            if sousJ.nombre_joueur.get() == 12:
+                sousJ.player12.place(relx = 0.36, rely = 0.07)
+
+        
+
+        player_score = self.player_score.copy()
+        i = 0
+        for k, v in player_score.items():
+            if v != 'orange':
+                player_score.pop(k)
+                y = f"self.player{i+1}.destroy()"
+                exec(y)
+            i += 1
+
+        sousJ.player_score = player_score
+        sousJ.permission = True
+        sousJ.cadre_score()
+        sousJ.jeu_suivant(debut=True)
+
+
+
+        sousJ.menuTop()
+        sousJ.__final__()
+
 
     def __final__(self):
         self.root.mainloop()
