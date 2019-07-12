@@ -873,14 +873,6 @@ class InterOflline(InterJeu):
             spc = 1
 
         for i in range(self.nombre_joueur.get()):
-            '''
-            y = f"self.equipe{i+1} = StringVar()"
-            exec(y)
-            y = f"label{i+1} = Label(config, text = 'Nom equipe {i+1}').pack(pady = {spc})"
-            exec(y)
-            y = f"entry{i+1} = Entry(config, textvariable = self.equipe{i+1}).pack()"
-            exec(y)
-            '''
             self.equipe[f'player{i+1}'] = StringVar()
             self.color[f'player{i+1}'] = 'teal'
             label = Label(config, text = f'Nom equipe {i+1}').pack(pady = {spc})
@@ -962,23 +954,7 @@ class InterOflline(InterJeu):
             self.cadreScore.grid_propagate(0)
             self.cadreScore.place(relx=0.82, rely=0.047)
 
-
             for i in range(self.nombre_joueur.get()): 
-                '''
-                y = f"self.player{i+1}_score = 0"
-                exec(y)
-                
-                y = f"self.playerAf{i+1} = Canvas(self.cadreScore, width=250, height=50, bg ='teal', highlightthickness = 0)"
-                exec(y)
-                y = f"self.playerAf{i+1}.create_text(125, 15, text = self.equipe{i+1}.get(), font = self.arialinfo14, fill ='yellow')"
-                exec(y)
-                y = f"self.playerAf{i+1}.create_text(125, 35, text = str(self.player_score['player{i+1}']) + ' points', fill = 'black')"
-                exec(y)
-                y = f"self.playerAf{i+1}.pack(pady=3)"
-                exec(y)
-                y = f"self.playerAf{i+1}.create_text(25, 25, text = str(i+1),font = self.arialinfo28, fill = 'yellow')"
-                exec(y)
-                '''
                 self.player_score = self.trierdict(self.player_score)
                 print(self.player_score)
                 self.equipe = self.misenplace(self.player_score, self.equipe)
@@ -994,7 +970,6 @@ class InterOflline(InterJeu):
 
 
     def incrementer(self, player):
-        print(player)
         if self.permission:
             self.player_score[player]+=self.textPoint
             self.cadre_score()
@@ -1010,29 +985,13 @@ class InterOflline(InterJeu):
 
         for i in range(self.nombre_joueur.get()):
             self.player_score[f'player{i+1}'] = 0
-            '''
-            y = f"if self.equipe{i+1}.get() == '':\n\t self.equipe{i+1}.set('Joueur{i+1}')"
-            exec(y)
-            '''
+
             if self.equipe[f'player{i+1}'].get() == '':
                 self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
-
-            '''
-            y = f"self.player{i+1}= Canvas(self.root, width = 150, height = 100)"
-            exec(y)
-            #y1 = f"InterOflline.incrementer(self = InterOflline, sois = 'player{i+1}')"
-            y = f"self.player{i+1}.bind('<Button-1>', self.incrementer{i+1} )"
-            exec(y)
-            y = f"self.player{i+1}.create_image(75, 50, image = self.groupIm)"
-            exec(y)
-            y = f"self.player{i+1}.create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)"
-            exec(y)
-            '''
 
             self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
             self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
             self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
-
 
         if (self.nombre_joueur.get() <= 4):
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
@@ -1169,7 +1128,6 @@ class InterOflline(InterJeu):
                 minV = min(score)
                 cntV = score.count(minV)
 
-
                 if cntV == 1:
                     mov = minV
                     el += 1
@@ -1217,9 +1175,9 @@ class InterOflline(InterJeu):
                 self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow')
                 self.bt_Start.place(relx=0.27, rely=0.4)
             
-         
         if terminer:
             pass
+
 
     def randomQues(self, niveau, simulation=False):
         if niveau == 1:
