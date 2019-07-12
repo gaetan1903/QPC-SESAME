@@ -747,6 +747,7 @@ class InterOflline(InterJeu):
         self.incrTyp1 = 0
         self.incrTyp2 = 0
         self.incrTyp3 = 0
+        self.nbrQues = 0
 
 
     def font_image(self):
@@ -913,7 +914,6 @@ class InterOflline(InterJeu):
             if self.validConfiguration > 0:
                 if self.nombre_joueur.get() >= 2:
                     self.cadre.destroy()
-                    self.cadre_question = Frame(self.root)
                     self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
                     self.cadre_question.place(relx = 0.2, rely = 0.25)
 
@@ -956,7 +956,6 @@ class InterOflline(InterJeu):
 
             for i in range(self.nombre_joueur.get()): 
                 self.player_score = self.trierdict(self.player_score)
-                print(self.player_score)
                 self.equipe = self.misenplace(self.player_score, self.equipe)
                 self.color = self.misenplace(self.player_score, self.color)
 
@@ -978,11 +977,16 @@ class InterOflline(InterJeu):
                     self.jeu_suivant(fin=True)
                 else:
                     self.jeu_suivant(milieu=True)
+            else:  #  nombre de questions
+                if self.nbrQues >= self.nbrLimite.get():
+                    self.jeu_suivant(fin=True)
+                else:
+                    self.jeu_suivant(milieu=True)
+
             self.points.destroy()
 
 
     def launched(self):
-
         for i in range(self.nombre_joueur.get()):
             self.player_score[f'player{i+1}'] = 0
 
@@ -990,7 +994,7 @@ class InterOflline(InterJeu):
                 self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
 
             self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
-            self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
+            #self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
             self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
 
         if (self.nombre_joueur.get() <= 4):
@@ -1118,13 +1122,11 @@ class InterOflline(InterJeu):
             elList = []
             sous = False
             while el != self.nbrEl.get():  #  nbrEl etant le nbr eliminé par manche
-                print('-->', mov)
                 try:
                  while True:
                     score.remove(mov)
                 except:
                     pass
-                print(score)
                 minV = min(score)
                 cntV = score.count(minV)
 
@@ -1261,7 +1263,8 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
 
-            self.Label_Champ.insert('1.0', question)
+            self.inserQues(question)
+
         else:
             self.permission = False
             self.Label_Champ.delete('1.0', '10.0')
@@ -1331,7 +1334,7 @@ class InterOflline(InterJeu):
                 self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
                 self.points.place(relx = 0.82, rely = 0.1)
 
-                self.Label_Champ.insert('1.0', question)
+                self.inserQues(question)
             else:
                 self.permission = False
                 self.Label_Champ.delete('1.0', '10.0')
@@ -1362,7 +1365,7 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
 
-            self.Label_Champ.insert('1.0', question)
+            self.inserQues(question)
         else:
             self.Lab_vide = Label(self.choisirFen, text = f"Il n'y as pas plus de question dans le niveau {niv}", fg ='red')
             self.Lab_vide.place(relx = 0.2, rely = 0.3)
@@ -1387,6 +1390,12 @@ class InterOflline(InterJeu):
         self.LabRepone.pack()
 
     
+    def inserQues(self, question):
+        self.Label_Champ.insert('1.0', question)
+        self.nbrQues += 1
+
+
+    
     def sousPartie(self):
         self.bt_Start.destroy()
         self.sPartFen = Toplevel(self.root)
@@ -1398,10 +1407,11 @@ class InterOflline(InterJeu):
 
     def sousPar_start(self, nbrE):
         self.sPartFen.destroy()
+        """
         self.root.withdraw()
         sousJ = InterOflline()
         sousJ.font_image()
-        count = 0
+        sousJ.menuTop()
         
         sousJ.nombre_joueur = self.nombre_joueur
         sousJ.options = self.options
@@ -1416,102 +1426,24 @@ class InterOflline(InterJeu):
         sousJ.typeQuestion = int(self.options.get()[0])
         sousJ.equipe = self.equipe
         sousJ.nombre_joueur = self.nombre_joueur
-
-        for i in range(self.nombre_joueur.get()):
-            y = f"sousJ.player{i+1}= Canvas(sousJ.root, width = 150, height = 100)"
-            exec(y)
-            #y1 = f"InterOflline.incrementer(self = InterOflline, sois = 'player{i+1}')"
-            y = f"sousJ.player{i+1}.bind('<Button-1>', sousJ.incrementer{i+1} )"
-            exec(y)
-            y = f"sousJ.player{i+1}.create_image(75, 50, image = sousJ.groupIm)"
-            exec(y)
-            y = f"sousJ.player{i+1}.create_text(75, 85, text = sousJ.equipe[f'player{i+1}'].get(), font = sousJ.arialinfo14)"
-            exec(y)
-        
-        if (sousJ.nombre_joueur.get() <= 4):
-            sousJ.player1.place(relx = 0.07, rely = 0.4)
-            sousJ.player2.place(relx = 0.67, rely = 0.4)
-            if (sousJ.nombre_joueur.get() >= 3):
-                sousJ.player3.place(relx = 0.35, rely = 0.77)
-                if (sousJ.nombre_joueur.get() == 4):
-                    sousJ.player4.place(relx=0.35, rely=0.07)
-
-        elif (sousJ.nombre_joueur.get() == 5):
-            sousJ.player1.place(relx = 0.06, rely = 0.4)
-            sousJ.player3.place(relx = 0.67, rely = 0.4)
-            sousJ.player2.place(relx = 0.35, rely = 0.77)
-            sousJ.player5.place(relx = 0.22, rely=0.07)
-            sousJ.player4.place(relx = 0.5, rely=0.07)
-
-        elif (sousJ.nombre_joueur.get() == 6):
-            sousJ.player1.place(relx = 0.07, rely = 0.4)
-            sousJ.player4.place(relx = 0.67, rely = 0.4)
-            sousJ.player2.place(relx = 0.22, rely = 0.77)
-            sousJ.player3.place(relx = 0.5, rely = 0.77)
-            sousJ.player6.place(relx = 0.22, rely=0.07)
-            sousJ.player5.place(relx = 0.5, rely=0.07)
-
-        elif (sousJ.nombre_joueur.get() == 7):
-            sousJ.player1.place(relx = 0.07, rely = 0.4)
-            sousJ.player4.place(relx = 0.67, rely = 0.55)
-            sousJ.player5.place(relx = 0.67, rely = 0.27)
-            sousJ.player2.place(relx = 0.22, rely = 0.77)
-            sousJ.player3.place(relx = 0.5, rely = 0.77)
-            sousJ.player7.place(relx = 0.22, rely=0.07)
-            sousJ.player6.place(relx = 0.5, rely=0.07)
-
-        elif (sousJ.nombre_joueur.get() == 8):
-            sousJ.player1.place(relx = 0.07, rely = 0.27)
-            sousJ.player2.place(relx = 0.07, rely = 0.55)
-            sousJ.player5.place(relx = 0.67, rely = 0.55)
-            sousJ.player6.place(relx = 0.67, rely = 0.27)
-            sousJ.player3.place(relx = 0.22, rely = 0.77)
-            sousJ.player4.place(relx = 0.5, rely = 0.77)
-            sousJ.player8.place(relx = 0.22, rely=0.07)
-            sousJ.player7.place(relx = 0.5, rely=0.07)
-
-        elif (sousJ.nombre_joueur.get() <= 12):
-            sousJ.player1.place(relx = 0.05, rely = 0.2)
-            sousJ.player2.place(relx = 0.05, rely = 0.62)
-            sousJ.player5.place(relx = 0.67, rely = 0.62)
-            sousJ.player6.place(relx = 0.67, rely = 0.2)
-            sousJ.player3.place(relx = 0.2, rely = 0.77)
-            sousJ.player4.place(relx = 0.52, rely = 0.77)
-            sousJ.player8.place(relx = 0.2, rely=0.07)
-            sousJ.player7.place(relx = 0.52, rely=0.07)
-
-            if sousJ.nombre_joueur.get() >= 9:
-                sousJ.player9.place(relx = 0.04, rely = 0.4)
-
-            if sousJ.nombre_joueur.get() >= 10:
-                sousJ.player10.place(relx = 0.36, rely = 0.77)
-
-            if sousJ.nombre_joueur.get() >= 11:
-                sousJ.player11.place(relx = 0.68, rely = 0.4)
-
-            if sousJ.nombre_joueur.get() == 12:
-                sousJ.player12.place(relx = 0.36, rely = 0.07)
-
-        
-
+        sousJ.color = self.color.copy()
+        sousJ.launched()
         player_score = self.player_score.copy()
-        i = 0
-        for k, v in player_score.items():
+        count = 0
+        for k, v in self.color.items():
             if v != 'orange':
                 player_score.pop(k)
-                y = f"self.player{i+1}.destroy()"
-                exec(y)
-            i += 1
-
+                sousJ.color.pop(k)
+                sousJ.equipe.pop(k)
+                sousJ.player[k].destroy()
+                count += 1
+        sousJ.nombre_joueur.set(count)
         sousJ.player_score = player_score
         sousJ.permission = True
         sousJ.cadre_score()
         sousJ.jeu_suivant(debut=True)
-
-
-
-        sousJ.menuTop()
         sousJ.__final__()
+        """
 
 
     def __final__(self):
