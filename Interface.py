@@ -1020,7 +1020,10 @@ class InterOflline(InterJeu):
                 self.equipe[f'player{i+1}'].set(f'Joueur{i+1}')
 
             self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
+
             self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
+        
+
             self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
 
         if (self.nombre_joueur.get() <= 4):
@@ -1467,7 +1470,6 @@ class InterOflline(InterJeu):
 
 
 
-
     def sousPartie(self):
         self.bt_Start.destroy()
         self.sPartFen = Toplevel(self.root)
@@ -1479,6 +1481,50 @@ class InterOflline(InterJeu):
 
     def sousPar_start(self, nbrE):
         self.sPartFen.destroy()
+        self.nombre_joueurSave = self.nombre_joueur.get()
+        self.equipeSave = self.equipe.copy()
+        self.choix.set(0)
+        self.nbrLimite.set(nbrE.get())
+
+        self.nbrQues = 0
+        self.root['bg'] = 'white'
+        self.cadreScore.destroy()
+        c = 0
+        for k,v in self.color.items():
+            if v != 'orange':
+                c += 1
+                self.equipe.pop(k)
+        
+        self.nombre_joueur.set(c)
+        val = list(self.equipe.values())
+        self.equipe.clear()
+        self.color.clear()
+        for i in range(self.nombre_joueur.get()):
+            self.equipe[f'player{i+1}'] = val[i]
+            self.color[f'player{i+1}'] = 'teal'
+
+        for k,v  in self.player.items():
+            v.destroy()
+        
+        self.player.clear()
+
+
+        self.cadre_question.destroy()
+        self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+        self.cadre_question.place(relx = 0.2, rely = 0.25)
+
+        self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+
+        self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
+        self.Label_Champ.place(relx = 0.03, rely = 0.2)
+        self.typeQuestion = int(self.options.get()[0])
+        self.player_score.clear()
+        self.launched()
+        self.permission = True
+        self.cadre_score()
+        self.jeu_suivant(debut=True)     
+
+        
         """
         self.root.withdraw()
         sousJ = InterOflline()
