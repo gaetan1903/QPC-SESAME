@@ -980,7 +980,6 @@ class InterOflline(InterJeu):
             self.info.update()
             
         
-
     def cadre_score(self):
         if self.permission:
             try:
@@ -1025,7 +1024,8 @@ class InterOflline(InterJeu):
                     self.jeu_suivant(milieu=True)
 
                 self.points.destroy()
-            
+            else:
+                moduleQPC.lancerson('error.wav')
             authorize = False
 
         elif self.permission and authorize:
@@ -1115,8 +1115,8 @@ class InterOflline(InterJeu):
             self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
             self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
             self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
-            self.player['player6'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
-            self.player['player6'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
+            self.player['player6'].bind("<Enter>", lambda g: self.player['player6'].config(bg='yellow'))
+            self.player['player6'].bind("<Leave>", lambda g: self.player['player6'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
@@ -1374,6 +1374,7 @@ class InterOflline(InterJeu):
 
             self.equipe = self.equipeNew
             self.nombre_joueur.set(len(self.equipe))
+            self.nbrEl.set(self.nbrElSave)
             self.color.clear()
             for i in range(self.nombre_joueur.get()):
                 self.color[f'player{i+1}'] = 'teal'
@@ -1461,31 +1462,6 @@ class InterOflline(InterJeu):
         
 
     def decorate(self):
-        '''
-        for i in self.los.values():
-            i.destroy()
-        self.los.clear()
-        color = ('orange', 'yellow', 'red')
-        l = 10
-        h = 25
-        for j in range(33):
-            if j <= 6 or j >= 22:
-                for i in range(20):
-                    r  = random.randint(0, 2)
-                    self.los[i] = Canvas(self.root, bg='white', width = l, height = h, highlightthickness = 0)
-                    self.los[i].create_polygon(l/2, 2, 2, h/2, l/2, h, l-2, h/2, fill=color[r])
-                    self.los[i].place(relx=(0.008+(0.03*j)), rely=(0.05+(0.05*i)))
-            else:
-
-                for i in range(20):
-                    if  i < 4 or i > 13:
-                        r  = random.randint(0, 2)
-                        self.los[i] = Canvas(self.root, bg='white', width = l, height = h, highlightthickness = 0)
-                        self.los[i].create_polygon(l/2, 2, 2, h/2, l/2, h, l-2, h/2, fill=color[r])
-                        self.los[i].place(relx=(0.008+(0.03*j)), rely=(0.05+(0.05*i)))
-        
-        self.root.after(125, self.decorate)
-        '''
         self.congrats = Label(self.root, text = 'FELICITATION', font= self.arialinfo28, fg='yellow', bg ='teal' )
         self.congrats.place(relx=0.31, rely=0.6)
                     
@@ -1706,6 +1682,7 @@ class InterOflline(InterJeu):
             self.bt_devoiler.pack()
             self.fenRep.withdraw()
     
+
     def aff_devoiRep(self):
         self.bt_devoiler.destroy()
         self.LabRepone.pack()
@@ -1797,6 +1774,7 @@ class InterOflline(InterJeu):
             v.destroy()
         
         self.player.clear()
+        self.nbrElSave = self.nbrEl.get()
         self.choixSave = self.choix.get()
         self.nbrLimiteSave = self.nbrLimite.get()
         self.choix.set(0)
