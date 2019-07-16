@@ -4,7 +4,7 @@
 from tkinter import * 
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
-import time, json, random, playsound
+import time, json, random, playsound, asyncio
 import moduleQPC  #  nos propres modules
 
 i = j = 0  #  compteur utile
@@ -341,6 +341,10 @@ class Interface():
             fonction permettant de verifier tous les questions
                  avant de terminer pour but d'eviter toute heure durant le jeu
                                                                                 """
+        try:
+            self.fen_ver.destroy()
+        except:
+            pass
         self.fen_ver = Toplevel(self.fen_ques1)  #  creation d une fenetre fille 
         self.fen_ver.title('Verification')  #  titre de cette nouvelle fenetre
         self.fen_ver.config(bg = 'lightgray')
@@ -1390,34 +1394,101 @@ class InterOflline(InterJeu):
             self.nbrQues = 0
 
         if terminer:
-            self.coupeLan()
+            self.los = {}
+            asyncio.run(self.aSync())
             self.root['bg'] = 'white'
             self.player["player1"] = Canvas(self.root, width = 150, height = 100)
             self.player["player1"].create_image(75, 50, image = self.groupIm)
             self.player["player1"].create_text(75, 85, text = self.equipe['player1'].get(), font = self.arialinfo14)
-            self.player['player1'].place(relx = 0.35, rely = 0.4)
+            self.player['player1'].place(relx = 0.355, rely = 0.4)
 
 
-    def coupeLan(self):
-        self.valy = 0.01
+    async def coupeLan(self):
+        self.valy = 0.005
         self.valx = 0.35
+        self.val2x = 0.35
         self.coupeLab = Label(self.root, image=self.coupe, bg ='white')
         self.coupeLab.place(relx=self.valx, rely=self.valy)
+        self.coupeLab2 = Label(self.root, image=self.coupe, bg ='white')
+        self.coupeLab2.place(relx=self.valx, rely=self.valy)
         moduleQPC.lancerson('win.wav')
+        self.static = False
         self.coupelan()
 
 
-    def coupelan(self):
-        if float(self.coupeLab.place_info()['rely']) < 0.18:
-            self.valy += 0.01
-            self.coupeLab.place(relx=self.valx, rely = self.valy)
-        elif float(self.coupeLab.place_info()['relx']) < 0.725:
-            self.valx += 0.01
-            self.coupeLab.place(relx=self.valx, rely = self.valy)
-        self.root.after(125, self.coupelan)
-        
-    
+    async def aSync(self):
+        await asyncio.gather(self.decoRate(), self.coupeLan())
 
+    async def decoRate(self):
+        self.decorate()
+
+    def coupelan(self):
+        if not self.static:
+            if float(self.coupeLab.place_info()['rely']) < 0.09:
+                self.valy += 0.01
+                self.coupeLab.place(relx=self.valx, rely = self.valy)
+                self.coupeLab2.place(relx=self.val2x, rely = self.valy)
+            elif float(self.coupeLab.place_info()['relx']) < 0.725:
+                self.valx += 0.01
+                self.val2x -= 0.009
+                self.coupeLab.place(relx=self.valx, rely = self.valy)
+                self.coupeLab2.place(relx=self.val2x, rely = self.valy)
+            elif float(self.coupeLab.place_info()['rely']) >= 0.09 and float(self.coupeLab.place_info()['rely']) < 0.78:
+                self.valy += 0.01
+                self.coupeLab.place(relx=self.valx, rely = self.valy)
+                self.coupeLab2.place(relx=self.val2x, rely = self.valy)
+            else:
+                self.static = True
+                self.coupeLab.config(bg='teal')
+                self.coupeLab2.config(bg='teal')
+                self.coupeLab.place(relx=0.23, rely=0.4)
+                self.coupeLab2.place(relx=0.5, rely=0.4)
+
+            self.root.after(75, self.coupelan)
+        
+        if self.static:
+            if float(self.coupeLab.place_info()['relx']) >= 0.23:
+                self.coupeLab.place(relx=0.22, rely = 0.4)
+            elif float(self.coupeLab.place_info()['relx']) < 0.23:
+                self.coupeLab.place(relx=0.23, rely = 0.4)
+            if float(self.coupeLab2.place_info()['relx']) <= 0.5:
+                self.coupeLab2.place(relx=0.51, rely = 0.4)
+            elif float(self.coupeLab2.place_info()['relx']) > 0.5:
+                self.coupeLab2.place(relx=0.5, rely = 0.4)
+            self.root.after(250, self.coupelan)
+            
+
+        
+
+    def decorate(self):
+        '''
+        for i in self.los.values():
+            i.destroy()
+        self.los.clear()
+        color = ('orange', 'yellow', 'red')
+        l = 10
+        h = 25
+        for j in range(33):
+            if j <= 6 or j >= 22:
+                for i in range(20):
+                    r  = random.randint(0, 2)
+                    self.los[i] = Canvas(self.root, bg='white', width = l, height = h, highlightthickness = 0)
+                    self.los[i].create_polygon(l/2, 2, 2, h/2, l/2, h, l-2, h/2, fill=color[r])
+                    self.los[i].place(relx=(0.008+(0.03*j)), rely=(0.05+(0.05*i)))
+            else:
+
+                for i in range(20):
+                    if  i < 4 or i > 13:
+                        r  = random.randint(0, 2)
+                        self.los[i] = Canvas(self.root, bg='white', width = l, height = h, highlightthickness = 0)
+                        self.los[i].create_polygon(l/2, 2, 2, h/2, l/2, h, l-2, h/2, fill=color[r])
+                        self.los[i].place(relx=(0.008+(0.03*j)), rely=(0.05+(0.05*i)))
+        
+        self.root.after(125, self.decorate)
+        '''
+        self.congrats = Label(self.root, text = 'FELICITATION', font= self.arialinfo28, fg='yellow', bg ='teal' )
+        self.congrats.place(relx=0.31, rely=0.6)
+                    
 
     def sousLancer(self):
         for k,v  in self.player.items():

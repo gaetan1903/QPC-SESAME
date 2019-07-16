@@ -1,0 +1,36 @@
+{
+    "Question1": [
+        [
+            "je suis qui?\n",
+            12
+        ],
+        [
+            "quel âge ai-je?\n",
+            15
+        ]
+    ],
+    "Reponse1": [
+        [
+            "lucifer",
+            1
+        ],
+        [
+            "un millenaire",
+            1
+        ]
+    ],
+    "Question2": [
+        [
+            "je travaille où?\n",
+            16
+        ]
+    ],
+    "Reponse2": [
+        [
+            "f-society",
+            2
+        ]
+    ],
+    "Question3": [],
+    "Reponse3": []
+}
