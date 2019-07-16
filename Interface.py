@@ -1229,6 +1229,8 @@ class InterOflline(InterJeu):
             for k,v in self.player_score.items():
                 if v < self.nbrLimite.get():
                     self.color[k] = 'red'
+            self.permission = True
+            self.cadre_score()
             self.nbrLimite.set(self.nbrLimiteSave)
             self.choix.set(self.choixSave)
         
@@ -1250,15 +1252,29 @@ class InterOflline(InterJeu):
                 self.color[f'player{i+1}'] = 'teal'
 
             self.sous_partie = False
-
-            self.launched()
-            self.permission = True
-            self.cadre_score()
-            self.jeu_suivant(debut=True) 
+            self.root['bg'] = 'green'
+            try:
+                self.bt_Start.destroy()
+            finally:
+                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command=self.sousLancer)
+                self.bt_Start.place(relx=0.27, rely=0.4)
+            self.nbrQues = 0
 
 
         if terminer:
             pass
+
+    def sousLancer(self):
+        for k,v  in self.player.items():
+            v.destroy()
+        self.player.clear()
+        self.bt_Start.destroy()
+        self.root['bg'] = 'white'
+        self.launched()
+        self.permission = True
+        self.cadre_score()
+        self.jeu_suivant(debut=True) 
+
 
 
     def randomQues(self, niveau, simulation=False):
