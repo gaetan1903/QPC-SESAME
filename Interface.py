@@ -4,7 +4,7 @@
 from tkinter import * 
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
-import time, json, random
+import time, json, random, playsound
 import moduleQPC  #  nos propres modules
 
 i = j = 0  #  compteur utile
@@ -749,6 +749,7 @@ class InterOflline(InterJeu):
         self.incrTyp2 = 0
         self.incrTyp3 = 0
         self.nbrQues = 0
+        self.larg = 0
 
 
     def font_image(self):
@@ -757,6 +758,9 @@ class InterOflline(InterJeu):
         self.timesNew = tkFont.Font(family='Times New Rowan', size=20)
         self.groupIm = PhotoImage(file='Images\icones.png')
         self.timesNew1 = tkFont.Font(family='Times New Rowan', size=20,  slant='italic')
+        coupe0 = PhotoImage(file='coupe.png')
+        self.coupe = coupe0.subsample(2,2)
+
         
     def trierdict(self, dico):
         #  sorted(dico.items(), key=lambda t: t[1])
@@ -886,10 +890,13 @@ class InterOflline(InterJeu):
 
 
     def vrfnbr(self, event):
-        if self.nombre_joueur.get() < 0:
-            self.nombre_joueur.set(self.nombre_joueur.get()*(-1))
-        if self.nombre_joueur.get() > 12:
-            self.nombre_joueur.set(12)
+        try:
+            if self.nombre_joueur.get() < 0:
+                self.nombre_joueur.set(self.nombre_joueur.get()*(-1))
+            if self.nombre_joueur.get() > 12:
+                self.nombre_joueur.set(12)
+        except:
+            pass
         
 
     def configurationNom(self):
@@ -1001,6 +1008,7 @@ class InterOflline(InterJeu):
         if self.sous_partie:
             if self.player_score[player] < self.nbrLimite.get():
                 self.player_score[player]+=self.textPoint
+                moduleQPC.lancerson('point.wav')
                 self.cadre_score()
                 count = 0
                 for x in self.player_score.values():
@@ -1016,9 +1024,9 @@ class InterOflline(InterJeu):
             
             authorize = False
 
-            
-        if self.permission and authorize:
+        elif self.permission and authorize:
             self.player_score[player]+=self.textPoint
+            moduleQPC.lancerson('point.wav')
             self.cadre_score()
             if self.choix.get() == 0:  #  0 est attribué aux Points
                 if self.player_score[player] >= self.nbrLimite.get():
@@ -1032,6 +1040,9 @@ class InterOflline(InterJeu):
                     self.jeu_suivant(milieu=True)
 
             self.points.destroy()
+        
+        else:
+            moduleQPC.lancerson('error.wav')
 
 
     def launched(self):
@@ -1044,24 +1055,44 @@ class InterOflline(InterJeu):
             self.player[f"player{i+1}"] = Canvas(self.root, width = 150, height = 100)
             self.player[f"player{i+1}"].create_image(75, 50, image = self.groupIm)
             self.player[f"player{i+1}"].create_text(75, 85, text = self.equipe[f'player{i+1}'].get(), font = self.arialinfo14)
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
 
         if (self.nombre_joueur.get() <= 4):
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
             self.player['player1'].place(relx = 0.07, rely = 0.4)
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player2'].place(relx = 0.67, rely = 0.4)
             if (self.nombre_joueur.get() >= 3):
+                self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+                self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
                 self.player['player3'].place(relx = 0.35, rely = 0.77)
                 self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
                 if (self.nombre_joueur.get() == 4):
+                    self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+                    self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
                     self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
                     self.player['player4'].place(relx=0.35, rely=0.07)
 
         elif (self.nombre_joueur.get() == 5):
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
+            self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+            self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
+            self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+            self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
             self.player['player4'].bind('<Button-1>', lambda f: self.incrementer('player4'))
+            self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
             self.player['player5'].bind('<Button-1>', lambda f: self.incrementer('player5'))
             self.player['player1'].place(relx = 0.06, rely = 0.4)
             self.player['player3'].place(relx = 0.67, rely = 0.4)
@@ -1070,6 +1101,18 @@ class InterOflline(InterJeu):
             self.player['player4'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 6):
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
+            self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+            self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
+            self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+            self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
+            self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
+            self.player['player6'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player6'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
@@ -1084,6 +1127,20 @@ class InterOflline(InterJeu):
             self.player['player5'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 7):
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
+            self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+            self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
+            self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+            self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
+            self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
+            self.player['player6'].bind("<Enter>", lambda g: self.player['player6'].config(bg='yellow'))
+            self.player['player6'].bind("<Leave>", lambda g: self.player['player6'].config(bg='#E4E4E4'))
+            self.player['player7'].bind("<Enter>", lambda g: self.player['player7'].config(bg='yellow'))
+            self.player['player7'].bind("<Leave>", lambda g: self.player['player7'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
@@ -1100,6 +1157,22 @@ class InterOflline(InterJeu):
             self.player['player6'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() == 8):
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
+            self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+            self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
+            self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+            self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
+            self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
+            self.player['player6'].bind("<Enter>", lambda g: self.player['player6'].config(bg='yellow'))
+            self.player['player6'].bind("<Leave>", lambda g: self.player['player6'].config(bg='#E4E4E4'))
+            self.player['player7'].bind("<Enter>", lambda g: self.player['player7'].config(bg='yellow'))
+            self.player['player7'].bind("<Leave>", lambda g: self.player['player7'].config(bg='#E4E4E4'))
+            self.player['player8'].bind("<Enter>", lambda g: self.player['player8'].config(bg='yellow'))
+            self.player['player8'].bind("<Leave>", lambda g: self.player['player8'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
@@ -1118,6 +1191,22 @@ class InterOflline(InterJeu):
             self.player['player7'].place(relx = 0.5, rely=0.07)
 
         elif (self.nombre_joueur.get() <= 12):
+            self.player['player1'].bind("<Enter>", lambda g: self.player['player1'].config(bg='yellow'))
+            self.player['player1'].bind("<Leave>", lambda g: self.player['player1'].config(bg='#E4E4E4'))
+            self.player['player2'].bind("<Enter>", lambda g: self.player['player2'].config(bg='yellow'))
+            self.player['player2'].bind("<Leave>", lambda g: self.player['player2'].config(bg='#E4E4E4'))
+            self.player['player3'].bind("<Enter>", lambda g: self.player['player3'].config(bg='yellow'))
+            self.player['player3'].bind("<Leave>", lambda g: self.player['player3'].config(bg='#E4E4E4'))
+            self.player['player4'].bind("<Enter>", lambda g: self.player['player4'].config(bg='yellow'))
+            self.player['player4'].bind("<Leave>", lambda g: self.player['player4'].config(bg='#E4E4E4'))
+            self.player['player5'].bind("<Enter>", lambda g: self.player['player5'].config(bg='yellow'))
+            self.player['player5'].bind("<Leave>", lambda g: self.player['player5'].config(bg='#E4E4E4'))
+            self.player['player6'].bind("<Enter>", lambda g: self.player['player6'].config(bg='yellow'))
+            self.player['player6'].bind("<Leave>", lambda g: self.player['player6'].config(bg='#E4E4E4'))
+            self.player['player7'].bind("<Enter>", lambda g: self.player['player7'].config(bg='yellow'))
+            self.player['player7'].bind("<Leave>", lambda g: self.player['player7'].config(bg='#E4E4E4'))
+            self.player['player8'].bind("<Enter>", lambda g: self.player['player8'].config(bg='yellow'))
+            self.player['player8'].bind("<Leave>", lambda g: self.player['player8'].config(bg='#E4E4E4'))
             self.player['player1'].bind('<Button-1>', lambda f: self.incrementer('player1'))
             self.player['player2'].bind('<Button-1>', lambda f: self.incrementer('player2'))
             self.player['player3'].bind('<Button-1>', lambda f: self.incrementer('player3'))
@@ -1136,18 +1225,26 @@ class InterOflline(InterJeu):
             self.player['player7'].place(relx = 0.52, rely=0.07)
 
             if self.nombre_joueur.get() >= 9:
+                self.player['player9'].bind("<Enter>", lambda g: self.player['player9'].config(bg='yellow'))
+                self.player['player9'].bind("<Leave>", lambda g: self.player['player9'].config(bg='#E4E4E4'))
                 self.player['player9'].bind('<Button-1>', lambda f: self.incrementer('player9'))
                 self.player['player9'].place(relx = 0.04, rely = 0.4)
 
             if self.nombre_joueur.get() >= 10:
+                self.player['player10'].bind("<Enter>", lambda g: self.player['player10'].config(bg='yellow'))
+                self.player['player10'].bind("<Leave>", lambda g: self.player['player10'].config(bg='#E4E4E4'))
                 self.player['player10'].bind('<Button-1>', lambda f: self.incrementer('player10'))
                 self.player['player10'].place(relx = 0.36, rely = 0.77)
 
             if self.nombre_joueur.get() >= 11:
+                self.player['player11'].bind("<Enter>", lambda g: self.player['player11'].config(bg='yellow'))
+                self.player['player11'].bind("<Leave>", lambda g: self.player['player11'].config(bg='#E4E4E4'))
                 self.player['player11'].bind('<Button-1>', lambda f: self.incrementer('player11'))
                 self.player['player11'].place(relx = 0.68, rely = 0.4)
 
             if self.nombre_joueur.get() == 12:
+                self.player['player12'].bind("<Enter>", lambda g: self.player['player12'].config(bg='yellow'))
+                self.player['player12'].bind("<Leave>", lambda g: self.player['player12'].config(bg='#E4E4E4'))
                 self.player['player12'].bind('<Button-1>', lambda f: self.incrementer('player12'))
                 self.player['player12'].place(relx = 0.36, rely = 0.07)
 
@@ -1163,12 +1260,19 @@ class InterOflline(InterJeu):
             self.bt_Start.place(relx=0.27, rely=0.4)
 
         if fin:
+            arret = False
             el = 0
             score = list(self.player_score.values()).copy()
             score.append('')
             mov = ''
             elList = []
             sous = False
+            if self.nombre_joueur.get() == self.nbrEl.get():
+                self.nbrEl.set(self.nbrEl.get() - 1)
+            elif self.nombre_joueur.get() < self.nbrEl.get():
+                while self.nombre_joueur.get() - self.nbrEl.get() != 1:
+                    self.nbrEl.set(self.nbrEl.get() - 1)
+                    
             while el != self.nbrEl.get():  #  nbrEl etant le nbr eliminé par manche
                 try:
                  while True:
@@ -1213,17 +1317,36 @@ class InterOflline(InterJeu):
                     if v == minV:
                         self.color[k] = 'orange'
 
+            orC = 0
+            reC = 0
+            teC = 0
+            for k,v in self.color.items():
+                if v == 'orange':
+                    orC += 1
+                elif  v == 'red':
+                    reC += 1
+                else:
+                    teC += 1
+            if (orC==0) and (reC>0) and (teC==1):
+                arret = True
+                for k,v  in self.player.items():
+                    v.destroy()
+                self.player.clear()
+                self.jeu_suivant(terminer=True)
+                self.permission = True
+                self.cadre_score()
+                
+            if not arret:
+                self.permission = True
+                self.cadre_score()
 
-            self.permission = True
-            self.cadre_score()
-
-            self.root['bg'] ='green'
-            if sous:
-                self.bt_Start = Button(self.cadre_question, text='Commencer Sous-Partie', font=self.timesNew1, bg ='yellow', command=self.sousPartie)
-                self.bt_Start.place(relx=0.2, rely=0.4)
-            else:
-                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command = self.mancheSuiv)
-                self.bt_Start.place(relx=0.27, rely=0.4)
+                self.root['bg'] ='green'
+                if sous:
+                    self.bt_Start = Button(self.cadre_question, text='Commencer Sous-Partie', font=self.timesNew1, bg ='yellow', command=self.sousPartie)
+                    self.bt_Start.place(relx=0.2, rely=0.4)
+                else:
+                    self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command = self.mancheSuiv)
+                    self.bt_Start.place(relx=0.27, rely=0.4)
             
         if sousfin:
             for k,v in self.player_score.items():
@@ -1256,13 +1379,45 @@ class InterOflline(InterJeu):
             try:
                 self.bt_Start.destroy()
             finally:
-                self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command=self.sousLancer)
-                self.bt_Start.place(relx=0.27, rely=0.4)
+                if self.nombre_joueur.get() != 1:
+                    self.bt_Start = Button(self.cadre_question, text='Manche Suivante', font=self.timesNew1, bg ='yellow', command=self.sousLancer)
+                    self.bt_Start.place(relx=0.27, rely=0.4)
+                else:
+                    for k,v  in self.player.items():
+                        v.destroy()
+                    self.player.clear()
+                    self.jeu_suivant(terminer=True)
             self.nbrQues = 0
 
-
         if terminer:
-            pass
+            self.coupeLan()
+            self.root['bg'] = 'white'
+            self.player["player1"] = Canvas(self.root, width = 150, height = 100)
+            self.player["player1"].create_image(75, 50, image = self.groupIm)
+            self.player["player1"].create_text(75, 85, text = self.equipe['player1'].get(), font = self.arialinfo14)
+            self.player['player1'].place(relx = 0.35, rely = 0.4)
+
+
+    def coupeLan(self):
+        self.valy = 0.01
+        self.valx = 0.35
+        self.coupeLab = Label(self.root, image=self.coupe, bg ='white')
+        self.coupeLab.place(relx=self.valx, rely=self.valy)
+        moduleQPC.lancerson('win.wav')
+        self.coupelan()
+
+
+    def coupelan(self):
+        if float(self.coupeLab.place_info()['rely']) < 0.18:
+            self.valy += 0.01
+            self.coupeLab.place(relx=self.valx, rely = self.valy)
+        elif float(self.coupeLab.place_info()['relx']) < 0.725:
+            self.valx += 0.01
+            self.coupeLab.place(relx=self.valx, rely = self.valy)
+        self.root.after(125, self.coupelan)
+        
+    
+
 
     def sousLancer(self):
         for k,v  in self.player.items():
@@ -1274,7 +1429,6 @@ class InterOflline(InterJeu):
         self.permission = True
         self.cadre_score()
         self.jeu_suivant(debut=True) 
-
 
 
     def randomQues(self, niveau, simulation=False):

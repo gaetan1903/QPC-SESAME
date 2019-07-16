@@ -1,7 +1,8 @@
 #-*-coding: Utf-8 -*-
 # __author__: Gaetan Jonathan BAKARY
 
-from tkinter.filedialog import * 
+from tkinter.filedialog import *
+import threading, playsound
 
 """
     Classe permettant de classer les petits fonction
@@ -22,3 +23,17 @@ def saveFichier(defaultextension, initialfile, title):
             le fichier et l emplacement pour le  sauvegarder
                                                                 """
     return asksaveasfilename(defaultextension = defaultextension, initialfile = initialfile, title = title)
+
+
+class LancerSound(threading.Thread):
+    def __init__(self, son):
+        threading.Thread.__init__(self)
+        self.son = son
+
+    def run(self):
+        playsound.playsound(self.son)
+
+
+def lancerson(son):
+    p = LancerSound(son)
+    p.start()
