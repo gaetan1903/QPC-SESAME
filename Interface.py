@@ -1264,6 +1264,7 @@ class InterOflline(InterJeu):
             self.bt_Start.place(relx=0.27, rely=0.4)
 
         if fin:
+            print('first', self.nbrEl.get())
             arret = False
             el = 0
             score = list(self.player_score.values()).copy()
@@ -1276,7 +1277,7 @@ class InterOflline(InterJeu):
             elif self.nombre_joueur.get() < self.nbrEl.get():
                 while self.nombre_joueur.get() - self.nbrEl.get() != 1:
                     self.nbrEl.set(self.nbrEl.get() - 1)
-                    
+            print('second', self.nbrEl.get())
             while el != self.nbrEl.get():  #  nbrEl etant le nbr eliminé par manche
                 try:
                  while True:
@@ -1287,11 +1288,13 @@ class InterOflline(InterJeu):
                 cntV = score.count(minV)
 
                 if cntV == 1:
+                    print('so why')
                     mov = minV
                     el += 1
                     elList.append(minV)
 
                 elif cntV == self.nbrEl.get() and elList == []:
+                    print('or here')
                     elList.append(minV)
                     break
 
@@ -1309,6 +1312,7 @@ class InterOflline(InterJeu):
                         break
                 
                 elif cntV > 1 and cntV >= self.nbrEl.get():
+                    print('here')
                     sous = True
                     break
 
@@ -1372,7 +1376,7 @@ class InterOflline(InterJeu):
                     j += 1
                     self.equipeNew[f'player{j}'] = self.equipe[k]
 
-            self.equipe = self.equipeNew
+            self.equipe = self.equipeNew.copy()
             self.nombre_joueur.set(len(self.equipe))
             self.nbrEl.set(self.nbrElSave)
             self.color.clear()
@@ -1467,11 +1471,12 @@ class InterOflline(InterJeu):
                     
 
     def sousLancer(self):
-        for k,v  in self.player.items():
+        for k,v in self.player.items():
             v.destroy()
         self.player.clear()
         self.bt_Start.destroy()
         self.root['bg'] = 'white'
+        self.player_score.clear()
         self.launched()
         self.permission = True
         self.cadre_score()
@@ -1757,7 +1762,7 @@ class InterOflline(InterJeu):
             if v != 'orange':
                 if v == 'red':
                     elC += 1
-                    self.equipe.pop(k)
+                self.equipe.pop(k)
             else:
                 c += 1
                 
