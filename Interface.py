@@ -87,6 +87,10 @@ class Interface():
         self.offlineButton.place(relx = 0.005, rely = 0.13)
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction precisé
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
+        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24)
+        self.poussoirButton.place(relx = 0.37, rely = 0.13)
+        self.reseauButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24)
+        self.reseauButton.place(relx = 0.75, rely = 0.13)
     
 
     def fen_f1Close(self):
@@ -801,13 +805,42 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
 
         self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
-        self.sous_menubutton_2.add_command(label ="Changer nom d'equipe")
+        self.sous_menubutton_2.add_command(label ="Changer nom d'equipe", command = self.changerEquiName)
 
         self.sous_menubutton_3.add_command(label ="Documentation")
         self.sous_menubutton_3.add_command(label ="Afficher la license")
         self.sous_menubutton_3.add_command(label ="A propos Developpeur")
         self.sous_menubutton_3.add_command(label ="A propos du logiciel")
         self.root.config(menu = self.menubutton)
+
+
+    def changerEquiName(self):
+        try:
+            text = self.bt_Start['text'] 
+        except:
+            tkmsg.showerror('Erreur de changement de Nom', "Il faut attendre la fin d'une partie/manche pour pouvoir changer le nom")
+            
+        else:
+            if text == 'Commencer Sous-Partie' or text == 'Manche Suivante':
+                equipe = {}
+                self.topFen = Toplevel(self.root)
+                spc = 5
+                if self.nombre_joueur.get() > 10:
+                    spc = 1
+                for i in range(self.nombre_joueur.get()):
+                    equipe[f'player{i+1}'] = StringVar()
+                    label = Label(self.topFen, text = self.equipe[f'player{i+1}'].get()).pack(pady = {spc})
+                    entry = Entry(self.topFen, textvariable = equipe[f'player{i+1}']).pack()
+
+                but = Button(self.topFen, text = 'Valider', command = lambda: self.equipNameChange(equipe)).pack(pady=10)
+            else:
+                tkmsg.showerror('Erreur de changement de Nom', "Ce n'est pas encore la fin de manche/partie")
+    
+    def equipNameChange(self, equipe):
+        self.topFen.destroy()
+        for i in range(self.nombre_joueur.get()):
+            if equipe[f'player{i+1}'].get().strip() != '' or equipe[f'player{i+1}'].get().strip() != equipe[f'player{i+1}'].get().strip():
+                self.equipe[f'player{i+1}'].set(equipe[f'player{i+1}'].get())
 
 
     def reOpenProject(self):
@@ -917,7 +950,6 @@ class InterOflline(InterJeu):
             self.color[f'player{i+1}'] = 'teal'
             label = Label(config, text = f'Nom equipe {i+1}').pack(pady = {spc})
             entry = Entry(config, textvariable = self.equipe[f'player{i+1}']).pack()
-            
 
         but = Button(config, text = 'Valider', command = config.destroy).pack(pady=10)
           
@@ -1396,12 +1428,12 @@ class InterOflline(InterJeu):
 
         if terminer:
             self.los = {}
-            asyncio.run(self.aSync())
             self.root['bg'] = 'white'
-            self.player["player1"] = Canvas(self.root, width = 150, height = 100)
+            self.player["player1"] = Canvas(self.root, width = 150, height = 100, highlightthickness=0)
             self.player["player1"].create_image(75, 50, image = self.groupIm)
             self.player["player1"].create_text(75, 85, text = self.equipe['player1'].get(), font = self.arialinfo14)
             self.player['player1'].place(relx = 0.355, rely = 0.4)
+            asyncio.run(self.aSync())
 
 
     async def coupeLan(self):
@@ -1421,11 +1453,12 @@ class InterOflline(InterJeu):
         await asyncio.gather(self.decoRate(), self.coupeLan())
 
     async def decoRate(self):
+        self.newD = False
         self.decorate()
 
     def coupelan(self):
         if not self.static:
-            if float(self.coupeLab.place_info()['rely']) < 0.09:
+            if float(self.coupeLab.place_info()['rely']) < 0.065:
                 self.valy += 0.01
                 self.coupeLab.place(relx=self.valx, rely = self.valy)
                 self.coupeLab2.place(relx=self.val2x, rely = self.valy)
@@ -1434,7 +1467,7 @@ class InterOflline(InterJeu):
                 self.val2x -= 0.009
                 self.coupeLab.place(relx=self.valx, rely = self.valy)
                 self.coupeLab2.place(relx=self.val2x, rely = self.valy)
-            elif float(self.coupeLab.place_info()['rely']) >= 0.09 and float(self.coupeLab.place_info()['rely']) < 0.78:
+            elif float(self.coupeLab.place_info()['rely']) >= 0.065 and float(self.coupeLab.place_info()['rely']) < 0.78:
                 self.valy += 0.01
                 self.coupeLab.place(relx=self.valx, rely = self.valy)
                 self.coupeLab2.place(relx=self.val2x, rely = self.valy)
@@ -1460,8 +1493,16 @@ class InterOflline(InterJeu):
             
 
     def decorate(self):
-        self.congrats = Label(self.root, text = 'FELICITATION', font= self.arialinfo28, fg='yellow', bg ='teal' )
-        self.congrats.place(relx=0.31, rely=0.6)
+        if self.newD:
+            self.congrats = Label(self.root, text = 'FELICITATION', font= self.arialinfo28, fg='yellow', bg ='teal' )
+            self.congrats.place(relx=0.31, rely=0.6)
+        else:
+            self.newD = True
+
+        color = ('orange', 'lightgreen', 'yellow')
+        r = random.randint(0, 2)
+        self.player['player1'].config(bg=color[r])
+        self.root.after(200, self.decorate)
                     
 
     def sousLancer(self):
@@ -1735,7 +1776,7 @@ class InterOflline(InterJeu):
     def sousPartie(self):
         self.bt_Start.destroy()
         self.sPartFen = Toplevel(self.root)
-        self.sPartFen.geometry('+450+350')
+        self.sPartFen.geometry('+475+350')
         varP = IntVar()
         Label(self.sPartFen, text = 'Points Qualifiés').pack()
         Entry(self.sPartFen, textvariable=varP).pack(pady=10)
