@@ -689,7 +689,7 @@ class Interface():
         if self.count <= 1:  #  si la fenetre n'est pas ouvert 
             self.fen_f1 = Toplevel(self.root)  #  creation d une fenetr fille 
             self.fen_f1.title('QPC SESAME')
-            self.fen_f1.geometry('400x100')
+            self.fen_f1.geometry('400x100+100+100')
             self.projet = self.projet0.subsample(6, 6)
             projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.35, rely = 0.10)
             # Mise en place des boutons 
@@ -883,7 +883,7 @@ class InterOflline(InterJeu):
         options = ('1) Niveau Aléatoire  - Question aléatoire', '2) Niveau Manuel - Question aléatoire', '3) Niveau Aléatoire et Question en ordre', '4) Niveau Manuel - Question en ordre')
         self.slist = OptionMenu(self.cadre, self.options, *options)
         self.slist.config(font=self.arialinfo14)
-        self.slist.place(relx=0.02, rely=0.6)
+        self.slist.place(relx=0.02, rely=0.63)
         #  confirmation de suite
         self.configurer_nom = Button(self.cadre, text ="Personaliser nom d'equipe", font = self.arialinfo14, command = self.configurationNom)
         self.configurer_nom.place(relx = 0.2, rely = 0.75)
@@ -906,6 +906,7 @@ class InterOflline(InterJeu):
     def configurationNom(self):
         self.validConfiguration += 1
         config = Toplevel(self.root)
+        config.geometry('+225+125')
         spc = 5
 
         if self.nombre_joueur.get() > 10:
@@ -1264,7 +1265,6 @@ class InterOflline(InterJeu):
             self.bt_Start.place(relx=0.27, rely=0.4)
 
         if fin:
-            print('first', self.nbrEl.get())
             arret = False
             el = 0
             score = list(self.player_score.values()).copy()
@@ -1277,7 +1277,6 @@ class InterOflline(InterJeu):
             elif self.nombre_joueur.get() < self.nbrEl.get():
                 while self.nombre_joueur.get() - self.nbrEl.get() != 1:
                     self.nbrEl.set(self.nbrEl.get() - 1)
-            print('second', self.nbrEl.get())
             while el != self.nbrEl.get():  #  nbrEl etant le nbr eliminé par manche
                 try:
                  while True:
@@ -1288,13 +1287,11 @@ class InterOflline(InterJeu):
                 cntV = score.count(minV)
 
                 if cntV == 1:
-                    print('so why')
                     mov = minV
                     el += 1
                     elList.append(minV)
 
                 elif cntV == self.nbrEl.get() and elList == []:
-                    print('or here')
                     elList.append(minV)
                     break
 
@@ -1312,7 +1309,6 @@ class InterOflline(InterJeu):
                         break
                 
                 elif cntV > 1 and cntV >= self.nbrEl.get():
-                    print('here')
                     sous = True
                     break
 
@@ -1462,8 +1458,6 @@ class InterOflline(InterJeu):
                 self.coupeLab2.place(relx=0.5, rely = 0.4)
             self.root.after(250, self.coupelan)
             
-
-        
 
     def decorate(self):
         self.congrats = Label(self.root, text = 'FELICITATION', font= self.arialinfo28, fg='yellow', bg ='teal' )
@@ -1741,6 +1735,7 @@ class InterOflline(InterJeu):
     def sousPartie(self):
         self.bt_Start.destroy()
         self.sPartFen = Toplevel(self.root)
+        self.sPartFen.geometry('+450+350')
         varP = IntVar()
         Label(self.sPartFen, text = 'Points Qualifiés').pack()
         Entry(self.sPartFen, textvariable=varP).pack(pady=10)
