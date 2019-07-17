@@ -91,8 +91,22 @@ class Interface():
         self.poussoirButton.place(relx = 0.37, rely = 0.13)
         self.reseauButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24)
         self.reseauButton.place(relx = 0.75, rely = 0.13)
-    
+        #  les iamges sous le menu
+        self.offline1 = self.offline0.subsample(7,7)
+        self.offImage = Canvas(self.root, width = 400, height = 400, bg = 'white', highlightthickness = 0)
+        self.offImage.create_image(200, 200, image=self.offline1)
+        self.offImage.place(relx=-0.015, rely=0.25)
+        self.poussoir = self.poussoir0.subsample(2,2)
+        self.pouImage = Canvas(self.root, width = 400, height = 400, bg = 'white', highlightthickness = 0)
+        self.pouImage.create_image(200, 200, image=self.poussoir)
+        self.pouImage.place(relx=0.31, rely=0.25)
+        self.reseau = self.reseau0.subsample(2,2)
+        self.resImage = Canvas(self.root, width = 400, height = 400, bg = 'white', highlightthickness = 0)
+        self.resImage.create_image(200, 200, image=self.reseau)
+        self.resImage.place(relx=0.67, rely=0.25)
 
+
+    
     def fen_f1Close(self):
         """ 
             fonction servant a intercepter la fermeture
@@ -766,7 +780,7 @@ class InterOflline(InterJeu):
         self.timesNew = tkFont.Font(family='Times New Rowan', size=20)
         self.groupIm = PhotoImage(file='Images\icones.png')
         self.timesNew1 = tkFont.Font(family='Times New Rowan', size=20,  slant='italic')
-        coupe0 = PhotoImage(file='coupe.png')
+        coupe0 = PhotoImage(file='Images\coupe.png')
         self.coupe = coupe0.subsample(2,2)
 
         
@@ -1044,7 +1058,7 @@ class InterOflline(InterJeu):
         if self.sous_partie:
             if self.player_score[player] < self.nbrLimite.get():
                 self.player_score[player]+=self.textPoint
-                moduleQPC.lancerson('point.wav')
+                moduleQPC.lancerson('son\point.wav')
                 self.cadre_score()
                 count = 0
                 for x in self.player_score.values():
@@ -1058,12 +1072,12 @@ class InterOflline(InterJeu):
 
                 self.points.destroy()
             else:
-                moduleQPC.lancerson('error.wav')
+                moduleQPC.lancerson('son\error.wav')
             authorize = False
 
         elif self.permission and authorize:
             self.player_score[player]+=self.textPoint
-            moduleQPC.lancerson('point.wav')
+            moduleQPC.lancerson('son\point.wav')
             self.cadre_score()
             if self.choix.get() == 0:  #  0 est attribué aux Points
                 if self.player_score[player] >= self.nbrLimite.get():
@@ -1079,7 +1093,7 @@ class InterOflline(InterJeu):
             self.points.destroy()
         
         else:
-            moduleQPC.lancerson('error.wav')
+            moduleQPC.lancerson('son\error.wav')
 
 
     def launched(self):
@@ -1444,7 +1458,7 @@ class InterOflline(InterJeu):
         self.coupeLab.place(relx=self.valx, rely=self.valy)
         self.coupeLab2 = Label(self.root, image=self.coupe, bg ='white')
         self.coupeLab2.place(relx=self.valx, rely=self.valy)
-        moduleQPC.lancerson('win.wav')
+        moduleQPC.lancerson('son\win.wav')
         self.static = False
         self.coupelan()
 
