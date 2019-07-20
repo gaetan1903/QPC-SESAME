@@ -818,7 +818,8 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
 
         self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
-        self.sous_menubutton_2.add_command(label ="Changer nom d'equipe", command = self.changerEquiName)
+        self.sous_menubutton_2.add_command(label ="Changer nom d'equipe", command = lambda: self.changerEquiName(changed="nom d'equipe", name=True))
+        self.sous_menubutton_2.add_command(label ="Changer nombre de joueur eliminé", command = lambda: self.changerEquiName(changed="nombre d'equipe(s) eliminé(s)", nbrEl=True))
 
         self.sous_menubutton_3.add_command(label ="Documentation")
         self.sous_menubutton_3.add_command(label ="Afficher la license")
@@ -827,33 +828,47 @@ class InterOflline(InterJeu):
         self.root.config(menu = self.menubutton)
 
 
-    def changerEquiName(self):
+    def changerEquiName(self, changed, name=False, nbrEl=False):
         try:
             text = self.bt_Start['text'] 
         except:
-            tkmsg.showerror('Erreur de changement de Nom', "Il faut attendre la fin d'une partie/manche pour pouvoir changer le nom")
+            tkmsg.showerror(f'Erreur de changement de {changed}', f"Il faut attendre la fin d'une partie/manche pour pouvoir changer le {changed}")
             
         else:
             if text == 'Commencer Sous-Partie' or text == 'Manche Suivante':
-                equipe = {}
-                self.topFen = Toplevel(self.root)
-                spc = 5
-                if self.nombre_joueur.get() > 10:
-                    spc = 1
-                for i in range(self.nombre_joueur.get()):
-                    equipe[f'player{i+1}'] = StringVar()
-                    label = Label(self.topFen, text = self.equipe[f'player{i+1}'].get()).pack(pady = {spc})
-                    entry = Entry(self.topFen, textvariable = equipe[f'player{i+1}']).pack()
+                if name:
+                    equipe = {}
+                    self.topFen = Toplevel(self.root)
+                    spc = 5
+                    if self.nombre_joueur.get() > 10:
+                        spc = 1
+                    for i in range(self.nombre_joueur.get()):
+                        equipe[f'player{i+1}'] = StringVar()
+                        label = Label(self.topFen, text = self.equipe[f'player{i+1}'].get()).pack(pady = {spc})
+                        entry = Entry(self.topFen, textvariable = equipe[f'player{i+1}']).pack()
 
-                but = Button(self.topFen, text = 'Valider', command = lambda: self.equipNameChange(equipe)).pack(pady=10)
+                    but = Button(self.topFen, text = 'Valider', command = lambda: self.equipNameChange(equipe=equipe, name=True)).pack(pady=10)
+
+                if nbrEl:
+                    nbr = IntVar()
+                    self.topFen = Toplevel(self.root)
+                    Label(self.topFen, text = 'Entrer le nombre de joueur eliminé').pack()
+                    Entry(self.topFen, textvariable=nbr).pack()
+                    Button(self.topFen, text = 'Valider', command = lambda: self.equipNameChange(nbrEl=nbr.get(), El=True)).pack(pady=10)
+
             else:
                 tkmsg.showerror('Erreur de changement de Nom', "Ce n'est pas encore la fin de manche/partie")
     
-    def equipNameChange(self, equipe):
+    def equipNameChange(self, equipe=None, nbrEl=None, El=False, name=False):
         self.topFen.destroy()
-        for i in range(self.nombre_joueur.get()):
-            if equipe[f'player{i+1}'].get().strip() != '' or equipe[f'player{i+1}'].get().strip() != equipe[f'player{i+1}'].get().strip():
-                self.equipe[f'player{i+1}'].set(equipe[f'player{i+1}'].get())
+        if name:
+            for i in range(self.nombre_joueur.get()):
+                if equipe[f'player{i+1}'].get().strip() != '' and equipe[f'player{i+1}'].get().strip() != self.equipe[f'player{i+1}'].get().strip():
+                    self.equipe[f'player{i+1}'].set(equipe[f'player{i+1}'].get())
+        if El:
+            if nbrEl > 0 and nbrEl != self.nbrEl.get():
+                self.nbrEl.set(nbrEl)
+
 
 
     def reOpenProject(self):
