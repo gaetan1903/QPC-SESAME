@@ -751,6 +751,7 @@ class InterOflline(InterJeu):
     def __init__(self):
         InterJeu.__init__(self)   #   appel des propriétés de la classe parent 
         self.root.title('QPC SESAME: MODE HORS LIGNE')
+        self.root.bind('<Button-1>', self.dontquit)
         global dictionnaire
         self.dict = dictionnaire
         self.validConfiguration = 0
@@ -1014,12 +1015,16 @@ class InterOflline(InterJeu):
                 if self.nombre_joueur.get() >= 2:
                     self.cadre.destroy()
                     self.cadre_question = Frame(self.root, width = 600 , height = 350, bg = 'lightgray', relief = 'ridge')
+                    self.cadre_question.bind('<Button-1>', self.dontquit)
                     self.cadre_question.place(relx = 0.2, rely = 0.25)
 
-                    self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal').place(relx=0.3, rely=0.05)
+                    self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal')
+                    self.Label_Question.place(relx=0.3, rely=0.05)
+                    self.Label_Question.bind('<Button-1>', self.dontquit)
 
                     self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
                     self.Label_Champ.place(relx = 0.03, rely = 0.2)
+                    self.Label_Champ.bind('<Button-1>', self.dontquit)
                     self.typeQuestion = int(self.options.get()[0])
 
                     self.launched()
@@ -1087,6 +1092,11 @@ class InterOflline(InterJeu):
                 self.points.destroy()
             else:
                 moduleQPC.lancerson('son\error.wav')
+                try:
+                    self.choisirFen.withdraw()
+                    self.choisirFen.deiconify()
+                except:
+                    pass
             authorize = False
 
         elif self.permission and authorize:
@@ -1108,6 +1118,11 @@ class InterOflline(InterJeu):
         
         else:
             moduleQPC.lancerson('son\error.wav')
+            try:
+                self.choisirFen.withdraw()
+                self.choisirFen.deiconify()
+            except:
+                pass
 
 
     def launched(self):
@@ -1576,11 +1591,20 @@ class InterOflline(InterJeu):
         
         return i
 
-    
+    def dontquit(self, event):
+        try:
+            self.choisirFen.withdraw()
+            self.choisirFen.deiconify()
+            #  réaffiche la fentre 
+        except:
+            pass
+
+
     def choisirNiv(self, res=False, quat=False):
         self.permission = False
         self.choisirFen = Toplevel(self.root)
-        self.choisirFen.geometry('400x150+375+250')
+        self.choisirFen.overrideredirect(1)  #  masquer les fermer, reduire, agrandir du top
+        self.choisirFen.geometry('400x150+375+300')
         self.choisirFen.title('Choisir Niveau')
         Label(self.choisirFen, text = 'Niveau de question', font = self.arialinfo14).pack()
         etiquette = ['Niveau 1', 'Niveau 2', 'Niveau 3']
