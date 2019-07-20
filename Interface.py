@@ -106,7 +106,6 @@ class Interface():
         self.resImage.place(relx=0.67, rely=0.25)
 
 
-    
     def fen_f1Close(self):
         """ 
             fonction servant a intercepter la fermeture
