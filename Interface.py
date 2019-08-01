@@ -4,7 +4,7 @@
 from tkinter import * 
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
-import time, json, random, playsound, asyncio
+import time, json, random, playsound, asyncio, socket
 import moduleQPC  #  nos propres modules
 
 i = j = 0  #  compteur utile
@@ -87,7 +87,7 @@ class Interface():
         self.offlineButton.place(relx = 0.005, rely = 0.13)
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction precisé
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
-        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24)
+        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.poussoirCommand)
         self.poussoirButton.place(relx = 0.37, rely = 0.13)
         self.reseauButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24)
         self.reseauButton.place(relx = 0.75, rely = 0.13)
@@ -148,7 +148,8 @@ class Interface():
         """
             fonction permettant de lancer un nouveau projet de question 
                 dans le but de creer une nouvelle fenetre pour entrer les questions et les reponses
-                                                                                                    """
+                                                                                                  """
+        self.imagecount = 0
         self.count = 0  #  renitialiser le compteur 
         self.dict = {}  #  initialiser un variable qui va contenir tous les données
         self.dict['Question1'] = []  #  initialiser une liste dans le dict pour les questions niveau1
@@ -191,10 +192,17 @@ class Interface():
         self.champReponse.place(relx = 0.1, rely = 0.6)
         self.champReponse.bind("<Button-1>", self.champReponseOverEnter)  #  evenement au click du champ reponse pour effacer le texte
         #  creation et positionnement des boutons et la fonction relier a son action
+        self.checkImvar = IntVar()
+        self.fileImage = StringVar()
+        checkQuesIm = Checkbutton(self.fen_ques1, text = "Image:", variable=self.checkImvar, bg='white', font= self.arialinfo14, onvalue=1, offvalue=0)
+        checkQuesIm.place(relx=0.1, rely= 0.7)
+        self.fileImLab = Label(self.fen_ques1, text='', width = 60, bg = 'lightgray', fg = '#333')
+        self.fileImLab.place(relx=0.23, rely=0.715)
+        Button(self.fen_ques1, text='Choisir', command = self.selectImage).place(relx=0.84, rely=0.71)
         self.enrButton = Button(self.fen_ques1, text = 'Enregistrer', font = self.arialinfo, command = self.enregistrer)
-        self.enrButton.place(relx = 0.1, rely = 0.7)
+        self.enrButton.place(relx = 0.1, rely = 0.85)
         self.verButton = Button(self.fen_ques1, text = 'Verifier', font = self.arialinfo, command = self.verifier)
-        self.verButton.place(relx = 0.77, rely = 0.7)
+        self.verButton.place(relx = 0.77, rely = 0.85)
         self.termButton = Button(self.fen_ques1, text = 'TERMINER',font = self.arialinfo14, fg = 'teal', command = self.terminer)
         self.termButton.place(relx = 0.42, rely = 0.85)
         #  ci dessus creation des bouttons images qui permets de configurer le nombre de point de chaque niveau 
@@ -209,6 +217,17 @@ class Interface():
         self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changevalue3)
         self.niveau3Set.place(relx = 0.85,rely = 0.21)
         
+
+    def selectImage(self):
+        if self.checkImvar.get() == 1:
+            self.fileImage.set(moduleQPC.recupfichier('*'))
+            self.fileImLab.config(text=self.fileImage.get())
+            self.fileImLab.update()
+            self.fen_ques1.withdraw()
+            self.fen_ques1.deiconify()
+
+
+
 
     def changeValue1(self):
         """
@@ -308,24 +327,35 @@ class Interface():
             une fonction permettant d enregistrer temporairement 
                 dans la RAM , les questions et reponses entrées dans le projet
                                                                                 """
-        
         remise = True
         effacer = True  #  initialisation d une variable de verification 
         textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
 
         if self.niveau.get() == self.values[0]:  #  si la question est de niveau 1
             #  ajout des données
-            self.dict['Question1'].append([textget, len(textget.strip())])  
+            if self.checkImvar.get() == 1 and self.fileImage.get() != '':
+                self.imagecount += 1
+                self.dict['Question1'].append(['Quelle est cette image'+ '  #' + str(self.imagecount), len(textget.strip()), self.fileImage.get()])
+            else:
+                self.dict['Question1'].append([textget, len(textget.strip())]) 
             self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
 
         elif self.niveau.get() == self.values[1]: #  si la question est de niveau 2
             #  ajout des donnée
-            self.dict['Question2'].append([textget, len(textget.strip())])
+            if self.checkImvar.get() == 1 and self.fileImage.get() != '':
+                self.imagecount += 1
+                self.dict['Question2'].append(['Quelle est cette image' + '  #' + str(self.imagecount), len(textget.strip()), self.fileImage.get()])
+            else:
+                self.dict['Question2'].append([textget, len(textget.strip())]) 
             self.dict['Reponse2'].append([self.reponse.get().strip(), self.niveau.get()])
 
         elif self.niveau.get() == self.values[2]:  #  si la question est de niveau 3
             #  ajout des donnée
-            self.dict['Question3'].append([textget, len(textget.strip())])
+            if self.checkImvar.get() == 1 and self.fileImage.get() != '':
+                self.imagecount += 1
+                self.dict['Question3'].append(['Quelle est cette image' + '  #' + str(self.imagecount), len(textget.strip()), self.fileImage.get()])
+            else:
+                self.dict['Question3'].append([textget, len(textget.strip())]) 
             self.dict['Reponse3'].append([self.reponse.get().strip(), self.niveau.get()])
 
         else:  #  si aucun niveau n a été selectionner 
@@ -696,6 +726,54 @@ class Interface():
         self.canvasLink.destroy()
 
 
+    def newserver(self):
+        self.fen_f1.destroy()
+        self.list_connected = []
+        self.list_disconnected = []
+        '''
+        self.fenJeu = Toplevel(self.root)
+        self.fenJeu.title('Creation Serveur Jeu')
+        self.fenJeu.geometry('600x400+350+150')
+        '''
+
+        self.cadre = Toplevel(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
+        self.cadre.title('QPC SESAME')
+        self.cadre.geometry('400x500+450+100')
+        #  ci dessous pour mettre un petit top avec un text 
+        self.cadre_nav = Canvas(self.cadre, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
+        self.cadre_nav.create_text(200, 15, text = 'Creation Serveur de Jeu', fill = 'Yellow', font = self.arialinfo14)
+        self.cadre_nav.place(relx = 0, rely = 0)
+        #  ci dessous des variables dans pour recuperer valeur 
+        self.nombre_joueur = IntVar()
+        text1 = Label(self.cadre, text = "Nombre d'equipe: ", font = self.arialinfo14, bg = 'lightgray')
+        text1.place(relx = 0.048, rely = 0.1)
+        self.entre1 = Entry(self.cadre, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 31)
+        self.entre1.place(relx = 0.05, rely = 0.15)
+
+        Button(self.cadre, text = 'Creer Serveur', font=self.arialinfo14, command = self.create_serveur).place(relx = 0.05, rely = 0.25)
+        Button(self.cadre, text = 'Lancer le Jeu', font=self.arialinfo14).place(relx = 0.59, rely = 0.25)
+
+    def opengame(self):
+        pass
+
+
+    def create_serveur(self, port, nbr_joueur):
+        connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        connexion_principale.bind(('', port))
+        connexion_principale.listen(nbr_joueur)
+        i = 0
+        while i < nbr_joueur:
+            connexion_avec_client, infos_connexion = connexion_principale.accept()
+            self.list_connected.append((connexion_avec_client, infos_connexion))
+            i = i + 1
+        
+        self.verifie_connected()
+
+    
+    def verifie_connected(self):
+        
+
+
     def offlineCommand(self):
         """
             fonction declenché par le bouton mode de jeu 
@@ -725,11 +803,27 @@ class Interface():
     
     def poussoirCommand(self):
         """
-        fen.root.destroy()
-        fen2 = InterPoussoir()
-        fen2.menuTop()
-        fen2.__final__()
-        """
+            fonction declenché par le bouton mode de jeu 
+                pour afficher la fenetre suite 
+                                                """
+        self.count += 1  #  incremeneter le compteur 
+
+        if self.count <= 1:  #  si la fenetre n'est pas ouvert 
+            self.fen_f1 = Toplevel(self.root)  #  creation d une fenetr fille 
+            self.fen_f1.title('QPC SESAME')
+            self.fen_f1.geometry('375x100+400+100')
+            self.projet = self.projet0.subsample(6, 6)
+            projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.35, rely = 0.10)
+            # Mise en place des boutons 
+            newButton = Button(self.fen_f1, text = 'Creer une partie', activeforeground ='teal', command = self.newserver)
+            newButton.place(relx = 0.05, rely = 0.45)
+            openButton = Button(self.fen_f1, text = 'Jouer une partie', activeforeground ='#032f62', command = self.opengame).place(relx = 0.65, rely = 0.45)
+            self.fen_f1.protocol("WM_DELETE_WINDOW", self.fen_f1Close)  #  evenement en cas de fermeture 
+            self.fen_f1.mainloop()
+
+        else:  #  si elle est deja ouvert 
+            self.fen_f1.withdraw()  #  cache la fenetre 
+            self.fen_f1.deiconify()  #  reaffiche la fenetre
 
     
     def reseauCommand(self):
@@ -1020,7 +1114,6 @@ class InterOflline(InterJeu):
 
                     self.Label_Question = Label(self.cadre_question, text = "QUESTION", font = self.arialinfo28, fg = 'teal')
                     self.Label_Question.place(relx=0.3, rely=0.05)
-                    self.Label_Question.bind('<Button-1>', self.dontquit)
 
                     self.Label_Champ = Text(self.cadre_question, width = 37, height = 8, bg = 'teal', fg = 'yellow', font=self.timesNew)
                     self.Label_Champ.place(relx = 0.03, rely = 0.2)
@@ -1474,7 +1567,7 @@ class InterOflline(InterJeu):
             self.root['bg'] = 'white'
             self.player["player1"] = Canvas(self.root, width = 150, height = 100, highlightthickness=0)
             self.player["player1"].create_image(75, 50, image = self.groupIm)
-            self.player["player1"].create_text(75, 85, text = self.equipe['player1'].get(), font = self.arialinfo14)
+            self.player["player1"].create_text(75, 85, text = list(self.equipe.values())[-1].get(), font = self.arialinfo14)
             self.player['player1'].place(relx = 0.355, rely = 0.4)
             asyncio.run(self.aSync())
 
@@ -1784,6 +1877,9 @@ class InterOflline(InterJeu):
         self.Label_Champ.insert('1.0', question)
         self.nbrQues += 1
 
+        if question[:23] == "Quelle est cette image" and question[:-2] == "#":
+            print('True')
+
 
     def mancheSuiv(self):
         self.nbrQues = 0
@@ -1894,17 +1990,29 @@ class InterOflline(InterJeu):
         self.root.mainloop()
 
 
+class InterPoussoir():
+    def __init__(self):
+        self.root = Tk()  
+
+
 
 def offlineStart():
     """
         fonction pour demarer la fenetre du mode
-            de jeu offline et de  controler son comportement
+            de jeu offline et de controler son comportement
                                                                 """
     fenetreOff = InterOflline()
     fenetreOff.font_image()
     fenetreOff.__corps__()
     fenetreOff.menuTop()
     fenetreOff.__final__()
+
+
+def poussoirStart(self):
+    """
+        fonction pour demarer la fenetre du mode
+            de jeu en poussoir et de controller son comportement 
+                                                                """
 
 
 

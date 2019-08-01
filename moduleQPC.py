@@ -2,7 +2,7 @@
 # __author__: Gaetan Jonathan BAKARY
 
 from tkinter.filedialog import *
-import threading, playsound
+import threading, playsound 
 
 """
     Classe permettant de classer les petits fonction
@@ -37,3 +37,13 @@ class LancerSound(threading.Thread):
 def lancerson(son):
     p = LancerSound(son)
     p.start()
+
+
+def create_server(port, nbr_joueur):
+    """
+        fonction permettant
+            de creer un serveur de jeu 
+                                        """
+    connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connexion_principale.bind(('', port))
+    connexion_principale.listen(nbr_joueur)

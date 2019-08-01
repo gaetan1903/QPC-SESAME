@@ -1,102 +1,44 @@
 {
-    "Question1": [
-        [
-            "je suis un question qu'il faut entrer dans les données",
-            53
-        ],
-        [
-            "je suis un test de question, si vous voulez bien m'essayer\n",
-            58
-        ],
-        [
-            "je suis de type difficile mais je crois que rien ne m'arretera, et j'en suis sur de cela \n",
-            88
-        ]
-    ],
-    "Reponse1": [
-        [
-            "la question pour une reponse",
-            1
-        ],
-        [
-            "oui je le veux",
-            1
-        ],
-        [
-            "et vous?",
-            1
-        ]
-    ],
+    "Question1": [],
+    "Reponse1": [],
     "Question2": [
         [
-            "Voila, j'ai fini l'ordre de l'affichage des questions \n",
-            53
+            "Enter la question...\n",
+            20
         ],
         [
-            "et vous, vous l avez fini ou pas ? \n",
-            34
+            "positiveo\n",
+            9
         ],
         [
-            "alors, c'est tres dommage si c'est comme ça, moi j ai cru en vous \n",
-            65
+            "Quelle est cette image  # 1",
+            20,
+            "J:/ESTI/PROJET/QPC-SESAME/QPC-SESAME/Images/esti.png"
         ],
         [
-            "je peux tout de même verifier tous cela non? \n",
-            44
+            "Quelle est cette image  # 2",
+            20,
+            "J:/ESTI/PROJET/QPC-SESAME/QPC-SESAME/Images/sesame.png"
         ]
     ],
     "Reponse2": [
         [
-            "moi aussi",
+            "Entrer la réponse...",
             2
         ],
         [
-            "moi non je ne l'ai pas fini",
+            "Entrer la réponse...",
             2
         ],
         [
-            "je croyais cela aussi avant",
+            "esti",
             2
         ],
         [
-            "Et alors qu'est ce qui se passe",
+            "sesame",
             2
         ]
     ],
-    "Question3": [
-        [
-            "si je peux le faire donc vous pouvez le faire\n",
-            45
-        ],
-        [
-            "pourquoi pas, apres tout, c'est la moindre des choses non?\n",
-            58
-        ],
-        [
-            "je peux au moins faire des projets concret non? vous ne penser pas \n",
-            66
-        ],
-        [
-            "je suis tout à fait d'accord avec vous \n",
-            38
-        ]
-    ],
-    "Reponse3": [
-        [
-            "oh que non",
-            3
-        ],
-        [
-            "oui je le sais bien mais quand même",
-            3
-        ],
-        [
-            "si vous pouvez le faire",
-            3
-        ],
-        [
-            "je n'imagina même pas une seconde tous cela",
-            3
-        ]
-    ]
+    "Question3": [],
+    "Reponse3": []
 }
