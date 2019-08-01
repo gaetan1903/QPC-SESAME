@@ -194,8 +194,8 @@ class Interface():
         #  creation et positionnement des boutons et la fonction relier a son action
         self.checkImvar = IntVar()
         self.fileImage = StringVar()
-        checkQuesIm = Checkbutton(self.fen_ques1, text = "Image:", variable=self.checkImvar, bg='white', font= self.arialinfo14, onvalue=1, offvalue=0)
-        checkQuesIm.place(relx=0.1, rely= 0.7)
+        self.checkQuesIm = Checkbutton(self.fen_ques1, text = "Image:", variable=self.checkImvar, bg='white', font= self.arialinfo14, onvalue=1, offvalue=0)
+        self.checkQuesIm.place(relx=0.1, rely= 0.7)
         self.fileImLab = Label(self.fen_ques1, text='', width = 60, bg = 'lightgray', fg = '#333')
         self.fileImLab.place(relx=0.23, rely=0.715)
         Button(self.fen_ques1, text='Choisir', command = self.selectImage).place(relx=0.84, rely=0.71)
@@ -225,8 +225,6 @@ class Interface():
             self.fileImLab.update()
             self.fen_ques1.withdraw()
             self.fen_ques1.deiconify()
-
-
 
 
     def changeValue1(self):
@@ -327,6 +325,7 @@ class Interface():
             une fonction permettant d enregistrer temporairement 
                 dans la RAM , les questions et reponses entrées dans le projet
                                                                                 """
+                                                                
         remise = True
         effacer = True  #  initialisation d une variable de verification 
         textget = self.champQuestion.get('1.0','10.0')  #  recupere l entré du champ question 
@@ -340,6 +339,8 @@ class Interface():
                 self.dict['Question1'].append([textget, len(textget.strip())]) 
             self.dict['Reponse1'].append([self.reponse.get().strip(), self.niveau.get()])
 
+            self.checkQuesIm.deselect()     
+
         elif self.niveau.get() == self.values[1]: #  si la question est de niveau 2
             #  ajout des donnée
             if self.checkImvar.get() == 1 and self.fileImage.get() != '':
@@ -349,6 +350,8 @@ class Interface():
                 self.dict['Question2'].append([textget, len(textget.strip())]) 
             self.dict['Reponse2'].append([self.reponse.get().strip(), self.niveau.get()])
 
+            self.checkQuesIm.deselect()     
+
         elif self.niveau.get() == self.values[2]:  #  si la question est de niveau 3
             #  ajout des donnée
             if self.checkImvar.get() == 1 and self.fileImage.get() != '':
@@ -357,6 +360,8 @@ class Interface():
             else:
                 self.dict['Question3'].append([textget, len(textget.strip())]) 
             self.dict['Reponse3'].append([self.reponse.get().strip(), self.niveau.get()])
+
+            self.checkQuesIm.deselect()     
 
         else:  #  si aucun niveau n a été selectionner 
             tkmsg.showwarning('Aucun niveau selectionné', "Attention,\nIl est impératif de selectionner le niveau de cette question")
@@ -381,8 +386,6 @@ class Interface():
         del effacer
 
         
-
-    
     def verifier(self):
         """ 
             fonction permettant de verifier tous les questions
@@ -771,6 +774,7 @@ class Interface():
 
     
     def verifie_connected(self):
+        pass
         
 
 
@@ -1179,8 +1183,16 @@ class InterOflline(InterJeu):
 
                 if self.ilaina == count: 
                     self.jeu_suivant(sousfin=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
                 else:
                     self.jeu_suivant(milieu=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
 
                 self.points.destroy()
             else:
@@ -1199,13 +1211,29 @@ class InterOflline(InterJeu):
             if self.choix.get() == 0:  #  0 est attribué aux Points
                 if self.player_score[player] >= self.nbrLimite.get():
                     self.jeu_suivant(fin=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
                 else:
                     self.jeu_suivant(milieu=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
             else:  #  nombre de questions
                 if self.nbrQues >= self.nbrLimite.get():
                     self.jeu_suivant(fin=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
                 else:
                     self.jeu_suivant(milieu=True)
+                    try:
+                        self.afficherQuesImage.destroy()
+                    except:
+                        pass
 
             self.points.destroy()
         
@@ -1745,7 +1773,7 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
 
-            self.inserQues(question)
+            self.inserQues(question, niv, (number -1))
 
         else:
             self.permission = False
@@ -1816,7 +1844,7 @@ class InterOflline(InterJeu):
                 self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
                 self.points.place(relx = 0.82, rely = 0.1)
 
-                self.inserQues(question)
+                self.inserQues(question, niv, (number -1))
             else:
                 self.permission = False
                 self.Label_Champ.delete('1.0', '10.0')
@@ -1847,7 +1875,7 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
 
-            self.inserQues(question)
+            self.inserQues(question, niv, (number -1))
         else:
             self.Lab_vide = Label(self.choisirFen, text = f"Il n'y as pas plus de question dans le niveau {niv}", fg ='red')
             self.Lab_vide.place(relx = 0.2, rely = 0.3)
@@ -1873,12 +1901,26 @@ class InterOflline(InterJeu):
         self.LabRepone.pack()
 
     
-    def inserQues(self, question):
+    def inserQues(self, question, c1='', c2=''):
         self.Label_Champ.insert('1.0', question)
         self.nbrQues += 1
 
-        if question[:23] == "Quelle est cette image" and question[:-2] == "#":
+
+        if question[:23].strip() == "Quelle est cette image" and question[-2] == "#":
             print('True')
+            global dictionnaire
+            global image
+            image = PhotoImage(file=dictionnaire[f'Question{c1}'][c2][2])
+            print(image.width(), image.height())
+            while image.width() >= 500:
+                image = image.subsample(2, 2)
+            print(image.width(), image.height())
+            self.afficherQuesImage = Toplevel(self.root)
+            self.afficherQuesImage.geometry('+475+350')
+            self.afficherQuesImage.overrideredirect(1)
+            self.afficherQuesImage
+            Label(self.afficherQuesImage, image=image).pack()
+            print('encore True')
 
 
     def mancheSuiv(self):

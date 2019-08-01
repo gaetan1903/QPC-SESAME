@@ -1,0 +1,71 @@
+{
+    "Question1": [
+        [
+            "Je suis un chanteur qui sort avec Christina Milan .. et le plus beau\n",
+            68
+        ],
+        [
+            "Encore aveugle, je suis aveugle d amour \n",
+            39
+        ],
+        [
+            "Quelle est cette image  #1",
+            20,
+            "D:/Gaetan-Project/QPC-SESAME/Projet/images.png"
+        ],
+        [
+            "Quelle est cette image  #2",
+            20,
+            "D:/Gaetan-Project/QPC-SESAME/Projet/images.png"
+        ],
+        [
+            "Quelle est cette image  #3",
+            0,
+            "D:/Gaetan-Project/QPC-SESAME/Projet/index.png"
+        ],
+        [
+            "Quelle est cette image  #4",
+            39,
+            "D:/Gaetan-Project/QPC-SESAME/Projet/index.png"
+        ],
+        [
+            "Quelle est cette image  #5",
+            0,
+            "D:/Gaetan-Project/QPC-SESAME/Projet/drapeau-danemark.png"
+        ]
+    ],
+    "Reponse1": [
+        [
+            "Matt Pokora",
+            1
+        ],
+        [
+            "James Blunt",
+            1
+        ],
+        [
+            "France",
+            1
+        ],
+        [
+            "France",
+            1
+        ],
+        [
+            "Croitie",
+            1
+        ],
+        [
+            "Kat Pery",
+            1
+        ],
+        [
+            "Danemark",
+            1
+        ]
+    ],
+    "Question2": [],
+    "Reponse2": [],
+    "Question3": [],
+    "Reponse3": []
+}
