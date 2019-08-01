@@ -1717,7 +1717,7 @@ class InterOflline(InterJeu):
         try:
             self.choisirFen.withdraw()
             self.choisirFen.deiconify()
-            #  réaffiche la fentre 
+            #  réaffiche la fenetre 
         except:
             pass
 
@@ -2025,7 +2025,7 @@ class InterOflline(InterJeu):
             self.equipe[f'player{i+1}'] = val[i]
             self.color[f'player{i+1}'] = 'teal'
 
-        for k,v  in self.player.items():
+        for k,v in self.player.items():
             v.destroy()
         
         self.player.clear()
