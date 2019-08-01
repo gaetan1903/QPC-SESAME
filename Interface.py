@@ -179,17 +179,17 @@ class Interface():
         self.niveau = IntVar()  #  variable qui va recuperer le choix 
         for i in range(3):  #  positionnement du radio 
             self.Rniveau = Radiobutton(self.fen_ques1, variable = self.niveau, text = self.etiquette[i], value = self.values[i], font = self.arialinfo14)
-            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.2)
+            self.Rniveau.place(relx =(0.1+(i*0.3)), rely = 0.18)
         del i  
         self.champQuestion = Text(self.fen_ques1, height = 6, width = 70, bg = 'lightgray')   #  mise en place du champ de question 
-        self.champQuestion.place(relx = 0.1, rely = 0.35)
+        self.champQuestion.place(relx = 0.1, rely = 0.32)
         self.champQuestion.insert('1.0', "Enter la question...")   #  le texte sur le champ 
         self.champQuestion.bind("<Button-1>", self.champQuestionOverEnter)  #  evenement lancer au click du champ pour effacer le texte
         #  mise en place du champ de reponse 
         self.reponse = StringVar()  #  variable recuperant le texte entré 
         self.reponse.set('Entrer la réponse... ')  #  le texte a afficher 
         self.champReponse = Entry(self.fen_ques1,  textvariable = self.reponse, width = 50, bg = 'lightgray', font = self.arialinfo14, fg = '#333')
-        self.champReponse.place(relx = 0.1, rely = 0.6)
+        self.champReponse.place(relx = 0.1, rely = 0.58)
         self.champReponse.bind("<Button-1>", self.champReponseOverEnter)  #  evenement au click du champ reponse pour effacer le texte
         #  creation et positionnement des boutons et la fonction relier a son action
         self.checkImvar = IntVar()
@@ -209,13 +209,13 @@ class Interface():
         self.setting = self.setting0.subsample(2, 2)  #  redimensionnement de l image 
         #  placement des boutons pour le niveau 1
         self.niveau1Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue1)
-        self.niveau1Set.place(relx = 0.25,rely = 0.21)
+        self.niveau1Set.place(relx = 0.25,rely = 0.19)
         #  placement des boutons pour le niveau 2
         self.niveau2Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changeValue2)
-        self.niveau2Set.place(relx = 0.55,rely = 0.21)
+        self.niveau2Set.place(relx = 0.55,rely = 0.19)
         #  placement des boutons pour le niveau 3
         self.niveau3Set = Button(self.fen_ques1, image = self.setting, highlightthickness = 0 , bg = 'white', bd = 0, command = self.changevalue3)
-        self.niveau3Set.place(relx = 0.85,rely = 0.21)
+        self.niveau3Set.place(relx = 0.85,rely = 0.19)
         
 
     def selectImage(self):
@@ -916,6 +916,7 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1.add_command(label ="Menu Principal", command = self.retour)
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
 
+        self.sous_menubutton_2.add_command(label ="Afficher la Question entiere", command = lambda: self.fenValiny.deiconify())
         self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
         self.sous_menubutton_2.add_command(label ="Changer nom d'equipe", command = lambda: self.changerEquiName(changed="nom d'equipe", name=True))
         self.sous_menubutton_2.add_command(label ="Changer nombre de joueur eliminé", command = lambda: self.changerEquiName(changed="nombre d'equipe(s) eliminé(s)", nbrEl=True))
@@ -1768,6 +1769,7 @@ class InterOflline(InterJeu):
         if number != 0:
             question = dictionnaire[f'Question{niv}'][number - 1][0]
             self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+            self.devoiQues(dictionnaire[f'Question{niv}'][number - 1][0])
             self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
 
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
@@ -1839,6 +1841,7 @@ class InterOflline(InterJeu):
             if number != 0:
                 question = dictionnaire[f'Question{niv}'][number - 1][0]
                 self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+                self.devoiQues(dictionnaire[f'Question{niv}'][number - 1][0])
                 self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
 
                 self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
@@ -1870,6 +1873,7 @@ class InterOflline(InterJeu):
             global dictionnaire
             question = dictionnaire[f'Question{niv}'][number - 1][0]
             self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
+            self.devoiQues(dictionnaire[f'Question{niv}'][number - 1][0])
             self.devoiRep(dictionnaire[f'Reponse{niv}'][number - 1][0])
 
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
@@ -1894,11 +1898,31 @@ class InterOflline(InterJeu):
             self.bt_devoiler = Button(self.fenRep, text = 'AFFICHER', command=self.aff_devoiRep)
             self.bt_devoiler.pack()
             self.fenRep.withdraw()
+        
+
+    def devoiQues(self, question):
+        try:
+            self.fenValiny.destroy()
+        except:
+            pass
+        finally:
+            self.fenValiny = Toplevel(self.root)
+            self.fenValiny.title('Question...')
+            self.LabQuestion = Label(self.fenValiny, text = question)
+            self.bt_devoilerQ = Button(self.fenValiny, text = 'AFFICHER', command=self.aff_devoiQues)
+            self.bt_devoilerQ.pack()
+            self.fenValiny.withdraw()
     
 
     def aff_devoiRep(self):
         self.bt_devoiler.destroy()
         self.LabRepone.pack()
+
+
+    def aff_devoiQues(self):
+        self.bt_devoilerQ.destroy()
+        self.LabQuestion.pack()
+        
 
     
     def inserQues(self, question, c1='', c2=''):
