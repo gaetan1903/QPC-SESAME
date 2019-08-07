@@ -87,7 +87,7 @@ class Interface():
         self.offlineButton.place(relx = 0.005, rely = 0.13)
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction precisé
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
-        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.poussoirCommand)
+        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = lambda: tkmsg.showwarning('Non Accès', 'Ce mode est actuellement encore en cours de maintenance... \n Peut être dans la prochaine version'))
         self.poussoirButton.place(relx = 0.37, rely = 0.13)
         self.reseauButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24)
         self.reseauButton.place(relx = 0.75, rely = 0.13)
@@ -2082,8 +2082,7 @@ def poussoirStart(self):
 
 
 
-if __name__ == '__main__':   
-    fen = Interface()   #  lanceons now notre fenetre
-    fen.__corps__()
-    fen.__final__()
+fen = Interface()   #  lanceons now notre fenetre
+fen.__corps__()
+fen.__final__()
     
