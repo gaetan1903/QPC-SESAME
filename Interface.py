@@ -1143,7 +1143,19 @@ class InterOflline(InterJeu):
             self.info.config(text="Veuiller choisir le type d'affichage des questions")
             self.info.update()
             
-        
+
+    def passerQues(self):
+        try:
+            self.bt_Start
+        except NameError:
+            self.permission = True
+        if self.permission:
+            self.cadre_score()
+            self.jeu_suivant(milieu=True)
+        else:
+            moduleQPC.lancerson('son\error.wav')
+
+
     def cadre_score(self):
         if self.permission:
             try:
@@ -1248,6 +1260,8 @@ class InterOflline(InterJeu):
 
 
     def launched(self):
+        self.passer_question = Button(self.root, text='Passer', command=self.passerQues, bg='teal', fg='yellow', font=self.arialinfo14,width=15)
+        self.passer_question.place(relx=0, rely=0.95)
         for i in range(self.nombre_joueur.get()):
             self.player_score[f'player{i+1}'] = 0
 
@@ -1838,7 +1852,7 @@ class InterOflline(InterJeu):
                 else:
                     number = 0
 
-            if number != 0:
+            if number != 0 :
                 question = dictionnaire[f'Question{niv}'][number - 1][0]
                 self.textPoint = dictionnaire[f'Reponse{niv}'][number - 1][1]
                 self.devoiQues(dictionnaire[f'Question{niv}'][number - 1][0])
