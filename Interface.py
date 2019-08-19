@@ -908,6 +908,7 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1 = Menu(self.menubutton, tearoff =0)  
         self.sous_menubutton_2 = Menu(self.menubutton, tearoff = 0)
         self.sous_menubutton_3 = Menu(self.menubutton, tearoff = 0)
+        self.sous_menubutton_2_sous = Menu(self.menubutton, tearoff = 0)
         self.menubutton.add_cascade(label = "Fichier"  , menu = self.sous_menubutton_1)
         self.menubutton.add_cascade(label = "Edition"  , menu = self.sous_menubutton_2)
         self.menubutton.add_cascade(label = "Aide"  , menu = self.sous_menubutton_3)
@@ -916,10 +917,19 @@ class InterOflline(InterJeu):
         self.sous_menubutton_1.add_command(label ="Menu Principal", command = self.retour)
         self.sous_menubutton_1.add_command(label ="Quitter", command = self.confirmQuitter)
 
+        
+        
         self.sous_menubutton_2.add_command(label ="Afficher la Question entiere", command = lambda: self.fenValiny.deiconify())
         self.sous_menubutton_2.add_command(label ="Afficher la Réponse", command = lambda: self.fenRep.deiconify())
         self.sous_menubutton_2.add_command(label ="Changer nom d'equipe", command = lambda: self.changerEquiName(changed="nom d'equipe", name=True))
         self.sous_menubutton_2.add_command(label ="Changer nombre de joueur eliminé", command = lambda: self.changerEquiName(changed="nombre d'equipe(s) eliminé(s)", nbrEl=True))
+        
+        self.sous_menubutton_2.add_cascade(label="Changer le type d'affichage des question", menu=self.sous_menubutton_2_sous)
+        # -------------------->
+        self.sous_menubutton_2_sous.add_command(label= "1) Niveau Aléatoire  - Question aléatoire", command = lambda: self.changeAffQues(1))
+        self.sous_menubutton_2_sous.add_command(label= "2) Niveau Manuel - Question aléatoire", command = lambda: self.changeAffQues(2))
+        self.sous_menubutton_2_sous.add_command(label= "3) Niveau Aléatoire et Question en ordre", command = lambda: self.changeAffQues(3))
+        self.sous_menubutton_2_sous.add_command(label= "4) Niveau Manuel - Question en ordre", command = lambda: self.changeAffQues(4))
 
         self.sous_menubutton_3.add_command(label ="Documentation")
         self.sous_menubutton_3.add_command(label ="Afficher la license")
@@ -1790,6 +1800,13 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
 
+            if niv == 1:
+                self.dejaQues1.append(number-1)
+            elif niv == 2:
+                self.dejaQues2.append(number-1)
+            elif niv == 3:
+                self.dejaQues3.append(number-1)
+
             self.inserQues(question, niv, (number -1))
 
         else:
@@ -1799,6 +1816,26 @@ class InterOflline(InterJeu):
                 self.lancer_jeu()
             else:
                 self.Label_Champ.insert('1.0', "Il n'y a plus de question.")
+
+
+
+    def changeAffQues(self, newtype):
+        permission = True
+        try:
+            text = self.bt_Start['text']
+        except:
+            permission = False
+        if permission:
+            if text == 'Commencer Sous-Partie' or text == 'Manche Suivante':
+                self.options.set(f'{newtype}')
+                print(self.options.get()[0])
+                # self.typeQuestion = newtype
+                tkmsg.showinfo('Succes', f"Le type d'affiche de question a bien été changer {newtype} ")
+            else:
+                tkmsg.showerror("Oups, erreur!", "Ce n'est pas encore la fin du Manche")
+        else:
+            tkmsg.showerror("Oups, erreur!", "Attendez à la fin du Manche")
+            
 
 
     def lancer_jeu(self):
@@ -1861,7 +1898,12 @@ class InterOflline(InterJeu):
 
                 self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
                 self.points.place(relx = 0.82, rely = 0.1)
-
+                if niv == 1:
+                    self.dejaQues1.append(number-1)
+                elif niv == 2:
+                    self.dejaQues2.append(number-1)
+                elif niv == 3:
+                    self.dejaQues3.append(number-1)
                 self.inserQues(question, niv, (number -1))
             else:
                 self.permission = False
@@ -1893,7 +1935,12 @@ class InterOflline(InterJeu):
 
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
-
+            if niv == 1:
+                self.dejaQues1.append(number-1)
+            elif niv == 2:
+                self.dejaQues2.append(number-1)
+            elif niv == 3:
+                self.dejaQues3.append(number-1)
             self.inserQues(question, niv, (number -1))
         else:
             self.Lab_vide = Label(self.choisirFen, text = f"Il n'y as pas plus de question dans le niveau {niv}", fg ='red')
@@ -1946,20 +1993,16 @@ class InterOflline(InterJeu):
 
 
         if question[:23].strip() == "Quelle est cette image" and question[-2] == "#":
-            print('True')
             global dictionnaire
             global image
             image = PhotoImage(file=dictionnaire[f'Question{c1}'][c2][2])
-            print(image.width(), image.height())
             while image.width() >= 500:
                 image = image.subsample(2, 2)
-            print(image.width(), image.height())
             self.afficherQuesImage = Toplevel(self.root)
             self.afficherQuesImage.geometry('+475+350')
             self.afficherQuesImage.overrideredirect(1)
             self.afficherQuesImage
             Label(self.afficherQuesImage, image=image).pack()
-            print('encore True')
 
 
     def mancheSuiv(self):
