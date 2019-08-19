@@ -1770,7 +1770,10 @@ class InterOflline(InterJeu):
         self.permission = True
         self.choisirFen.destroy()
         if niv == 1:
+           
             self.incrTyp1 += 1
+            while self.incrTyp1 in self.dejaQues1:
+                self.incrTyp1 += 1
             if self.incrTyp1 <= self.total1:
                 number = self.incrTyp1
             else:
@@ -1778,13 +1781,18 @@ class InterOflline(InterJeu):
                 tkmsg.showwarning('Question Niveau 1', 'Attention, il y a plus de question dans ce Niveau')
         elif niv == 2:
             self.incrTyp2 += 1
+            while self.incrTyp2 in self.dejaQues2:
+                self.incrTyp2 += 1
             if self.incrTyp2 <= self.total2:
                 number = self.incrTyp2
             else:
                 number = 0
                 tkmsg.showwarning('Question Niveau 1', 'Attention, il y a plus de question dans ce Niveau')
         elif niv == 3:
+
             self.incrTyp3 += 1
+            while self.incrTyp3 in self.dejaQues3:
+                self.incrTyp3 += 1
             if self.incrTyp3 <= self.total3:
                 number = self.incrTyp3
             else:
@@ -1801,11 +1809,11 @@ class InterOflline(InterJeu):
             self.points.place(relx = 0.82, rely = 0.1)
 
             if niv == 1:
-                self.dejaQues1.append(number-1)
+                self.dejaQues1.append(number)
             elif niv == 2:
-                self.dejaQues2.append(number-1)
+                self.dejaQues2.append(number)
             elif niv == 3:
-                self.dejaQues3.append(number-1)
+                self.dejaQues3.append(number)
 
             self.inserQues(question, niv, (number -1))
 
@@ -1828,8 +1836,7 @@ class InterOflline(InterJeu):
         if permission:
             if text == 'Commencer Sous-Partie' or text == 'Manche Suivante':
                 self.options.set(f'{newtype}')
-                print(self.options.get()[0])
-                # self.typeQuestion = newtype
+                self.typeQuestion = newtype
                 tkmsg.showinfo('Succes', f"Le type d'affiche de question a bien été changer {newtype} ")
             else:
                 tkmsg.showerror("Oups, erreur!", "Ce n'est pas encore la fin du Manche")
@@ -1873,18 +1880,25 @@ class InterOflline(InterJeu):
             niv = random.randint(1, 3)
             if niv == 1:
                 self.incrTyp1 += 1
+                while self.incrTyp1 in self.dejaQues1:
+                    self.incrTyp1 += 1
                 if self.incrTyp1 <= self.total1:
                     number = self.incrTyp1
                 else:
                     number = 0
             elif niv == 2:
                 self.incrTyp2 += 1
+                while self.incrTyp2 in self.dejaQues2:
+                    self.incrTyp2 += 1
                 if self.incrTyp2 <= self.total2:
                     number = self.incrTyp2
                 else:
                     number = 0
             elif niv == 3:
+                self.incrTyp3 = 0
                 self.incrTyp3 += 1
+                while self.incrTyp3 in self.dejaQues3:
+                    self.incrTyp3 += 1
                 if self.incrTyp3 <= self.total3:
                     number = self.incrTyp3
                 else:
@@ -1899,11 +1913,11 @@ class InterOflline(InterJeu):
                 self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
                 self.points.place(relx = 0.82, rely = 0.1)
                 if niv == 1:
-                    self.dejaQues1.append(number-1)
+                    self.dejaQues1.append(number)
                 elif niv == 2:
-                    self.dejaQues2.append(number-1)
+                    self.dejaQues2.append(number)
                 elif niv == 3:
-                    self.dejaQues3.append(number-1)
+                    self.dejaQues3.append(number)
                 self.inserQues(question, niv, (number -1))
             else:
                 self.permission = False
@@ -1936,11 +1950,11 @@ class InterOflline(InterJeu):
             self.points = Label(self.cadre_question, text = f'{self.textPoint} points', font=self.arialinfo14, fg='red')
             self.points.place(relx = 0.82, rely = 0.1)
             if niv == 1:
-                self.dejaQues1.append(number-1)
+                self.dejaQues1.append(number)
             elif niv == 2:
-                self.dejaQues2.append(number-1)
+                self.dejaQues2.append(number)
             elif niv == 3:
-                self.dejaQues3.append(number-1)
+                self.dejaQues3.append(number)
             self.inserQues(question, niv, (number -1))
         else:
             self.Lab_vide = Label(self.choisirFen, text = f"Il n'y as pas plus de question dans le niveau {niv}", fg ='red')
