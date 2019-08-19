@@ -1150,6 +1150,7 @@ class InterOflline(InterJeu):
         except NameError:
             self.permission = True
         if self.permission:
+            self.points.destroy()
             self.cadre_score()
             self.jeu_suivant(milieu=True)
         else:
