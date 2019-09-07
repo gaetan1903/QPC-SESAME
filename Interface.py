@@ -1,11 +1,15 @@
 #-*-coding: Utf-8 -*-
 # __author__: Gaetan Jonathan BAKARY
 
+import tkinter
 from tkinter import * 
+import tkinter.ttk as ttk
 import tkinter.font as tkFont
 import tkinter.messagebox as tkmsg
 import time, json, random, playsound, asyncio, socket
 import moduleQPC  #  nos propres modules
+import time
+import sys
 
 i = j = 0  #  compteur utile
 dictionnaire = {}
@@ -53,6 +57,7 @@ class Interface():
         self.sesame0 = PhotoImage(file='Images\sesame.png')
         self.reseau0 = PhotoImage(file='Images\\reseau.png')
         self.projet0 = PhotoImage(file='Images\projet.png')
+        self.imgPoussoir = PhotoImage(file='Images\poussoir.png')
         self.setting0 = PhotoImage(file='Images\settings.png')
         #  initialisation d'un compteur
         self.count = 0  
@@ -87,7 +92,7 @@ class Interface():
         self.offlineButton.place(relx = 0.005, rely = 0.13)
         self.offlineButton.bind("<Enter>", self.offlinemouseOverEnter)  # evenement survole le souris lance la fonction precisé
         self.offlineButton.bind("<Leave>", self.offlinemouseOverLeave)  #  evenement contraire du celle du dessus
-        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = lambda: tkmsg.showwarning('Non Accès', 'Ce mode est actuellement encore en cours de maintenance... \n Peut être dans la prochaine version'))
+        self.poussoirButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Poussoir",  font = self.arial24, command = self.poussoirCommand)
         self.poussoirButton.place(relx = 0.37, rely = 0.13)
         self.reseauButton = Button(self.root, bd = 0, fg = 'yellow', cursor ='hand2', relief = 'groove',  bg = 'teal', activeforeground = 'yellow', activebackground = 'teal', text = "Mode Reseau",  font = self.arial24)
         self.reseauButton.place(relx = 0.75, rely = 0.13)
@@ -730,7 +735,7 @@ class Interface():
 
 
     def newserver(self):
-        self.fen_f1.destroy()
+        self.fen_poussoir.destroy()
         self.list_connected = []
         self.list_disconnected = []
         '''
@@ -739,38 +744,70 @@ class Interface():
         self.fenJeu.geometry('600x400+350+150')
         '''
 
-        self.cadre = Toplevel(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
-        self.cadre.title('QPC SESAME')
-        self.cadre.geometry('400x500+450+100')
+        self.fen_server = Toplevel(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
+        self.fen_server.title('QPC SESAME')
+        self.fen_server.geometry('400x300+450+100')
         #  ci dessous pour mettre un petit top avec un text 
-        self.cadre_nav = Canvas(self.cadre, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
-        self.cadre_nav.create_text(200, 15, text = 'Creation Serveur de Jeu', fill = 'Yellow', font = self.arialinfo14)
-        self.cadre_nav.place(relx = 0, rely = 0)
+        self.fen_server_nav = Canvas(self.fen_server, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
+        self.fen_server_nav.create_text(200, 15, text = 'Création du Serveur', fill = 'Yellow', font = self.arialinfo14)
+        self.fen_server_nav.place(relx = 0, rely = 0)
         #  ci dessous des variables dans pour recuperer valeur 
         self.nombre_joueur = IntVar()
-        text1 = Label(self.cadre, text = "Nombre d'equipe: ", font = self.arialinfo14, bg = 'lightgray')
-        text1.place(relx = 0.048, rely = 0.1)
-        self.entre1 = Entry(self.cadre, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 31)
-        self.entre1.place(relx = 0.05, rely = 0.15)
-
-        Button(self.cadre, text = 'Creer Serveur', font=self.arialinfo14, command = self.create_serveur).place(relx = 0.05, rely = 0.25)
-        Button(self.cadre, text = 'Lancer le Jeu', font=self.arialinfo14).place(relx = 0.59, rely = 0.25)
-
-    def opengame(self):
-        pass
+        self.nom_serveur = StringVar()
+        text0 = Label(self.fen_server, text ="Nom du Serveur:", font = self.arialinfo14, bg ='lightgray').place(relx = 0.030, rely = 0.2)
+        self.entre0 = Entry(self.fen_server, textvariable = self.nom_serveur, font = self.arialinfo14, width = 31).place(relx = 0.030, rely = 0.35)
+        text1 = Label(self.fen_server, text = "Nombre d'équipe: ", font = self.arialinfo14, bg = 'lightgray')
+        text1.place(relx = 0.030, rely = 0.50)
+        self.entre1 = Entry(self.fen_server, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 31)
+        self.entre1.place(relx = 0.030, rely = 0.65)
+        Button(self.fen_server, text = 'Créer', font=self.arialinfo14, command = lambda: self.create_serveur(15000, self.nombre_joueur.get())).place(relx = 0.40, rely = 0.80)
+        #  si tous c'est bien passé 
+        self.fen_poussoir.quit()  #  quitter  l interface
+        self.fen_poussoir.destroy()  #  assurer sa destruction 
+        global dictionnaire  #  atteindre la variable global
+        #  -----------------------------------------------------------
+# fenêtre et fonction REJOINDRE LA PARTIE    
+    def jointparty(self):
+        self.fen_poussoir.destroy()
+        self.list_connected = []
+        self.list_disconnected = []
+        self.fen_party = Toplevel(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
+        self.fen_party.title('QPC SESAME')
+        self.fen_party.geometry('400x300+450+100')
+        #  ci dessous pour mettre un petit top avec un text 
+        self.fen_party_nav = Canvas(self.fen_party, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
+        self.fen_party_nav.create_text(200, 15, text = 'Les serveurs disponibles', fill = 'Yellow', font = self.arialinfo14)
+        self.fen_party_nav.place(relx = 0, rely = 0)
+        self.progText = Label(self.fen_party, text = 'Recherche en cours de serveur', bg ='lightgray', font = self.arialinfo14)
+        self.progText.place(relx = 0.15, rely = 0.2)
+        #progressbar
+        progressBar = ttk.Progressbar(self.fen_party, orient = HORIZONTAL, length = 250, mode = 'determinate')
+        progressBar.place(relx = 0.18, rely = 0.3)
+        progressBar.start()
+        #----------------------------------
+        Button(self.fen_party, text = 'Rejoindre', font=self.arialinfo14, command = self.create_serveur, width = 8).place(relx = 0.17, rely = 0.8)
+        Button(self.fen_party, text = 'Créer', font=self.arialinfo14, command = self.newserver, width = 8).place(relx = 0.57, rely = 0.8)
+        # si tous c'est bien passé
+        self.fen_poussoir.quit() #quitter l'interface mode poussoir
+        self.fen_poussoir.destroy() # assurer sa destruction 
+        global dictionnaire # etteindre la variable globale
+               
 
 
     def create_serveur(self, port, nbr_joueur):
         connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         connexion_principale.bind(('', port))
         connexion_principale.listen(nbr_joueur)
-        i = 0
+    #    i = 0
+        print(nbr_joueur)
+    """    
         while i < nbr_joueur:
             connexion_avec_client, infos_connexion = connexion_principale.accept()
             self.list_connected.append((connexion_avec_client, infos_connexion))
             i = i + 1
         
         self.verifie_connected()
+    """    
 
     
     def verifie_connected(self):
@@ -803,7 +840,7 @@ class Interface():
             self.fen_f1.deiconify()  #  reaffiche la fenetre
 
 
-#  *********************************************************************************************************************************
+    #  *********************************************************************************************************************************
     
     def poussoirCommand(self):
         """
@@ -811,32 +848,29 @@ class Interface():
                 pour afficher la fenetre suite 
                                                 """
         self.count += 1  #  incremeneter le compteur 
-
         if self.count <= 1:  #  si la fenetre n'est pas ouvert 
-            self.fen_f1 = Toplevel(self.root)  #  creation d une fenetr fille 
-            self.fen_f1.title('QPC SESAME')
-            self.fen_f1.geometry('375x100+400+100')
-            self.projet = self.projet0.subsample(6, 6)
-            projetImage = Label(self.fen_f1, image = self.projet).place(relx = 0.35, rely = 0.10)
+            self.fen_poussoir = Toplevel(self.root)  #  creation d une fenetr fille 
+            self.fen_poussoir.title('QPC SESAME')
+            self.fen_poussoir.geometry('450x300+400+100')
+            self.ImgpoussoirD = self.imgPoussoir.subsample(2, 2)
+            self.titre = Label(self.fen_poussoir, bg = 'blue',text='Bienvenue sur le mode Poussoir', font=tkFont.Font(family='Helvetica', size=14, weight='bold'))
+            self.titre.place(relx = 0.15, rely = 0.1)
+            projetImage = Label(self.fen_poussoir, image = self.ImgpoussoirD).place(rely = 0.2)
             # Mise en place des boutons 
-            newButton = Button(self.fen_f1, text = 'Creer une partie', activeforeground ='teal', command = self.newserver)
-            newButton.place(relx = 0.05, rely = 0.45)
-            openButton = Button(self.fen_f1, text = 'Jouer une partie', activeforeground ='#032f62', command = self.opengame).place(relx = 0.65, rely = 0.45)
-            self.fen_f1.protocol("WM_DELETE_WINDOW", self.fen_f1Close)  #  evenement en cas de fermeture 
-            self.fen_f1.mainloop()
+            newButton = Button(self.fen_poussoir, text = 'Créer une partie', activeforeground ='teal', command = self.newserver, width=20, bd=3)
+            newButton.place(relx = 0.65, rely = 0.30)
+            openButton = Button(self.fen_poussoir, text = 'Rejoindre une partie', activeforeground ='#032f62', command = self.jointparty, width=20, bd=3)
+            openButton.place(relx = 0.65, rely = 0.65)
+            self.fen_poussoir.protocol("WM_DELETE_WINDOW", self.fen_poussoirClose)  #  evenement en cas de fermeture 
+            self.fen_poussoir.mainloop()
 
         else:  #  si elle est deja ouvert 
-            self.fen_f1.withdraw()  #  cache la fenetre 
-            self.fen_f1.deiconify()  #  reaffiche la fenetre
-
-    
-    def reseauCommand(self):
-        """
-        fen.root.destroy()
-        fen3 = InterReseau()
-        fen3.__final__()
-        """
-
+            self.fen_poussoir.withdraw()  #  cache la fenetre 
+            self.fen_poussoir.deiconify()  #  reaffiche la fenetre
+    def fen_poussoirClose(self):
+        self.count = 0
+        self.fen_poussoir.destroy()
+                
     
     def __final__(self):
         self.root.mainloop()  #  lancement de la fenetre

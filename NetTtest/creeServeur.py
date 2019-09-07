@@ -1,20 +1,32 @@
-#-*- coding : utf-8 -*-
 import socket
-def serveur(port):
-    hote = ''
-    connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    connexion_principale.bind((hote, port))
-    connexion_principale.listen(5)
-    print("Le serveur ecoute  sur le port {}".format(port))
-    connexion_avec_client, infos_connexion = connexion_principale.accept()
-    msg_recu = b""
-    while msg_recu != b"fin":
-        msg_recu = connexion_avec_client.recv(1024)
-    # L'instruction ci-dessous peut lever une exception si lemessage
 
-        print(msg_recu.decode())
-        connexion_avec_client.send(b"5 / 5")
-    print("Fermeture de la connexion")
-    connexion_avec_client.close()
-    connexion_principale.close()
-    return 1
+host=socket.gethostname()
+port=(8000)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+def connect():
+    s.bind((host,port))
+    s.listen(2)
+    print("Server listening")
+    conn,addr=s.accept()
+    print("Connected")
+    send(conn)
+
+# def receive(conn):
+#   while 1:
+#       try:
+#       data=conn.recv(1024)
+#       decoded_data=data.decode('UTF-8')
+#       if not decoded_data:
+#           print("No data")
+#       else:
+#           print("New data")
+#           print(decoded_data)
+
+def send(conn):
+    while 1:
+        data=input("Input data to send: ")
+        encoded_data=data.encode('UTF-8')
+        conn.send(encoded_data)
+connect()
