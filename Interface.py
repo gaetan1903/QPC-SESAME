@@ -735,7 +735,12 @@ class Interface():
 
 
     def newserver(self):
-        self.fen_poussoir.destroy()
+        self.count = 0
+
+        try:
+            self.fen_poussoir.destroy()
+        except:
+            pass
         self.list_connected = []
         self.list_disconnected = []
         '''
@@ -762,12 +767,12 @@ class Interface():
         self.entre1.place(relx = 0.030, rely = 0.65)
         Button(self.fen_server, text = 'Créer', font=self.arialinfo14, command = lambda: self.create_serveur(15000, self.nombre_joueur.get())).place(relx = 0.40, rely = 0.80)
         #  si tous c'est bien passé 
-        self.fen_poussoir.quit()  #  quitter  l interface
-        self.fen_poussoir.destroy()  #  assurer sa destruction 
-        global dictionnaire  #  atteindre la variable global
+        
+
         #  -----------------------------------------------------------
 # fenêtre et fonction REJOINDRE LA PARTIE    
     def jointparty(self):
+        self.count = 0
         self.fen_poussoir.destroy()
         self.list_connected = []
         self.list_disconnected = []
