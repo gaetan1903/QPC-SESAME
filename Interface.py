@@ -10,9 +10,12 @@ import time, json, random, playsound, asyncio, socket
 import moduleQPC  #  nos propres modules
 import time
 import sys
+import threading
+import socket
 
 i = j = 0  #  compteur utile
 dictionnaire = {}
+listUserConnected = {}
 
 
 class InterJeu:
@@ -26,7 +29,6 @@ class InterJeu:
         self.root.geometry('1200x600+0+0')  # taille de la fenetre 
         self.root.wm_state(newstate="zoomed")  #  plein ecran windows
         #self.root.resizable(width=False, height=False)
-
 
         
 class Interface():
@@ -756,20 +758,47 @@ class Interface():
         self.fen_server_nav = Canvas(self.fen_server, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
         self.fen_server_nav.create_text(200, 15, text = 'Création du Serveur', fill = 'Yellow', font = self.arialinfo14)
         self.fen_server_nav.place(relx = 0, rely = 0)
+        
         #  ci dessous des variables dans pour recuperer valeur 
         self.nombre_joueur = IntVar()
         self.nom_serveur = StringVar()
         text0 = Label(self.fen_server, text ="Nom du Serveur:", font = self.arialinfo14, bg ='lightgray').place(relx = 0.030, rely = 0.2)
-        self.entre0 = Entry(self.fen_server, textvariable = self.nom_serveur, font = self.arialinfo14, width = 31).place(relx = 0.030, rely = 0.35)
+        self.afficheHost= Frame(self.fen_server, width = 31)
+        self.afficheHost.place(relx = 0.030, rely = 0.35)
+        Label(self.afficheHost, text = socket.gethostbyname(socket.gethostname())).pack()
         text1 = Label(self.fen_server, text = "Nombre d'équipe: ", font = self.arialinfo14, bg = 'lightgray')
         text1.place(relx = 0.030, rely = 0.50)
         self.entre1 = Entry(self.fen_server, textvariable = self.nombre_joueur, font = self.arialinfo14, width = 31)
         self.entre1.place(relx = 0.030, rely = 0.65)
-        Button(self.fen_server, text = 'Créer', font=self.arialinfo14, command = lambda: self.create_serveur(15000, self.nombre_joueur.get())).place(relx = 0.40, rely = 0.80)
-        #  si tous c'est bien passé 
-        
-
+        Button(self.fen_server, text = 'Créer', font=self.arialinfo14, command = self.attente).place(relx = 0.40, rely = 0.80)
         #  -----------------------------------------------------------
+#fenêtre en attente des joueurs 
+    def attente(self):
+        self.count = 0
+        self.fen_poussoir.destroy()
+        appellServer = CreateServer(self.nombre_joueur.get())
+        appellServer.start()
+        self.list_connected = []
+        self.list_disconnected = []
+        self.fen_attenteJ = Toplevel(self.root, width = 400 , height = 600, bg = 'lightgray', relief = 'ridge')
+        self.fen_attenteJ.title('QPC SESAME')
+        self.fen_attenteJ.geometry('400x300+450+100')
+        #  ci dessous pour mettre un petit top avec un text 
+        self.fen_attenteJ_nav = Canvas(self.fen_attenteJ, width = 400, height = 30, bg = 'teal', bd = 0, highlightthickness = 0)
+        self.fen_attenteJ_nav.create_text(200, 15, text = 'SERVEUR', fill = 'Yellow', font = self.arialinfo14)
+        self.fen_attenteJ_nav.place(relx = 0, rely = 0)
+        self.progText = Label(self.fen_attenteJ, text = 'En attente des joueurs', bg ='lightgray', font = self.arialinfo14)
+        self.progText.place(relx = 0.15, rely = 0.2)
+        #progressbar
+        progressBar = ttk.Progressbar(self.fen_attenteJ, orient = HORIZONTAL, length = 250, mode = 'determinate')
+        progressBar.place(relx = 0.15, rely = 0.3)
+        progressBar.start()
+        #----------------------------------
+        Button(self.fen_attenteJ, text = 'Lancer forcer', font=self.arialinfo14, width = 10).place(relx = 0.4, rely = 0.8)
+        # si tous c'est bien passé
+        self.fen_poussoir.quit() #quitter l'interface mode poussoir
+        self.fen_poussoir.destroy() # assurer sa destruction 
+        global dictionnaire # etteindre la variable globale
 # fenêtre et fonction REJOINDRE LA PARTIE    
     def jointparty(self):
         self.count = 0
@@ -801,7 +830,8 @@ class Interface():
 
     def create_serveur(self, port, nbr_joueur):
         connexion_principale = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        connexion_principale.bind(('', port))
+        recupeIP = socket.gethostbyname(socket.gethostname())
+        connexion_principale.bind((recupeIP, 18000))
         connexion_principale.listen(nbr_joueur)
     #    i = 0
         print(nbr_joueur)
@@ -814,9 +844,7 @@ class Interface():
         self.verifie_connected()
     """    
 
-    
-    def verifie_connected(self):
-        pass
+#Création des thread
         
 
 
@@ -2191,6 +2219,52 @@ def poussoirStart(self):
             de jeu en poussoir et de controller son comportement 
                                                                 """
 
+#-----------------------------------------------------------------------------------------------------------------------------------
+class ConnectionThread(threading.Thread):
+    def __init__(self, ip, port, clientsocket):
+        
+        threading.Thread.__init__(self)
+        self.ip = ip
+        self.port = port
+        self.clientsocket = clientsocket
+        print("[+] Nouveau thread pour %s %s" % (self.ip, self.port, ))
+
+    def run(self): 
+   
+        print("Connexion de %s %s" % (self.ip, self.port, ))
+
+        r = self.clientsocket.recv(2048)
+        print("Ouverture du fichier: ", r, "...")
+        fp = open(r, 'rb')
+        self.clientsocket.send(fp.read())
+
+        print("Client déconnecté...")
+
+
+class CreateServer(threading.Thread):
+    def __init__(self, nbr_joueur):
+        self.nbr_joueur = nbr_joueur
+        threading.Thread.__init__(self) 
+        print(self.nbr_joueur)       
+        
+    def run(self):
+        self.running = True
+        self.tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.tcpsock.bind(("",1111))
+        i = 0
+        while i < self.nbr_joueur:
+                    if self.running == True:        
+                        self.tcpsock.listen(2 * self.nbr_joueur)
+                        print( "En écoute...")
+                        (self.clientsocket, (ip, port)) = self.tcpsock.accept()
+                        global listUserConnected
+                        listUserConnected.append()
+    def stop(self):
+        self.running = False        
+        
+#-----------------------------------------------------------------------------------------------------------------------------------
+                
 
 
 fen = Interface()   #  lanceons now notre fenetre

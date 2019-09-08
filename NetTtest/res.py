@@ -22,9 +22,9 @@ class Find(threading.Thread):
                     print('Connected adress' ,elem[1].src + ' est connecter')
                     listc.append(elem[1].src)
                     print('**********************************')
-                    ans, unans = sr(IP(dst=elem[1].src)/TCP(dport=80), timeout=0.01)
+                    ans, unans = sr(IP(dst=elem[1].src)/TCP(dport=8000), timeout=0.01)
                     for val in ans:
-                        if val[1].sport == 80:
+                        if val[1].sport == 8000:
                             print('###################')
                             print('Serveur Trouvee', (val[1].src +  ' est un serveur avec temps:' + str(time.time() - x)))
                             lists.append((val[1].src, (str(time.time() - x) + 's')))

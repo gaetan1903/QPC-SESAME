@@ -1,32 +1,64 @@
-import socket
+# import socket programming library 
+import socket 
 
-host=socket.gethostname()
-port=(8000)
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# import thread module 
+from _thread import *
+import threading 
 
-def connect():
-    s.bind((host,port))
-    s.listen(2)
-    print("Server listening")
-    conn,addr=s.accept()
-    print("Connected")
-    send(conn)
+print_lock = threading.Lock() 
 
-# def receive(conn):
-#   while 1:
-#       try:
-#       data=conn.recv(1024)
-#       decoded_data=data.decode('UTF-8')
-#       if not decoded_data:
-#           print("No data")
-#       else:
-#           print("New data")
-#           print(decoded_data)
+# thread fuction 
+def threaded(c): 
+	while True: 
 
-def send(conn):
-    while 1:
-        data=input("Input data to send: ")
-        encoded_data=data.encode('UTF-8')
-        conn.send(encoded_data)
-connect()
+		# data received from client 
+		data = c.recv(1024) 
+		if not data: 
+			print('Bye') 
+			
+			# lock released on exit 
+			print_lock.release() 
+			break
+
+		# reverse the given string from client 
+		data = data[::-1] 
+
+		# send back reversed string to client 
+		c.send(data) 
+
+	# connection closed 
+	c.close() 
+
+
+def Main(): 
+	host = "" 
+
+	# reverse a port on your computer 
+	# in our case it is 12345 but it 
+	# can be anything 
+	port = 12345
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+	s.bind((host, port)) 
+	print("socket binded to port", port) 
+
+	# put the socket into listening mode 
+	s.listen(5) 
+	print("socket is listening") 
+
+	# a forever loop until client wants to exit 
+	while True: 
+
+		# establish connection with client 
+		c, addr = s.accept() 
+
+		# lock acquired by client 
+		print_lock.acquire() 
+		print('Connected to :', addr[0], ':', addr[1]) 
+
+		# Start a new thread and return its identifier 
+		start_new_thread(threaded, (c,)) 
+	s.close() 
+
+
+if __name__ == '__main__': 
+	Main() 
